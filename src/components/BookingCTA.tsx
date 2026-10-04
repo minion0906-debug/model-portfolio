@@ -12,11 +12,11 @@ export default function BookingCTA({ acceptingBookings = true, contactEmail }: P
 
   if (!acceptingBookings) {
     return (
-      <section id="booking" className="bg-black px-5 py-24 text-white">
-        <div className="container-page max-w-3xl">
-          <p className="text-xs uppercase tracking-[0.25em] text-white/50">Bookings</p>
+      <section id="booking" className="bg-[#111110] px-5 py-24 text-white">
+        <div className="container-page max-w-4xl rounded-[2.2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(184,141,94,0.16),transparent_35%),#141311] p-7 md:p-10">
+          <p className="text-[0.68rem] uppercase tracking-[0.28em] text-white/55">Bookings</p>
           <h2 className="mt-4 font-display text-5xl md:text-7xl">Currently unavailable.</h2>
-          <p className="mt-6 max-w-xl text-white/65">
+          <p className="mt-6 max-w-xl text-base leading-7 text-white/65">
             New booking requests are temporarily closed. Please check back later
             {contactEmail ? ` or contact ${contactEmail} for general inquiries.` : "."}
           </p>
@@ -45,27 +45,40 @@ export default function BookingCTA({ acceptingBookings = true, contactEmail }: P
   }
 
   return (
-    <section id="booking" className="bg-black px-5 py-24 text-white">
-      <div className="container-page grid gap-14 md:grid-cols-[0.8fr_1.2fr]">
+    <section id="booking" className="bg-[#0f0d0c] px-5 py-24 text-white md:py-28">
+      <div className="container-page grid gap-14 rounded-[2.2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(184,141,94,0.18),transparent_35%),#111111] p-6 md:p-10 xl:grid-cols-[0.8fr_1.2fr]">
         <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-white/50">Bookings</p>
+          <p className="text-[0.68rem] uppercase tracking-[0.28em] text-white/55">Bookings</p>
           <h2 className="mt-4 font-display text-5xl md:text-7xl">Let&apos;s create.</h2>
-          <p className="mt-6 max-w-md text-white/65">
+          <p className="mt-6 max-w-md text-base leading-7 text-white/65">
             Tell me about your project, dates, location and creative direction.
           </p>
+
+          <div className="mt-8 space-y-3 text-sm text-white/60">
+            <p>Editorial • Commercial • Fashion • Campaign</p>
+            <p>Available for select global projects.</p>
+          </div>
         </div>
 
-        <form onSubmit={submit} className="grid gap-4">
-          <input name="name" required placeholder="Name" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
-          <input name="email" required type="email" placeholder="Email" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
-          <input name="phone" placeholder="Phone" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
-          <input name="company" placeholder="Company / Brand" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
-          <input name="bookingType" placeholder="Booking type" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
-          <input name="preferredDate" type="date" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
-          <input name="location" placeholder="Location" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
-          <input name="budget" placeholder="Budget" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
-          <textarea name="message" required rows={6} placeholder="Project details" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
-          <button className="rounded-full bg-white px-6 py-3 font-medium text-black">Send booking request</button>
+        <form onSubmit={submit} className="grid gap-4 rounded-[1.5rem] border border-white/10 bg-white/3 p-4 md:p-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            <input name="name" required placeholder="Name" className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-[#d9b77d]" />
+            <input name="email" required type="email" placeholder="Email" className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-[#d9b77d]" />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <input name="phone" placeholder="Phone" className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-[#d9b77d]" />
+            <input name="company" placeholder="Company / Brand" className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-[#d9b77d]" />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <input name="bookingType" placeholder="Booking type" className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-[#d9b77d]" />
+            <input name="preferredDate" type="date" className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-[#d9b77d]" />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <input name="location" placeholder="Location" className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-[#d9b77d]" />
+            <input name="budget" placeholder="Budget" className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-[#d9b77d]" />
+          </div>
+          <textarea name="message" required rows={6} placeholder="Project details" className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-[#d9b77d]" />
+          <button className="btn-primary w-fit bg-white text-black hover:bg-[#f1efe9]">Send booking request</button>
           {status && <p className="text-sm text-white/60">{status}</p>}
         </form>
       </div>

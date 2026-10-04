@@ -34,7 +34,7 @@ export default function Hero({ slides, fallbackName = "Avery" }: Props) {
   }, [source.length]);
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-black text-white">
+    <section className="relative min-h-screen overflow-hidden bg-[#12100f] text-[#f7f3ee]">
       <AnimatePresence mode="wait">
         <motion.div
           key={current.id}
@@ -44,17 +44,47 @@ export default function Hero({ slides, fallbackName = "Avery" }: Props) {
           transition={{ duration: 1.1 }}
           className="absolute inset-0"
         >
-          <Image src={current.src} alt={current.alt} fill priority sizes="100vw" className="object-cover" />
+          <Image src={current.src} alt={current.alt} fill priority sizes="100vw" className="object-cover grayscale-[0.15] contrast-[1.05]" />
         </motion.div>
       </AnimatePresence>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/20" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(196,161,110,0.18),transparent_24%),linear-gradient(90deg,rgba(18,16,15,0.86),rgba(18,16,15,0.6),rgba(18,16,15,0.82))]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,16,15,0.18),rgba(18,16,15,0.72))]" />
 
-      <div className="container-page relative flex min-h-screen items-end pb-16 pt-32">
-        <div className="max-w-3xl">
-          <p className="text-xs uppercase tracking-[0.3em] text-white/65">{current.subtitle}</p>
-          <h1 className="mt-5 font-display text-7xl leading-none md:text-[10rem]">{current.title}</h1>
+      <div className="container-page relative flex min-h-screen items-end pb-20 pt-28 md:pb-24">
+        <div className="max-w-5xl">
+          <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-[#f7f3ee]/15 bg-[#f7f3ee]/6 px-4 py-2 text-[0.58rem] uppercase tracking-[0.3em] text-[#f3e8dc] backdrop-blur-sm">
+            <span className="inline-block h-2 w-2 rounded-full bg-[#d8b07d]" />
+            {current.subtitle}
+          </div>
+
+          <div className="mb-5 flex items-center gap-3 text-[0.6rem] uppercase tracking-[0.34em] text-[#f0e9e1]/75">
+            <span>Maison</span>
+            <span className="inline-block h-px w-8 bg-[#f0e9e1]/45" />
+            <span>Editorial</span>
+          </div>
+
+          <h1 className="font-display text-5xl leading-[0.8] tracking-[-0.07em] text-[#f7f3ee] md:text-8xl lg:text-[10rem]">
+            {current.title}
+          </h1>
+
+          <p className="mt-6 max-w-xl text-base leading-7 text-[#efe5dc]/85 md:text-lg">
+            Editorial, fashion, and commercial talent crafting standout imagery with a cinematic point of view.
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-4">
+            <a href="#gallery" className="btn-primary bg-[#f7f3ee] text-[#12100f] hover:bg-[#efe6db]">
+              View work
+            </a>
+            <a href="#contact" className="btn-secondary border-[#f7f3ee]/20 bg-[#f7f3ee]/4 text-[#f7f3ee]">
+              Book a shoot
+            </a>
+          </div>
         </div>
+      </div>
+
+      <div className="absolute right-5 top-28 hidden rounded-full border border-[#f7f3ee]/10 bg-[#f7f3ee]/5 px-3 py-2 text-[0.58rem] uppercase tracking-[0.36em] text-[#f3e8dc]/80 backdrop-blur-sm md:block">
+        Couture
       </div>
 
       {source.length > 1 && (
@@ -64,7 +94,7 @@ export default function Hero({ slides, fallbackName = "Avery" }: Props) {
               key={slide.id}
               aria-label={`Show slide ${slideIndex + 1}`}
               onClick={() => setIndex(slideIndex)}
-              className={`h-1.5 rounded-full transition-all ${slideIndex === index ? "w-10 bg-white" : "w-4 bg-white/40"}`}
+              className={`h-1.5 rounded-full transition-all ${slideIndex === index ? "w-10 bg-[#f7f3ee]" : "w-4 bg-[#f7f3ee]/35"}`}
             />
           ))}
         </div>
