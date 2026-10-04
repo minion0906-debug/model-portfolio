@@ -1,34 +1,65 @@
-# Model Portfolio V2 — real auth, storage and database
+# Model Portfolio — Step 04
 
-## Stack
-Next.js 14 + Supabase Auth + Supabase Postgres + Supabase Storage.
+Step 04 connects the public gallery to PostgreSQL through Prisma.
 
-## Setup
-1. Create a Supabase project.
-2. In Supabase SQL Editor, run `supabase/schema.sql`.
-3. In Authentication > Users, create the model/admin user with email/password.
-4. Copy that user's UUID into the final commented INSERT in schema.sql and run it.
-5. Copy `.env.example` to `.env.local` and fill in the Supabase URL and anon key.
-6. `npm install`
-7. `npm run dev`
-8. Open `/login`.
+## What changed
 
-## What is real
-- Email/password authentication through Supabase Auth.
-- Auth-protected dashboard.
-- Real Postgres tables for profile, media and bookings.
-- Real photo/video uploads to Supabase Storage.
-- Row Level Security policies.
-- Public portfolio reads only public media.
-- Model owns and manages their own media/profile.
+- Gallery images now come from PostgreSQL.
+- Only `Media` records with `type = IMAGE` and `published = true` are displayed.
+- Images are ordered by `sortOrder`.
+- Gallery tags are loaded from the `Tag` / `MediaTag` relationship.
+- The existing fullscreen lightbox remains in place.
+- A seed script creates six demo published images.
+- The seed also creates initial site settings.
 
-## Production hardening
-- Use a private bucket + signed URLs if portfolio media should not be publicly downloadable.
-- Add file-size/type limits and server-side validation.
-- Add image/video transcoding and thumbnails for large videos.
-- Add CSRF/rate limiting/anti-spam on booking endpoint.
-- Add booking email notifications.
-- Add admin roles if multiple staff users need access.
-- Add delete/edit media actions and gallery ordering.
-- Add privacy policy, terms, copyright/consent workflow.
-- Never expose SUPABASE_SERVICE_ROLE_KEY in browser code.
+## 1. Install dependencies
+
+From the project root:
+
+```bash
+npm install prisma @prisma/client
+npm install -D tsx dotenv
+```
+
+## 2. Create your environment file
+
+Copy `.env.example` to `.env` and set your PostgreSQL connection:
+
+```env
+DATABASE_URL="postgresql://postgres:password@localhost:5432/model_portfolio"
+```
+
+## 3. Create the database schema
+
+Run:
+
+```bash
+npx prisma generate
+npx prisma migrate dev --name init
+```
+
+## 4. Seed demo gallery data
+
+Run:
+
+```bash
+npx prisma db seed
+```
+
+## 5. Start the site
+
+```bash
+npm run dev
+```
+
+Open:
+
+http://localhost:3000
+
+## Important
+
+The seed images use Unsplash URLs only as temporary development content.
+
+In the production admin system, images will be uploaded to media/object storage such as Cloudinary or S3-compatible storage. PostgreSQL will store the media metadata and URLs.
+
+Do not put actual uploaded image/video files inside PostgreSQL.
