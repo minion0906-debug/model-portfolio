@@ -1,4 +1,6 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -42,25 +44,62 @@ const galleryImages = [
 ];
 
 async function main() {
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
+  const adminPassword = process.env.ADMIN_PASSWORD || "ChangeMe123!";
+
+  const passwordHash = await bcrypt.hash(adminPassword, 12);
+
+  await prisma.admin.upsert({
+    where: {
+      email: adminEmail,
+    },
+    update: {
+      passwordHash,
+    },
+    create: {
+      email: adminEmail,
+      passwordHash,
+    },
+  });
+
   for (const image of galleryImages) {
     const tag = await prisma.tag.upsert({
-      where: { name: image.tag },
+      where: {
+        name: image.tag,
+      },
       update: {},
-      create: { name: image.tag },
-    });
-
-    const media = await prisma.media.create({
-      data: {
-        type: "IMAGE",
-        title: image.title,
-        url: image.url,
-        published: true,
-        sortOrder: image.sortOrder,
+      create: {
+        name: image.tag,
       },
     });
 
-    await prisma.mediaTag.create({
-      data: {
+    const existing = await prisma.media.findFirst({
+      where: {
+        url: image.url,
+      },
+    });
+
+    const media =
+      existing ||
+      (await prisma.media.create({
+        data: {
+          type: "IMAGE",
+          title: image.title,
+          url: image.url,
+          published: true,
+          sortOrder: image.sortOrder,
+        },
+      }));
+
+    await prisma.mediaTag.upsert({
+      where: {
+        mediaId_tagId: {
+          mediaId: media.id,
+          tagId: tag.id,
+        },
+      },
+      update: {},
+      create: {
         mediaId: media.id,
         tagId: tag.id,
       },
@@ -68,7 +107,9 @@ async function main() {
   }
 
   await prisma.siteSettings.upsert({
-    where: { id: "default-site-settings" },
+    where: {
+      id: "default-site-settings",
+    },
     update: {},
     create: {
       id: "default-site-settings",
@@ -79,7 +120,8 @@ async function main() {
     },
   });
 
-  console.log("Database seed completed.");
+  console.log(`Admin account created/updated: ${adminEmail}`);
+  console.log(`Development password: ${adminPassword}`);
 }
 
 main()

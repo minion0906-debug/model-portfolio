@@ -1,44 +1,69 @@
-# Model Portfolio — Step 04
+# Model Portfolio — Step 05
 
-Step 04 connects the public gallery to PostgreSQL through Prisma.
+Step 05 adds secure admin authentication and the first protected CMS dashboard.
 
-## What changed
+## Features
 
-- Gallery images now come from PostgreSQL.
-- Only `Media` records with `type = IMAGE` and `published = true` are displayed.
-- Images are ordered by `sortOrder`.
-- Gallery tags are loaded from the `Tag` / `MediaTag` relationship.
-- The existing fullscreen lightbox remains in place.
-- A seed script creates six demo published images.
-- The seed also creates initial site settings.
+- `/admin/login`
+- PostgreSQL-backed admin account
+- Password hashing with bcrypt
+- Signed HTTP-only session cookie
+- Seven-day admin sessions
+- Logout
+- Protected `/admin` routes
+- Admin dashboard statistics
+- Responsive admin navigation
+- Login redirects to the dashboard
+- Unauthenticated dashboard requests are rejected server-side
 
 ## 1. Install dependencies
 
-From the project root:
-
 ```bash
-npm install prisma @prisma/client
+npm install bcryptjs zod
 npm install -D tsx dotenv
 ```
 
-## 2. Create your environment file
+## 2. Configure `.env`
 
-Copy `.env.example` to `.env` and set your PostgreSQL connection:
+Copy `.env.example` to `.env`.
+
+Set a strong `AUTH_SECRET`.
+
+For local development you can use:
 
 ```env
-DATABASE_URL="postgresql://postgres:password@localhost:5432/model_portfolio"
+AUTH_SECRET="replace-with-a-long-random-secret"
+ADMIN_EMAIL="admin@example.com"
+ADMIN_PASSWORD="ChangeMe123!"
 ```
 
-## 3. Create the database schema
+For production, generate a random secret:
+
+```bash
+openssl rand -hex 32
+```
+
+Do not commit `.env` to Git.
+
+## 3. Update the database
+
+If you already completed Step 04, the `Admin` table is already in the Prisma schema.
 
 Run:
+
+```bash
+npx prisma generate
+npx prisma migrate dev --name admin-auth
+```
+
+If this is a fresh project:
 
 ```bash
 npx prisma generate
 npx prisma migrate dev --name init
 ```
 
-## 4. Seed demo gallery data
+## 4. Create the initial admin
 
 Run:
 
@@ -46,7 +71,11 @@ Run:
 npx prisma db seed
 ```
 
-## 5. Start the site
+The seed uses `ADMIN_EMAIL` and `ADMIN_PASSWORD`.
+
+Do not use the example password on a public deployment.
+
+## 5. Start the application
 
 ```bash
 npm run dev
@@ -54,12 +83,39 @@ npm run dev
 
 Open:
 
-http://localhost:3000
+http://localhost:3000/admin/login
 
-## Important
+Then sign in using your configured admin credentials.
 
-The seed images use Unsplash URLs only as temporary development content.
+## Authentication design
 
-In the production admin system, images will be uploaded to media/object storage such as Cloudinary or S3-compatible storage. PostgreSQL will store the media metadata and URLs.
+The password is never stored as plaintext.
 
-Do not put actual uploaded image/video files inside PostgreSQL.
+The login route:
+
+1. Finds the admin by email.
+2. Compares the submitted password with the bcrypt hash.
+3. Creates a signed session cookie.
+4. Redirects the user to `/admin`.
+
+The admin layout calls `requireAdmin()` on the server before rendering any protected admin page.
+
+The session cookie is:
+
+- HTTP-only
+- SameSite=Lax
+- Secure in production
+- Scoped to the entire site
+- Automatically expired after seven days
+
+## Important production note
+
+This is a strong foundation for the CMS, but before a high-traffic public launch we should add:
+
+- Rate limiting for login attempts
+- CSRF protection for state-changing operations
+- Password reset/change flow
+- Admin account management
+- Optional two-factor authentication
+- Audit logging
+- Session revocation
