@@ -31,3 +31,5 @@ The dashboard is intentionally a UI starter. Before deployment, connect:
 - Add consent, copyright, privacy policy and terms
 
 For video-heavy portfolios, Mux or Cloudinary is recommended instead of storing large files on the Next.js server.
+
+added 2026.10.4
