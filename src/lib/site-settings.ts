@@ -25,19 +25,23 @@ const fallback: PublicSiteSettings = {
 };
 
 export async function getSiteSettings(): Promise<PublicSiteSettings> {
-  const settings = await prisma.siteSettings.findFirst();
+  try {
+    const settings = await prisma.siteSettings.findFirst();
 
-  if (!settings) return fallback;
+    if (!settings) return fallback;
 
-  return {
-    name: settings.name || fallback.name,
-    bio: settings.bio || "",
-    profileImage: settings.profileImage,
-    email: settings.email,
-    phone: settings.phone,
-    instagram: settings.instagram,
-    tiktok: settings.tiktok,
-    youtube: settings.youtube,
-    acceptingBookings: settings.acceptingBookings,
-  };
+    return {
+      name: settings.name || fallback.name,
+      bio: settings.bio || "",
+      profileImage: settings.profileImage,
+      email: settings.email,
+      phone: settings.phone,
+      instagram: settings.instagram,
+      tiktok: settings.tiktok,
+      youtube: settings.youtube,
+      acceptingBookings: settings.acceptingBookings,
+    };
+  } catch {
+    return fallback;
+  }
 }

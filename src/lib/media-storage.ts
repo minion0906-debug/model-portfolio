@@ -132,10 +132,22 @@ async function deleteLocal(url: string) {
   }
 }
 
-export async function deleteStoredMedia(url: string) {
+export async function deleteStoredMedia(url: string | null | undefined) {
   if (!url) return;
   if (useS3()) return deleteS3(url);
   return deleteLocal(url);
+}
+
+export async function deleteLocalGalleryFile(url: string | null | undefined) {
+  return deleteStoredMedia(url);
+}
+
+export async function deleteLocalVideoFile(url: string | null | undefined) {
+  return deleteStoredMedia(url);
+}
+
+export async function deleteLocalVideoThumbnail(url: string | null | undefined) {
+  return deleteStoredMedia(url);
 }
 
 export async function storeImage(file: File): Promise<StoredMedia> {
