@@ -1,2 +1,0 @@
-import {NextResponse} from "next/server";import {supabaseServer} from "@/lib/supabase-server";
-export async function POST(req:Request){const form=await req.formData();const supabase=await supabaseServer();const {error}=await supabase.from("bookings").insert({name:String(form.get("name")||""),email:String(form.get("email")||""),project_type:String(form.get("project_type")||""),details:String(form.get("details")||"")});if(error)return NextResponse.json({error:error.message},{status:500});return NextResponse.redirect(new URL("/?sent=1#book",req.url),303)}

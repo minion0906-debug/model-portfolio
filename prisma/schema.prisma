@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Media {
+  id          String    @id @default(cuid())
+  type        MediaType
+  title       String?
+  description String?
+  url         String
+  thumbnail   String?
+  width       Int?
+  height      Int?
+  duration    Int?
+  size        Int?
+  published   Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  heroSlides  HeroSlide[]
+  tags        MediaTag[]
+
+  @@index([type])
+  @@index([published])
+  @@index([sortOrder])
+}
+
+model HeroSlide {
+  id        String   @id @default(cuid())
+  mediaId   String
+  title     String?
+  subtitle  String?
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+  @@index([active])
+}
+
+model Tag {
+  id    String     @id @default(cuid())
+  name  String     @unique
+  media MediaTag[]
+}
+
+model MediaTag {
+  mediaId String
+  tagId   String
+  media   Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  tag     Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([mediaId, tagId])
+}
+
+model SiteSettings {
+  id                String   @id @default(cuid())
+  name              String
+  bio               String?
+  profileImage      String?
+  email             String?
+  phone             String?
+  instagram         String?
+  tiktok            String?
+  youtube           String?
+  acceptingBookings Boolean  @default(true)
+  updatedAt         DateTime @updatedAt
+}
+
+model BookingRequest {
+  id            String        @id @default(cuid())
+  name          String
+  email         String
+  phone         String?
+  company       String?
+  bookingType   String?
+  preferredDate DateTime?
+  location      String?
+  budget        String?
+  message       String
+  status        BookingStatus @default(NEW)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([read])
+  @@index([createdAt])
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum BookingStatus {
+  NEW
+  REVIEWING
+  ACCEPTED
+  DECLINED
+  COMPLETED
+  CANCELLED
+}
