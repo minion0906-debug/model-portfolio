@@ -1,97 +1,103 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import { useState } from "react";
 
-type AdminShellProps = {
-  email: string;
-  children: React.ReactNode;
-};
-
-const navigation = [
-  { label: "Dashboard", href: "/admin" },
-  { label: "Gallery", href: "/admin/gallery" },
-  { label: "Videos", href: "/admin/videos" },
-  { label: "Hero", href: "/admin/hero" },
-  { label: "Bookings", href: "/admin/bookings" },
-  { label: "Messages", href: "/admin/messages" },
-  { label: "Settings", href: "/admin/settings" },
+const nav = [
+  ["/admin", "Dashboard"],
+  ["/admin/gallery", "Gallery"],
+  ["/admin/videos", "Videos"],
+  ["/admin/hero", "Hero"],
+  ["/admin/bookings", "Bookings"],
+  ["/admin/messages", "Messages"],
+  ["/admin/settings", "Settings"],
 ];
 
-export default function AdminShell({ email, children }: AdminShellProps) {
+export default function AdminShell({
+  children,
+  email,
+}: {
+  children: React.ReactNode;
+  email: string;
+}) {
   const pathname = usePathname();
-  const router = useRouter();
-  const [loggingOut, setLoggingOut] = useState(false);
+  const [open, setOpen] = useState(false);
 
   async function logout() {
-    setLoggingOut(true);
-
-    try {
-      await fetch("/api/admin/logout", {
-        method: "POST",
-      });
-
-      router.replace("/admin/login");
-      router.refresh();
-    } finally {
-      setLoggingOut(false);
-    }
+    await fetch("/api/admin/logout", { method: "POST" });
+    window.location.href = "/admin/login";
   }
 
   return (
     <div className="min-h-screen bg-[#f7f5f2] text-[#171614]">
-      <header className="border-b border-black/10 bg-[#f7f5f2]">
-        <div className="mx-auto flex min-h-20 max-w-[1440px] items-center justify-between gap-6 px-5 md:px-10">
-          <Link href="/admin" className="font-display text-2xl">
-            AV. <span className="text-sm text-neutral-400">ADMIN</span>
-          </Link>
+      <header className="sticky top-0 z-40 border-b border-black/10 bg-[#f7f5f2]/95 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-5 md:px-8">
+          <Link href="/admin" className="font-display text-xl">AV. CMS</Link>
 
-          <div className="flex items-center gap-4">
-            <span className="hidden text-xs text-neutral-500 md:block">
-              {email}
-            </span>
+          <button
+            onClick={() => setOpen((value) => !value)}
+            className="rounded-full border border-black/10 px-4 py-2 text-xs md:hidden"
+          >
+            Menu
+          </button>
 
-            <button
-              type="button"
-              onClick={logout}
-              disabled={loggingOut}
-              className="rounded-full border border-black/15 px-4 py-2 text-xs transition-colors hover:bg-black hover:text-white disabled:opacity-50"
-            >
-              {loggingOut ? "Signing out..." : "Sign out"}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <div className="mx-auto flex max-w-[1440px] flex-col md:flex-row">
-        <aside className="w-full border-b border-black/10 md:min-h-[calc(100vh-5rem)] md:w-64 md:border-b-0 md:border-r">
-          <nav className="flex gap-2 overflow-x-auto p-4 md:flex-col md:p-6">
-            {navigation.map((item) => {
-              const active =
-                item.href === "/admin"
-                  ? pathname === "/admin"
-                  : pathname.startsWith(item.href);
-
+          <nav className="hidden items-center gap-1 md:flex">
+            {nav.map(([href, label]) => {
+              const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
               return (
                 <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`whitespace-nowrap rounded-full px-4 py-2.5 text-sm transition-colors md:rounded-xl ${
-                    active
-                      ? "bg-[#171614] text-white"
-                      : "text-neutral-600 hover:bg-black/5 hover:text-black"
+                  key={href}
+                  href={href}
+                  className={`rounded-full px-3 py-2 text-xs transition ${
+                    active ? "bg-black text-white" : "text-neutral-600 hover:bg-black/5 hover:text-black"
                   }`}
                 >
-                  {item.label}
+                  {label}
                 </Link>
               );
             })}
           </nav>
-        </aside>
 
-        <main className="min-w-0 flex-1 p-5 md:p-10">{children}</main>
-      </div>
+          <div className="hidden items-center gap-4 md:flex">
+            <span className="max-w-48 truncate text-xs text-neutral-500">{email}</span>
+            <button onClick={logout} className="text-xs underline underline-offset-4">Sign out</button>
+          </div>
+        </div>
+
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="border-t border-black/10 px-5 py-4 md:hidden"
+          >
+            <nav className="grid gap-1">
+              {nav.map(([href, label]) => {
+                const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setOpen(false)}
+                    className={`rounded-xl px-4 py-3 text-sm ${active ? "bg-black text-white" : "hover:bg-black/5"}`}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
+              <button onClick={logout} className="mt-2 rounded-xl px-4 py-3 text-left text-sm hover:bg-black/5">
+                Sign out
+              </button>
+            </nav>
+          </motion.div>
+        )}
+      </header>
+
+      <main className="mx-auto max-w-[1440px] px-5 py-8 md:px-8 md:py-10">
+        {children}
+      </main>
     </div>
   );
 }
