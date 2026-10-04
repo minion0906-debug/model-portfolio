@@ -73,6 +73,12 @@ model SiteSettings {
   name              String
   bio               String?
   profileImage      String?
+  location          String?
+  height            String?
+  clothingSize      String?
+  shoeSize          String?
+  languages         String?
+  specialties       String?
   email             String?
   phone             String?
   instagram         String?
@@ -92,6 +98,7 @@ model BookingRequest {
   preferredDate DateTime?
   location      String?
   budget        String?
+  usageRights   String?
   message       String
   status        BookingStatus @default(NEW)
   createdAt     DateTime      @default(now())

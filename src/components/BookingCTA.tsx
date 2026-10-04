@@ -77,6 +77,7 @@ export default function BookingCTA({ acceptingBookings = true, contactEmail }: P
             <input name="location" placeholder="Location" className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-[#d9b77d]" />
             <input name="budget" placeholder="Budget" className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-[#d9b77d]" />
           </div>
+          <input name="usageRights" placeholder="Usage rights / campaign scope" className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-[#d9b77d]" />
           <textarea name="message" required rows={6} placeholder="Project details" className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/35 outline-none transition focus:border-[#d9b77d]" />
           <button className="btn-primary w-fit bg-white text-black hover:bg-[#f1efe9]">Send booking request</button>
           {status && <p className="text-sm text-white/60">{status}</p>}

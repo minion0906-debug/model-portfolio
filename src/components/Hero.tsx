@@ -59,11 +59,11 @@ export default function Hero({ slides, fallbackName = "Avery" }: Props) {
         </motion.div>
       </AnimatePresence>
 
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(196,161,110,0.18),transparent_24%),linear-gradient(90deg,rgba(18,16,15,0.86),rgba(18,16,15,0.6),rgba(18,16,15,0.82))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(196,161,110,0.18),transparent_24%),linear-gradient(90deg,rgba(18,16,15,0.86),rgba(18,16,15,0.62),rgba(18,16,15,0.82))]" />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,16,15,0.18),rgba(18,16,15,0.72))]" />
 
-      <div className="container-page relative flex min-h-screen items-end pb-20 pt-28 md:pb-24">
-        <div className="max-w-5xl">
+      <div className="container-page relative flex min-h-screen items-end pb-20 pt-24 md:pb-24 md:pt-28">
+        <div className="w-full max-w-5xl">
           <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-[#f7f3ee]/15 bg-[#f7f3ee]/6 px-4 py-2 text-[0.58rem] uppercase tracking-[0.3em] text-[#f3e8dc] backdrop-blur-sm">
             <span className="inline-block h-2 w-2 rounded-full bg-[#d8b07d]" />
             {current.subtitle}
@@ -75,7 +75,7 @@ export default function Hero({ slides, fallbackName = "Avery" }: Props) {
             <span>Editorial</span>
           </div>
 
-          <h1 className="font-display text-5xl leading-[0.8] tracking-[-0.07em] text-[#f7f3ee] md:text-8xl lg:text-[10rem]">
+          <h1 className="font-display text-5xl leading-[0.8] tracking-[-0.07em] text-[#f7f3ee] md:text-7xl lg:text-[9rem] xl:text-[10rem]">
             {current.title}
           </h1>
 
@@ -90,6 +90,19 @@ export default function Hero({ slides, fallbackName = "Avery" }: Props) {
             <a href="#contact" className="btn-secondary border-[#f7f3ee]/20 bg-[#f7f3ee]/4 text-[#f7f3ee]">
               Book a shoot
             </a>
+          </div>
+
+          <div className="mt-10 grid max-w-xl gap-3 sm:grid-cols-3">
+            {[
+              ["12+", "Years"],
+              ["48", "Campaigns"],
+              ["8", "Countries"],
+            ].map(([value, label]) => (
+              <div key={label} className="rounded-[1.25rem] border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
+                <div className="font-display text-3xl text-[#f7f3ee]">{value}</div>
+                <div className="mt-1 text-[0.62rem] uppercase tracking-[0.22em] text-[#efe5dc]/70">{label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

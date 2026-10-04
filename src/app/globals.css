@@ -27,7 +27,9 @@ body {
     radial-gradient(circle at top, rgba(177, 135, 93, 0.12), transparent 28%),
     linear-gradient(180deg, #f9f4ee 0%, #f2eae2 100%);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
 }
 
 * {
@@ -50,11 +52,11 @@ video {
 .container-page {
   width: min(100%, 1260px);
   margin-inline: auto;
-  padding-inline: 1.25rem;
+  padding-inline: clamp(1rem, 2vw, 1.5rem);
 }
 
 .section-pad {
-  padding-block: 5.5rem;
+  padding-block: clamp(4.5rem, 7vw, 7rem);
 }
 
 .font-display {
@@ -68,6 +70,7 @@ video {
   text-transform: uppercase;
   font-size: 0.68rem;
   color: var(--muted);
+  font-weight: 600;
 }
 
 .panel-surface {
@@ -119,4 +122,15 @@ textarea {
 body,
 html {
   overflow-x: hidden;
+}
+
+@media (max-width: 640px) {
+  .section-kicker {
+    letter-spacing: 0.22em;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
 }

@@ -32,13 +32,13 @@ export default function Gallery({ images }: GalleryProps) {
     <>
       <section id="gallery" className="section-pad py-24 md:py-28">
         <div className="container-page">
-          <div className="mb-12 flex items-end justify-between gap-8">
+          <div className="mb-12 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="section-kicker mb-3">Selected work</p>
               <h2 className="font-display text-5xl text-[#171412] md:text-7xl">Gallery</h2>
             </div>
 
-            <p className="hidden max-w-xs text-sm leading-6 text-[#584e49] md:block">
+            <p className="max-w-xs text-sm leading-6 text-[#584e49]">
               A curated selection of editorial, fashion, beauty and commercial work.
             </p>
           </div>
@@ -51,7 +51,7 @@ export default function Gallery({ images }: GalleryProps) {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {images.map((image, index) => (
                 <motion.button
                   type="button"
@@ -62,8 +62,8 @@ export default function Gallery({ images }: GalleryProps) {
                   transition={{ duration: 0.65, delay: index * 0.05 }}
                   onClick={() => setActiveIndex(index)}
                   className={`group relative block w-full overflow-hidden rounded-[1.8rem] border border-[#171412]/5 bg-[#f7f3ee] text-left shadow-[0_24px_60px_rgba(17,15,13,0.08)] ${
-                    index % 3 === 1 ? "aspect-[3/4]" : "aspect-[4/5]"
-                  }`}
+                    index % 3 === 1 ? "sm:translate-y-6" : index % 3 === 2 ? "sm:-translate-y-2" : ""
+                  } ${index % 2 === 0 ? "aspect-[4/5]" : "aspect-[3/4]"}`}
                   aria-label={`Open ${image.title}`}
                 >
                   <div className="relative h-full w-full">
@@ -72,7 +72,7 @@ export default function Gallery({ images }: GalleryProps) {
                       alt={image.title}
                       width={900}
                       height={1200}
-                      sizes="(max-width: 768px) 50vw, 33vw"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   </div>
