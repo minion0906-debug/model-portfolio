@@ -1,20 +1,5 @@
-import Link from "next/link";
-
-export default function Login() {
-  return (
-    <main className="auth">
-      <div className="authCard">
-        <Link className="logo" href="/">MAYA<span>.</span></Link>
-        <p className="eyebrow dark">PRIVATE DASHBOARD</p>
-        <h1>Welcome back.</h1>
-        <p className="muted">Manage photos, videos, profile information and booking inquiries.</p>
-        <form className="form">
-          <label>Email<input type="email" placeholder="you@example.com" /></label>
-          <label>Password<input type="password" placeholder="••••••••" /></label>
-          <button className="button darkButton" type="button">Sign in</button>
-        </form>
-        <p className="small">Demo UI — connect this form to your authentication provider before production.</p>
-      </div>
-    </main>
-  );
-}
+ "use client";
+import {useState} from "react"; import {supabaseBrowser} from "@/lib/supabase-browser"; import {useRouter} from "next/navigation";
+export default function Login(){const [email,setEmail]=useState("");const [password,setPassword]=useState("");const [err,setErr]=useState("");const [busy,setBusy]=useState(false);const router=useRouter();
+async function submit(e:any){e.preventDefault();setBusy(true);setErr("");const {error}=await supabaseBrowser().auth.signInWithPassword({email,password});if(error)setErr(error.message);else router.push("/dashboard");setBusy(false)}
+return <main className="auth"><div className="authCard"><a className="logo" href="/">MAYA<span>.</span></a><p className="eyebrow dark">SECURE DASHBOARD</p><h1>Welcome back.</h1><form className="form" onSubmit={submit}><label>Email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required/></label><label>Password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required/></label>{err&&<p className="error">{err}</p>}<button className="button darkButton" disabled={busy}>{busy?"Signing in…":"Sign in"}</button></form></div></main>}
