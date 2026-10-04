@@ -1,49 +1,42 @@
-import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import Navbar from "@/components/Navbar";
 import Gallery from "@/components/Gallery";
 import VideoSection from "@/components/VideoSection";
+import About from "@/components/About";
 import BookingCTA from "@/components/BookingCTA";
 import Contact from "@/components/Contact";
 import { getPublishedGalleryImages } from "@/lib/gallery";
 import { getPublishedVideos } from "@/lib/videos";
 import { getPublishedHeroSlides } from "@/lib/hero";
+import { getSiteSettings } from "@/lib/site-settings";
 
-export const dynamic = "force-dynamic";
-
-export default async function Home() {
-  const [galleryImages, videos, heroSlides] = await Promise.all([
+export default async function HomePage() {
+  const [gallery, videos, heroSlides, settings] = await Promise.all([
     getPublishedGalleryImages(),
     getPublishedVideos(),
     getPublishedHeroSlides(),
+    getSiteSettings(),
   ]);
 
   return (
     <>
       <Navbar />
       <main>
-        <Hero slides={heroSlides} />
-        <section id="about" className="section-pad">
-          <div className="container-page grid gap-10 md:grid-cols-[1fr_1.5fr]">
-            <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">About</p>
-            <div>
-              <h2 className="font-display text-4xl leading-tight md:text-6xl">
-                Modeling is about presence, movement and telling a story without saying a word.
-              </h2>
-              <p className="mt-7 max-w-2xl text-sm leading-7 text-neutral-500">
-                Avery is an editorial and commercial model working across fashion, beauty, lifestyle and creative campaigns.
-              </p>
-            </div>
-          </div>
-        </section>
-        <Gallery images={galleryImages} />
+        <Hero slides={heroSlides} fallbackName={settings.name} />
+        <Gallery images={gallery} />
         <VideoSection videos={videos} />
-        <BookingCTA />
-        <Contact />
+        <About settings={settings} />
+        <BookingCTA
+          acceptingBookings={settings.acceptingBookings}
+          contactEmail={settings.email}
+        />
+        <Contact settings={settings} />
       </main>
-      <footer className="border-t border-black/10 py-8">
-        <div className="container-page flex flex-col justify-between gap-3 text-xs text-neutral-500 md:flex-row">
-          <span>© 2026 Avery Studio</span>
-          <span>Model · Creative · Editorial</span>
+
+      <footer className="border-t border-black/10 py-10">
+        <div className="container-page flex flex-col gap-2 text-sm text-neutral-500 md:flex-row md:items-center md:justify-between">
+          <span>{settings.name}</span>
+          <span>© {new Date().getFullYear()} All rights reserved.</span>
         </div>
       </footer>
     </>

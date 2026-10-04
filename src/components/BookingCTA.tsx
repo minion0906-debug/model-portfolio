@@ -1,19 +1,73 @@
-import BookingForm from "@/components/BookingForm";
+"use client";
 
-export default function BookingCTA() {
-  return (
-    <section id="booking" className="section-pad bg-black text-white">
-      <div className="container-page grid gap-14 md:grid-cols-[0.75fr_1.25fr]">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-white/50">Bookings</p>
-          <h2 className="mt-5 font-display text-5xl leading-tight md:text-7xl">
-            Let’s create something memorable.
-          </h2>
-          <p className="mt-6 max-w-md text-sm leading-7 text-white/60">
-            Share the essentials and the team will review your project, dates and requirements.
+import { useState } from "react";
+
+type Props = {
+  acceptingBookings?: boolean;
+  contactEmail?: string | null;
+};
+
+export default function BookingCTA({ acceptingBookings = true, contactEmail }: Props) {
+  const [status, setStatus] = useState("");
+
+  if (!acceptingBookings) {
+    return (
+      <section id="booking" className="bg-black px-5 py-24 text-white">
+        <div className="container-page max-w-3xl">
+          <p className="text-xs uppercase tracking-[0.25em] text-white/50">Bookings</p>
+          <h2 className="mt-4 font-display text-5xl md:text-7xl">Currently unavailable.</h2>
+          <p className="mt-6 max-w-xl text-white/65">
+            New booking requests are temporarily closed. Please check back later
+            {contactEmail ? ` or contact ${contactEmail} for general inquiries.` : "."}
           </p>
         </div>
-        <BookingForm />
+      </section>
+    );
+  }
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatus("Sending…");
+
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    const response = await fetch("/api/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    setStatus(response.ok ? "Request received. Thank you." : result.error || "Something went wrong.");
+
+    if (response.ok) form.reset();
+  }
+
+  return (
+    <section id="booking" className="bg-black px-5 py-24 text-white">
+      <div className="container-page grid gap-14 md:grid-cols-[0.8fr_1.2fr]">
+        <div>
+          <p className="text-xs uppercase tracking-[0.25em] text-white/50">Bookings</p>
+          <h2 className="mt-4 font-display text-5xl md:text-7xl">Let&apos;s create.</h2>
+          <p className="mt-6 max-w-md text-white/65">
+            Tell me about your project, dates, location and creative direction.
+          </p>
+        </div>
+
+        <form onSubmit={submit} className="grid gap-4">
+          <input name="name" required placeholder="Name" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
+          <input name="email" required type="email" placeholder="Email" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
+          <input name="phone" placeholder="Phone" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
+          <input name="company" placeholder="Company / Brand" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
+          <input name="bookingType" placeholder="Booking type" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
+          <input name="preferredDate" type="date" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
+          <input name="location" placeholder="Location" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
+          <input name="budget" placeholder="Budget" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
+          <textarea name="message" required rows={6} placeholder="Project details" className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 outline-none" />
+          <button className="rounded-full bg-white px-6 py-3 font-medium text-black">Send booking request</button>
+          {status && <p className="text-sm text-white/60">{status}</p>}
+        </form>
       </div>
     </section>
   );
