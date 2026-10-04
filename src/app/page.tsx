@@ -6,26 +6,25 @@ import BookingCTA from "@/components/BookingCTA";
 import Contact from "@/components/Contact";
 import { getPublishedGalleryImages } from "@/lib/gallery";
 import { getPublishedVideos } from "@/lib/videos";
+import { getPublishedHeroSlides } from "@/lib/hero";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [galleryImages, videos] = await Promise.all([
+  const [galleryImages, videos, heroSlides] = await Promise.all([
     getPublishedGalleryImages(),
     getPublishedVideos(),
+    getPublishedHeroSlides(),
   ]);
 
   return (
     <>
       <Navbar />
       <main>
-        <Hero />
-
+        <Hero slides={heroSlides} />
         <section id="about" className="section-pad">
           <div className="container-page grid gap-10 md:grid-cols-[1fr_1.5fr]">
-            <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
-              About
-            </p>
+            <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">About</p>
             <div>
               <h2 className="font-display text-4xl leading-tight md:text-6xl">
                 Modeling is about presence, movement and telling a story without saying a word.
@@ -36,13 +35,11 @@ export default async function Home() {
             </div>
           </div>
         </section>
-
         <Gallery images={galleryImages} />
         <VideoSection videos={videos} />
         <BookingCTA />
         <Contact />
       </main>
-
       <footer className="border-t border-black/10 py-8">
         <div className="container-page flex flex-col justify-between gap-3 text-xs text-neutral-500 md:flex-row">
           <span>© 2026 Avery Studio</span>
