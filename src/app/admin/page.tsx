@@ -2,33 +2,47 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminDashboard() {
-  const [
-    galleryCount,
-    publishedGalleryCount,
-    videoCount,
-    publishedVideoCount,
-    newBookingsCount,
-    unreadMessagesCount,
-    recentBookings,
-    recentMessages,
-  ] = await Promise.all([
-    prisma.media.count({ where: { type: "IMAGE" } }),
-    prisma.media.count({ where: { type: "IMAGE", published: true } }),
-    prisma.media.count({ where: { type: "VIDEO" } }),
-    prisma.media.count({ where: { type: "VIDEO", published: true } }),
-    prisma.bookingRequest.count({ where: { status: "NEW" } }),
-    prisma.contactMessage.count({ where: { read: false } }),
-    prisma.bookingRequest.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      select: { id: true, name: true, email: true, status: true, createdAt: true },
-    }),
-    prisma.contactMessage.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      select: { id: true, name: true, email: true, read: true, createdAt: true },
-    }),
-  ]);
+  let galleryCount = 0;
+  let publishedGalleryCount = 0;
+  let videoCount = 0;
+  let publishedVideoCount = 0;
+  let newBookingsCount = 0;
+  let unreadMessagesCount = 0;
+  let recentBookings: Array<{ id: string; name: string; email: string; status: string; createdAt: Date }> = [];
+  let recentMessages: Array<{ id: string; name: string; email: string; read: boolean; createdAt: Date }> = [];
+
+  try {
+    [
+      galleryCount,
+      publishedGalleryCount,
+      videoCount,
+      publishedVideoCount,
+      newBookingsCount,
+      unreadMessagesCount,
+      recentBookings,
+      recentMessages,
+    ] = await Promise.all([
+      prisma.media.count({ where: { type: "IMAGE" } }),
+      prisma.media.count({ where: { type: "IMAGE", published: true } }),
+      prisma.media.count({ where: { type: "VIDEO" } }),
+      prisma.media.count({ where: { type: "VIDEO", published: true } }),
+      prisma.bookingRequest.count({ where: { status: "NEW" } }),
+      prisma.contactMessage.count({ where: { read: false } }),
+      prisma.bookingRequest.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: { id: true, name: true, email: true, status: true, createdAt: true },
+      }),
+      prisma.contactMessage.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: { id: true, name: true, email: true, read: true, createdAt: true },
+      }),
+    ]);
+  } catch {
+    recentBookings = [];
+    recentMessages = [];
+  }
 
   const activity = [
     ...recentBookings.map((item) => ({

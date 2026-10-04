@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f1ea;
+  --background-strong: #efe5db;
+  --background-deep: #12100f;
+  --panel: rgba(255, 255, 255, 0.7);
+  --panel-strong: #fffdfb;
+  --foreground: #171412;
+  --muted: #584e49;
+  --line: rgba(23, 20, 18, 0.1);
+  --accent: #b1875d;
+  --accent-soft: rgba(177, 135, 93, 0.14);
+  --shadow-soft: 0 28px 70px rgba(17, 14, 12, 0.08);
+  --brand-ivory: #f7f3ee;
+  --brand-sand: #d5b38a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(177, 135, 93, 0.12), transparent 28%),
+    linear-gradient(180deg, #f9f4ee 0%, #f2eae2 100%);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(177, 135, 93, 0.2);
+}
+
+img,
+video {
+  max-width: 100%;
+}
+
+.container-page {
+  width: min(100%, 1260px);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+.section-pad {
+  padding-block: 5.5rem;
+}
+
+.font-display {
+  font-family: "Times New Roman", Georgia, serif;
+  letter-spacing: -0.06em;
+  font-weight: 500;
+}
+
+.section-kicker {
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.panel-surface {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.9rem 1.45rem;
+  background: #171412;
+  color: #ffffff;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 30px rgba(17, 17, 17, 0.14);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(23, 20, 18, 0.12);
+  background: rgba(255, 255, 255, 0.26);
+  color: #171412;
+  padding: 0.9rem 1.45rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+body,
+html {
+  overflow-x: hidden;
+}

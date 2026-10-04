@@ -47,59 +47,59 @@ export default function ContactForm() {
   }
 
   const inputClass =
-    "w-full border-b border-black/15 bg-transparent px-0 py-3 text-sm outline-none transition placeholder:text-black/35 focus:border-black";
+    "w-full rounded-2xl border border-[#171412]/10 bg-[#f8f4f0] px-4 py-3 text-sm text-[#171412] outline-none transition placeholder:text-[#171412]/35 focus:border-[#b1875d] focus:bg-white";
 
   return (
-    <form onSubmit={submit} className="space-y-7">
-      <div className="grid gap-7 md:grid-cols-2">
-        <label className="text-xs uppercase tracking-[0.18em]">
+    <form onSubmit={submit} className="space-y-6">
+      <div className="grid gap-5 md:grid-cols-2">
+        <label className="text-[0.68rem] uppercase tracking-[0.22em] text-[#4c413b]">
           Name *
           <input
             required
             value={form.name}
             onChange={(event) => update("name", event.target.value)}
-            className={inputClass}
+            className={`${inputClass} mt-2`}
             placeholder="Your name"
           />
         </label>
 
-        <label className="text-xs uppercase tracking-[0.18em]">
+        <label className="text-[0.68rem] uppercase tracking-[0.22em] text-[#4c413b]">
           Email *
           <input
             required
             type="email"
             value={form.email}
             onChange={(event) => update("email", event.target.value)}
-            className={inputClass}
+            className={`${inputClass} mt-2`}
             placeholder="you@example.com"
           />
         </label>
 
-        <label className="text-xs uppercase tracking-[0.18em] md:col-span-2">
+        <label className="text-[0.68rem] uppercase tracking-[0.22em] text-[#4c413b] md:col-span-2">
           Phone
           <input
             value={form.phone}
             onChange={(event) => update("phone", event.target.value)}
-            className={inputClass}
+            className={`${inputClass} mt-2`}
             placeholder="+1 555 000 0000"
           />
         </label>
       </div>
 
-      <label className="block text-xs uppercase tracking-[0.18em]">
+      <label className="block text-[0.68rem] uppercase tracking-[0.22em] text-[#4c413b]">
         Message *
         <textarea
           required
           minLength={5}
           value={form.message}
           onChange={(event) => update("message", event.target.value)}
-          className={`${inputClass} min-h-36 resize-y`}
+          className={`${inputClass} mt-2 min-h-36 resize-y`}
           placeholder="Tell us what you have in mind."
         />
       </label>
 
       {status === "success" && (
-        <div className="border border-black/10 bg-white px-4 py-3 text-sm">
+        <div className="border border-black/10 bg-white px-4 py-3 text-sm text-neutral-700">
           Thanks — your message has been received.
         </div>
       )}
@@ -113,7 +113,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={status === "sending"}
-        className="bg-black px-6 py-4 text-xs uppercase tracking-[0.2em] text-white transition hover:bg-black/80 disabled:opacity-50"
+        className="btn-primary w-fit disabled:cursor-not-allowed disabled:opacity-60"
       >
         {status === "sending" ? "Sending…" : "Send Message"}
       </button>

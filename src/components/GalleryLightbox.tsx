@@ -52,7 +52,7 @@ export default function GalleryLightbox({
     <AnimatePresence>
       {activeImage && (
         <motion.div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 md:p-8"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[rgba(10,9,8,0.96)] p-4 md:p-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -103,18 +103,19 @@ export default function GalleryLightbox({
             className="relative flex h-[80vh] w-full max-w-6xl flex-col items-center justify-center"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="relative h-full w-full">
+            <div className="relative h-full w-full overflow-hidden rounded-[2rem] border border-white/10 bg-black/20 shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
               <Image
                 src={activeImage.src}
                 alt={activeImage.title}
-                fill
+                width={1400}
+                height={1000}
                 sizes="100vw"
-                className="object-contain"
+                className="h-full w-full object-contain"
                 priority
               />
             </div>
 
-            <div className="absolute bottom-0 left-1/2 w-full -translate-x-1/2 bg-gradient-to-t from-black/70 to-transparent px-5 pb-5 pt-20 text-center text-white md:px-10">
+            <div className="absolute bottom-0 left-1/2 w-full -translate-x-1/2 bg-gradient-to-t from-black/80 to-transparent px-5 pb-5 pt-20 text-center text-white md:px-10">
               <p className="text-[10px] uppercase tracking-[0.3em] text-white/60">
                 {activeImage.tag}
               </p>
