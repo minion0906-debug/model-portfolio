@@ -134,3 +134,41 @@ html {
     width: 100%;
   }
 }
+
+
+/* Premium UI upgrade */
+.nav-link {
+  position: relative;
+  transition: color .25s ease;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  height: 1px;
+  width: 0;
+  background: currentColor;
+  transition: width .25s ease;
+}
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.panel-surface {
+  border-radius: 1.5rem;
+}
+
+section {
+  scroll-margin-top: 100px;
+}
+
+img {
+  transition: transform .6s ease;
+}
+
+@media (max-width: 768px) {
+  .container-page {
+    padding-inline: 1rem;
+  }
+}
