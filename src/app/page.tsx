@@ -35,8 +35,8 @@ export default async function HomePage() {
 
       <footer className="border-t border-[#171412]/10 bg-[#f3eae0] py-10">
         <div className="container-page flex flex-col gap-2 text-sm text-[#584e49] md:flex-row md:items-center md:justify-between">
-          <span className="font-display text-xl tracking-[0.12em] text-[#171412] uppercase">{settings.name}</span>
-          <span>© {new Date().getFullYear()} All rights reserved.</span>
+          <span className="font-display text-xl tracking-[0.18em] text-[#171412] uppercase">{settings.name}</span>
+          <span className="tracking-[0.18em] uppercase text-[0.62rem]">© {new Date().getFullYear()} All rights reserved.</span>
         </div>
       </footer>
     </>

@@ -92,7 +92,7 @@ async function putS3(key: string, body: Buffer, contentType: string) {
 async function putLocal(kind: StorageKind, filename: string, body: Buffer) {
   const root = localRoots[kind];
   await mkdir(root, { recursive: true });
-  await writeFile(path.join(root, filename), body);
+  await writeFile(path.join(/* turbopackIgnore: true */ root, filename), body);
 
   const folder =
     kind === "image"

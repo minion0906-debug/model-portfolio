@@ -13,9 +13,9 @@ export default function BookingCTA({ acceptingBookings = true, contactEmail }: P
   if (!acceptingBookings) {
     return (
       <section id="booking" className="bg-[#111110] px-5 py-24 text-white">
-        <div className="container-page max-w-4xl rounded-[2.2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(184,141,94,0.16),transparent_35%),#141311] p-7 md:p-10">
+        <div className="container-page max-w-5xl rounded-[2.4rem] border border-[#f7f3ee]/10 bg-[radial-gradient(circle_at_top,_rgba(184,141,94,0.2),transparent_32%),#141311] p-7 shadow-[0_30px_80px_rgba(17,15,13,0.18)] md:p-10">
           <p className="text-[0.68rem] uppercase tracking-[0.28em] text-white/55">Bookings</p>
-          <h2 className="mt-4 font-display text-5xl md:text-7xl">Currently unavailable.</h2>
+          <h2 className="mt-4 font-display text-5xl text-[#f7f3ee] md:text-7xl">Currently unavailable.</h2>
           <p className="mt-6 max-w-xl text-base leading-7 text-white/65">
             New booking requests are temporarily closed. Please check back later
             {contactEmail ? ` or contact ${contactEmail} for general inquiries.` : "."}
@@ -46,10 +46,10 @@ export default function BookingCTA({ acceptingBookings = true, contactEmail }: P
 
   return (
     <section id="booking" className="bg-[#0f0d0c] px-5 py-24 text-white md:py-28">
-      <div className="container-page grid gap-14 rounded-[2.2rem] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(184,141,94,0.18),transparent_35%),#111111] p-6 md:p-10 xl:grid-cols-[0.8fr_1.2fr]">
+      <div className="container-page grid gap-14 rounded-[2.4rem] border border-[#f7f3ee]/10 bg-[radial-gradient(circle_at_top,_rgba(184,141,94,0.18),transparent_35%),#111111] p-6 shadow-[0_30px_80px_rgba(17,15,13,0.15)] md:p-10 xl:grid-cols-[0.8fr_1.2fr]">
         <div>
           <p className="text-[0.68rem] uppercase tracking-[0.28em] text-white/55">Bookings</p>
-          <h2 className="mt-4 font-display text-5xl md:text-7xl">Let&apos;s create.</h2>
+          <h2 className="mt-4 font-display text-5xl text-[#f7f3ee] md:text-7xl">Let&apos;s create.</h2>
           <p className="mt-6 max-w-md text-base leading-7 text-white/65">
             Tell me about your project, dates, location and creative direction.
           </p>

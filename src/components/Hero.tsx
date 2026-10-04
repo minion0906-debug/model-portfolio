@@ -42,9 +42,18 @@ export default function Hero({ slides, fallbackName = "Avery" }: Props) {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.1 }}
-          className="absolute inset-0"
+          className="absolute inset-0 overflow-hidden"
         >
-          <Image src={current.src} alt={current.alt} fill priority sizes="100vw" className="object-cover grayscale-[0.15] contrast-[1.05]" />
+          <div className="relative h-full w-full">
+            <Image
+              src={current.src}
+              alt={current.alt}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover grayscale-[0.15] contrast-[1.05]"
+            />
+          </div>
         </motion.div>
       </AnimatePresence>
 

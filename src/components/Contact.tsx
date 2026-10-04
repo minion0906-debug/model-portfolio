@@ -17,6 +17,7 @@ export default function Contact({ settings }: Props) {
       <div className="container-page grid gap-14 md:grid-cols-[0.72fr_1.28fr] md:items-start">
         <div className="panel-surface rounded-[2rem] border-[#171412]/10 bg-[#fffdfb]/75 p-6 shadow-[0_28px_70px_rgba(17,15,13,0.05)] md:p-8">
           <p className="section-kicker">Contact</p>
+          <div className="mt-4 h-px w-16 bg-[#171412]/10" />
           <h2 className="mt-4 font-display text-5xl text-[#171412] md:text-6xl">Say hello.</h2>
 
           <div className="mt-8 space-y-3 text-sm text-[#4c413b]">
