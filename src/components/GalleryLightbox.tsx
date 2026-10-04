@@ -107,9 +107,10 @@ export default function GalleryLightbox({
               <Image
                 src={activeImage.src}
                 alt={activeImage.title}
-                fill
+                width={1400}
+                height={1000}
                 sizes="100vw"
-                className="object-contain"
+                className="h-full w-full object-contain"
                 priority
               />
             </div>

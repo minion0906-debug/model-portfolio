@@ -12,7 +12,16 @@ export default function About({ settings }: Props) {
         <div className="panel-surface relative overflow-hidden rounded-[2.4rem] border-[#171412]/10 bg-[#fffdfb]/60 p-3 shadow-[0_30px_80px_rgba(17,15,13,0.06)]">
           <div className="relative aspect-[4/5] overflow-hidden rounded-[1.8rem] bg-neutral-200">
             {settings.profileImage ? (
-              <Image src={settings.profileImage} alt={settings.name} fill className="object-cover grayscale-[0.08] contrast-[1.05]" sizes="(max-width: 768px) 100vw, 40vw" />
+              <div className="relative h-full w-full">
+                <Image
+                  src={settings.profileImage}
+                  alt={settings.name}
+                  width={900}
+                  height={1125}
+                  className="h-full w-full object-cover grayscale-[0.08] contrast-[1.05]"
+                  sizes="(max-width: 768px) 100vw, 40vw"
+                />
+              </div>
             ) : (
               <div className="flex h-full items-end bg-[radial-gradient(circle_at_top,_rgba(184,141,94,0.18),transparent_38%),linear-gradient(180deg,#ece2d7,#d5c8be)] p-8 text-neutral-500">
                 <span className="font-display text-4xl">Profile</span>

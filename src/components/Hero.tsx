@@ -48,10 +48,12 @@ export default function Hero({ slides, fallbackName = "Avery" }: Props) {
             <Image
               src={current.src}
               alt={current.alt}
-              fill
+              width={1800}
+              height={1200}
               priority
+              loading="eager"
               sizes="100vw"
-              className="object-cover grayscale-[0.15] contrast-[1.05]"
+              className="h-full w-full object-cover grayscale-[0.15] contrast-[1.05]"
             />
           </div>
         </motion.div>

@@ -66,13 +66,16 @@ export default function Gallery({ images }: GalleryProps) {
                   }`}
                   aria-label={`Open ${image.title}`}
                 >
-                  <Image
-                    src={image.src}
-                    alt={image.title}
-                    fill
-                    sizes="(max-width: 768px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                  <div className="relative h-full w-full">
+                    <Image
+                      src={image.src}
+                      alt={image.title}
+                      width={900}
+                      height={1200}
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
 
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-transparent" />
 
