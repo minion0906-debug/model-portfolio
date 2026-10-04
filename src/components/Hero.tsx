@@ -75,15 +75,15 @@ export default function Hero({ slides, fallbackName = "Avery" }: Props) {
             <span>Editorial</span>
           </div>
 
-          <h1 className="font-display text-5xl leading-[0.8] tracking-[-0.07em] text-[#f7f3ee] md:text-7xl lg:text-[9rem] xl:text-[10rem]">
+          <h1 className="font-display text-5xl leading-[0.82] tracking-[-0.08em] text-[#f7f3ee] drop-shadow-2xl sm:text-6xl md:text-8xl lg:text-[9.5rem] xl:text-[11rem]">
             {current.title}
           </h1>
 
-          <p className="mt-6 max-w-xl text-base leading-7 text-[#efe5dc]/85 md:text-lg">
+          <p className="mt-6 max-w-2xl text-base leading-7 text-[#efe5dc]/90 md:text-xl md:leading-8">
             Editorial, fashion, and commercial talent crafting standout imagery with a cinematic point of view.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-4">
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <a href="#gallery" className="btn-primary bg-[#f7f3ee] text-[#12100f] hover:bg-[#efe6db]">
               View work
             </a>
@@ -92,7 +92,7 @@ export default function Hero({ slides, fallbackName = "Avery" }: Props) {
             </a>
           </div>
 
-          <div className="mt-10 grid max-w-xl gap-3 sm:grid-cols-3">
+          <div className="mt-10 grid max-w-2xl gap-3 sm:grid-cols-3">
             {[
               ["12+", "Years"],
               ["48", "Campaigns"],
