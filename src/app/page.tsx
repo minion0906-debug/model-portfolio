@@ -5,16 +5,19 @@ import VideoSection from "@/components/VideoSection";
 import BookingCTA from "@/components/BookingCTA";
 import Contact from "@/components/Contact";
 import { getPublishedGalleryImages } from "@/lib/gallery";
+import { getPublishedVideos } from "@/lib/videos";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const galleryImages = await getPublishedGalleryImages();
+  const [galleryImages, videos] = await Promise.all([
+    getPublishedGalleryImages(),
+    getPublishedVideos(),
+  ]);
 
   return (
     <>
       <Navbar />
-
       <main>
         <Hero />
 
@@ -23,23 +26,19 @@ export default async function Home() {
             <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
               About
             </p>
-
             <div>
               <h2 className="font-display text-4xl leading-tight md:text-6xl">
-                Modeling is about presence, movement and telling a story
-                without saying a word.
+                Modeling is about presence, movement and telling a story without saying a word.
               </h2>
-
               <p className="mt-7 max-w-2xl text-sm leading-7 text-neutral-500">
-                Avery is an editorial and commercial model working across
-                fashion, beauty, lifestyle and creative campaigns.
+                Avery is an editorial and commercial model working across fashion, beauty, lifestyle and creative campaigns.
               </p>
             </div>
           </div>
         </section>
 
         <Gallery images={galleryImages} />
-        <VideoSection />
+        <VideoSection videos={videos} />
         <BookingCTA />
         <Contact />
       </main>
