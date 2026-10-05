@@ -10,23 +10,26 @@ export default function VideoSection({ videos }: { videos: PublicVideo[] }) {
   return (
     <section id="videos" className="portfolio-video-section">
       <div className="container-page">
-        <div className="video-heading">
+        <div className="video-editorial-intro">
           <div>
-            <p className="video-kicker">02 / Moving image</p>
-            <h2 className="video-title">Videos</h2>
+            <p className="video-kicker">03 / Moving image</p>
+            <h2 className="video-title">Motion<br /><em>studies.</em></h2>
           </div>
           <div className="video-heading-copy">
-            <p>Campaign films, motion tests and editorial stories — made to be watched, not just scrolled past.</p>
-            {videos.length > 0 && <span>{String(videos.length).padStart(2, "0")} films</span>}
+            <p>Campaign films, beauty stories and editorial motion — a closer look at the work beyond the still frame.</p>
+            <div className="video-stat-row">
+              <span>{String(videos.length).padStart(2, "0")} films</span>
+              <span>Selected motion work</span>
+            </div>
           </div>
         </div>
 
         {videos.length === 0 ? (
           <div className="video-empty">
-            <span>02</span>
+            <span>03</span>
             <div>
-              <h3>No films yet.</h3>
-              <p>Published videos will appear here.</p>
+              <h3>The next frame<br /><em>is coming.</em></h3>
+              <p>Published films will appear here.</p>
             </div>
           </div>
         ) : (
@@ -35,10 +38,10 @@ export default function VideoSection({ videos }: { videos: PublicVideo[] }) {
               <motion.article
                 key={video.id}
                 className={`video-card ${index === 0 ? "video-card-featured" : ""}`}
-                initial={{ opacity: 0, y: 26 }}
+                initial={{ opacity: 0, y: 34 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.15 }}
-                transition={{ duration: 0.6, delay: Math.min(index, 5) * 0.08 }}
+                transition={{ duration: 0.7, delay: Math.min(index, 5) * 0.08 }}
               >
                 <div className="video-frame">
                   <video
@@ -52,20 +55,21 @@ export default function VideoSection({ videos }: { videos: PublicVideo[] }) {
                     onPause={() => setPlaying((current) => current === video.id ? null : current)}
                     onEnded={() => setPlaying(null)}
                   />
-                  <div className={`video-overlay ${playing === video.id ? "video-overlay-hidden" : ""}`} aria-hidden="true">
+
+                  <div className={`video-art-direction ${playing === video.id ? "video-overlay-hidden" : ""}`} aria-hidden="true">
                     <span className="video-play">Play film</span>
                     <span className="video-play-icon">+</span>
+                    <span className="video-index">{String(index + 1).padStart(2, "0")}</span>
                   </div>
-                  <span className="video-index">{String(index + 1).padStart(2, "0")}</span>
                 </div>
 
                 <div className="video-meta">
                   <div>
-                    <p className="video-meta-tag">Motion / Film</p>
+                    <p className="video-meta-tag">{index === 0 ? "Featured film" : "Motion / Film"}</p>
                     <h3>{video.title}</h3>
                     {video.description && <p className="video-description">{video.description}</p>}
                   </div>
-                  <span className="video-arrow">↗</span>
+                  <span className="video-arrow" aria-hidden="true">↗</span>
                 </div>
               </motion.article>
             ))}
@@ -73,8 +77,8 @@ export default function VideoSection({ videos }: { videos: PublicVideo[] }) {
         )}
 
         <div className="video-footer-line">
-          <span>02 — Videos</span>
-          <span>Use headphones for the full experience</span>
+          <span>03 — Motion</span>
+          <span>Sound on · full-screen recommended</span>
         </div>
       </div>
     </section>
