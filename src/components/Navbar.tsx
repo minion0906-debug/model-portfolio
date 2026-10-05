@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 
 const navItems = [
-  { href: "#gallery", label: "Gallery" },
+  { href: "#home", label: "Home" },
+  { href: "#gallery", label: "Images" },
   { href: "#videos", label: "Videos" },
-  { href: "#about", label: "About" },
   { href: "#contact", label: "Contact" },
 ];
 
@@ -14,60 +14,43 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50">
-      <div className="container-page pt-4">
-        <div className="rounded-2xl border border-white/40 bg-white/70 px-4 py-3 shadow-xl backdrop-blur-xl md:px-6">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="font-display text-2xl uppercase tracking-[0.12em] text-neutral-900">
-              Avery
+    <header className="portfolio-header">
+      <div className="portfolio-nav-wrap">
+        <Link href="#home" className="portfolio-brand" aria-label="Home">
+          <span>Model</span>
+          <strong>Portfolio</strong>
+        </Link>
+
+        <nav className="portfolio-nav-links" aria-label="Primary navigation">
+          {navItems.map((item) => (
+            <Link key={item.label} href={item.href} className="portfolio-nav-link">
+              {item.label}
             </Link>
+          ))}
+          <Link href="/admin/login" className="portfolio-login-link">Login</Link>
+        </nav>
 
-            <nav className="hidden items-center gap-8 md:flex">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="nav-link text-xs uppercase tracking-[0.22em] text-neutral-600"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <Link href="#contact" className="btn-primary hidden md:inline-flex">
-                Book now
-              </Link>
-
-              <button
-                onClick={() => setOpen(!open)}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white md:hidden"
-                aria-label="Menu"
-              >
-                <span className="text-xl">{open ? "×" : "☰"}</span>
-              </button>
-            </div>
-          </div>
-
-          {open && (
-            <nav className="mt-4 flex flex-col gap-4 border-t border-black/10 pt-4 md:hidden">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className="text-xs uppercase tracking-[0.22em]"
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <Link href="#contact" className="btn-primary text-center">
-                Book now
-              </Link>
-            </nav>
-          )}
-        </div>
+        <button
+          type="button"
+          className="portfolio-menu-button"
+          onClick={() => setOpen((value) => !value)}
+          aria-label="Toggle navigation"
+          aria-expanded={open}
+        >
+          {open ? "Close" : "Menu"}
+        </button>
       </div>
+
+      {open && (
+        <nav className="portfolio-mobile-nav" aria-label="Mobile navigation">
+          {navItems.map((item) => (
+            <Link key={`mobile-${item.label}`} href={item.href} onClick={() => setOpen(false)}>
+              {item.label}
+            </Link>
+          ))}
+          <Link href="/admin/login" onClick={() => setOpen(false)}>Login</Link>
+        </nav>
+      )}
     </header>
   );
 }
