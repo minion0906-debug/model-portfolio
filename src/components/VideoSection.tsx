@@ -15,11 +15,11 @@ export default function VideoSection({
           <div>
             <p className="section-kicker text-[#e9dccd]/60">Motion</p>
             <h2 className="mt-3 font-display text-5xl tracking-tight text-[#f7f3ee] md:text-7xl">
-              Moving Images
+              Videos
             </h2>
           </div>
           <p className="max-w-sm text-sm leading-6 text-[#f0e7dd]/70">
-            Campaign films, editorial motion and selected creative work.
+            Campaign films, editorial motion and selected moving-image work.
           </p>
         </div>
 
