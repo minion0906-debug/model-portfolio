@@ -5,6 +5,7 @@ import VideoSection from "@/components/VideoSection";
 import About from "@/components/About";
 import BookingCTA from "@/components/BookingCTA";
 import Contact from "@/components/Contact";
+import MotionEffects from "@/components/MotionEffects";
 import { getPublishedGalleryImages } from "@/lib/gallery";
 import { getPublishedVideos } from "@/lib/videos";
 import { getPublishedHeroSlides } from "@/lib/hero";
@@ -22,6 +23,7 @@ export default async function HomePage() {
 
   return (
     <div className="studio-site">
+      <MotionEffects />
       <Navbar />
       <main>
         <Hero slides={heroSlides} settings={settings} />
