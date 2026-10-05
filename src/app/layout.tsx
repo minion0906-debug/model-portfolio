@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: "%s | Lera Aumila",
   },
   description:
-    "Lera Aumila — fashion, beauty and editorial model available for selected projects and bookings.",
+    "Lera Aumila fashion, beauty and editorial model available for selected projects and bookings.",
   applicationName: "Lera Aumila Portfolio",
   keywords: ["Lera Aumila", "model", "fashion model", "editorial model", "beauty model", "model portfolio"],
   authors: [{ name: "Lera Aumila" }],
