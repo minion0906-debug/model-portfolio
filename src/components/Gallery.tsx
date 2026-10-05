@@ -1,125 +1,32 @@
 "use client";
-
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import GalleryLightbox, { type GalleryImage } from "@/components/GalleryLightbox";
 
-type GalleryProps = { images: GalleryImage[] };
-
-export default function Gallery({ images }: GalleryProps) {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+export default function Gallery({ images }: { images: GalleryImage[] }) {
+  const [active, setActive] = useState<number | null>(null);
   const [filter, setFilter] = useState("All");
-  const filters = ["All", ...Array.from(new Set(images.map((image) => image.tag).filter(Boolean)))];
-  const visibleImages = useMemo(() => filter === "All" ? images : images.filter((image) => image.tag === filter), [filter, images]);
-
-  function handleFilterChange(nextFilter: string) {
-    setFilter(nextFilter || "All");
-    setActiveIndex(null);
-  }
-
+  const filters = ["All", ...Array.from(new Set(images.map((x) => x.tag).filter(Boolean)))];
+  const visible = useMemo(() => filter === "All" ? images : images.filter((x) => x.tag === filter), [images, filter]);
   return (
-    <section id="gallery" className="portfolio-gallery section-pad">
-      <div className="container-page">
-        <div className="gallery-heading">
-          <div>
-            <p className="section-kicker">01 / Selected work</p>
-            <h2 className="gallery-title">Images</h2>
-          </div>
-          <div className="gallery-heading-copy">
-            <p>Portraits, editorials and campaign imagery - curated to show range, presence and movement.</p>
-            {images.length > 0 && (
-              <span className="gallery-count">{String(images.length).padStart(2, "0")} images</span>
-            )}
-          </div>
+    <section id="gallery" className="studio-gallery">
+      <div className="studio-shell">
+        <div className="studio-section-head">
+          <div><p className="studio-label">02 / Selected work</p><h2>Visual<br /><em>language.</em></h2></div>
+          <div className="studio-section-head-right"><p>Still imagery across fashion, beauty, editorial and commercial work.</p><span>{String(images.length).padStart(2, "0")} images</span></div>
         </div>
-
-        {images.length === 0 ? (
-          <div className="gallery-empty panel-surface">
-            <span className="gallery-empty-mark">01</span>
-            <p className="font-display">Images coming soon.</p>
-            <small>Published portfolio images will appear here.</small>
+        {images.length ? <>
+          <div className="studio-filters">{filters.map((item) => <button key={item} className={filter === item ? "is-active" : ""} onClick={() => { setFilter(item || "All"); setActive(null); }}>{item}</button>)}</div>
+          <div className="studio-gallery-grid">
+            {visible.map((image, index) => <motion.button key={image.id} className={`studio-shot shot-${index % 6}`} onClick={() => setActive(index)} initial={{opacity:0,y:24}} whileInView={{opacity:1,y:0}} viewport={{once:true,amount:.1}} transition={{duration:.55,delay:Math.min(index,4)*.05}}>
+              <Image src={image.src} alt={image.title} fill sizes="(max-width: 800px) 100vw, 50vw" className="studio-shot-image" />
+              <span className="studio-shot-overlay" /><span className="studio-shot-meta"><b>{String(index+1).padStart(2,"0")}</b><em>{image.tag || "Selected work"}</em></span><span className="studio-shot-title">{image.title}<i>↗</i></span>
+            </motion.button>)}
           </div>
-        ) : (
-          <>
-            <div className="gallery-filters" aria-label="Portfolio categories">
-              {filters.map((item) => (
-                <button key={item} type="button" className={filter === item ? "gallery-filter active" : "gallery-filter"} onClick={() => handleFilterChange(item || "All")}>
-                  {item || "Portfolio"}
-                </button>
-              ))}
-            </div>
-
-            <div className="gallery-showcase" aria-label="Image portfolio">
-              {visibleImages.map((image, index) => {
-                const layoutClass = [
-                  "gallery-card gallery-card-featured",
-                  "gallery-card gallery-card-tall",
-                  "gallery-card gallery-card-standard",
-                  "gallery-card gallery-card-wide",
-                ][index % 4];
-
-                return (
-                  <motion.button
-                    key={image.id}
-                    type="button"
-                    className={layoutClass}
-                    onClick={() => setActiveIndex(index)}
-                    initial={{ opacity: 0, y: 22 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.12 }}
-                    transition={{ duration: 0.55, delay: Math.min(index, 5) * 0.06 }}
-                    aria-label={`Open ${image.title}`}
-                  >
-                    <Image
-                      src={image.src}
-                      alt={image.title}
-                      fill
-                      sizes={
-                        index === 0 || index === 3
-                          ? "(max-width: 900px) 100vw, 58vw"
-                          : "(max-width: 900px) 50vw, 42vw"
-                      }
-                      className="gallery-card-image"
-                      priority={index < 2}
-                    />
-                    <span className="gallery-card-shade" />
-                    <span className="gallery-card-topline">
-                      <span>{String(index + 1).padStart(2, "0")}</span>
-                      <span>{image.tag || "Portfolio"}</span>
-                    </span>
-                    <span className="gallery-card-caption">
-                      <span>
-                        <span className="gallery-card-title">{image.title}</span>
-                        <span className="gallery-card-tagline">{image.tag || "Selected work"}</span>
-                      </span>
-                      <span className="gallery-card-open">Open <b>↗</b></span>
-                    </span>
-                  </motion.button>
-                );
-              })}
-            </div>
-
-            <div className="gallery-footer-line">
-              <span>Scroll to explore</span>
-              <span className="gallery-footer-rule" />
-              <span>Click any image to enlarge</span>
-            </div>
-          </>
-        )}
+        </> : <div className="studio-empty">Published work will appear here.</div>}
       </div>
-
-      <AnimatePresence>
-        {activeIndex !== null && (
-          <GalleryLightbox
-            images={visibleImages}
-            activeIndex={activeIndex}
-            onClose={() => setActiveIndex(null)}
-            onPrevious={() => setActiveIndex((current) => (current === null ? 0 : (current - 1 + visibleImages.length) % visibleImages.length))}
-            onNext={() => setActiveIndex((current) => (current === null ? 0 : (current + 1) % visibleImages.length))}
-          />
-        )}
-      </AnimatePresence>
+      <AnimatePresence>{active !== null && <GalleryLightbox images={visible} activeIndex={active} onClose={() => setActive(null)} onPrevious={() => setActive((i) => i === null ? 0 : (i - 1 + visible.length) % visible.length)} onNext={() => setActive((i) => i === null ? 0 : (i + 1) % visible.length)} />}</AnimatePresence>
     </section>
   );
 }
