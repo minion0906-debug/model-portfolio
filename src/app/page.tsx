@@ -20,7 +20,7 @@ export default async function HomePage() {
 
   return <>
     <Navbar />
-    <main>
+    <main id="main-content">
       <Hero slides={heroSlides} settings={settings} />
 
       <section className="directory-strip">
@@ -63,10 +63,28 @@ export default async function HomePage() {
 
     <footer className="site-footer">
       <div className="container-page footer-grid">
-        <div><div className="footer-brand">{settings.name}</div><p>Model · Creative · Editorial</p></div>
-        <div className="footer-links"><a href="#gallery">Portfolio</a><a href="#about">About</a><a href="#contact">Contact</a></div>
-        <div className="footer-copy">© {new Date().getFullYear()} {settings.name}. All rights reserved.</div>
+        <div>
+          <div className="footer-brand">{settings.name}</div>
+          <p>Model · Creative · Editorial</p>
+          {settings.email && <a className="footer-email" href={`mailto:${settings.email}`}>{settings.email}</a>}
+        </div>
+        <div className="footer-links">
+          <a href="#gallery">Portfolio</a><a href="#videos">Motion</a><a href="#about">About</a><a href="#contact">Contact</a>
+        </div>
+        <div className="footer-side">
+          <div className="footer-socials">
+            {settings.instagram && <a href={settings.instagram} target="_blank" rel="noreferrer">Instagram</a>}
+            {settings.tiktok && <a href={settings.tiktok} target="_blank" rel="noreferrer">TikTok</a>}
+            {settings.youtube && <a href={settings.youtube} target="_blank" rel="noreferrer">YouTube</a>}
+          </div>
+          <div className="footer-copy">© {new Date().getFullYear()} {settings.name}. All rights reserved.</div>
+        </div>
       </div>
     </footer>
+
+    <a className="mobile-book-bar" href="#booking" aria-label="Book a project">
+      <span>{settings.acceptingBookings ? "Book a project" : "General inquiry"}</span>
+      <span aria-hidden="true">↗</span>
+    </a>
   </>;
 }

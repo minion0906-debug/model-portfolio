@@ -34,8 +34,9 @@ export default function Navbar() {
           type="button"
           className="portfolio-menu-button"
           onClick={() => setOpen((value) => !value)}
-          aria-label="Toggle navigation"
+          aria-label={open ? "Close navigation" : "Open navigation"}
           aria-expanded={open}
+          aria-controls="portfolio-mobile-navigation"
         >
           <span>{open ? "Close" : "Menu"}</span>
           <i aria-hidden="true" />
@@ -43,7 +44,7 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <nav className="portfolio-mobile-nav" aria-label="Mobile navigation">
+        <nav id="portfolio-mobile-navigation" className="portfolio-mobile-nav" aria-label="Mobile navigation">
           {navItems.map((item) => (
             <Link key={`mobile-${item.label}`} href={item.href} onClick={() => setOpen(false)}>
               <span>{item.label}</span><span aria-hidden="true">↗</span>

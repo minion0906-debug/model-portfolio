@@ -1,128 +1,181 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 
 type Props = {
   acceptingBookings?: boolean;
   contactEmail?: string | null;
 };
 
+const projectTypes = ["Editorial", "Campaign", "Commercial", "Beauty", "Lifestyle", "Event"];
+const budgetRanges = ["Under $2,000", "$2,000–$5,000", "$5,000–$10,000", "$10,000+", "To be discussed"];
+
 export default function BookingCTA({ acceptingBookings = true, contactEmail }: Props) {
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [error, setError] = useState("");
+  const [bookingType, setBookingType] = useState("");
+  const [budget, setBudget] = useState("");
 
   if (!acceptingBookings) {
     return (
-      <section id="booking" className="px-5 py-24 text-[#171412]">
-        <div className="container-page max-w-5xl rounded-[2.4rem] border border-[#171412]/10 bg-[radial-gradient(circle_at_top,_rgba(184,141,94,0.2),transparent_32%),#f9f5f0] p-7 shadow-[0_30px_80px_rgba(17,15,13,0.08)] md:p-10">
-          <p className="text-[0.68rem] uppercase tracking-[0.28em] text-[#584e49]">Bookings</p>
-          <h2 className="mt-4 font-display text-5xl text-[#171412] md:text-7xl">Currently unavailable.</h2>
-          <p className="mt-6 max-w-xl text-base leading-7 text-[#4c413b]">
-            New booking requests are temporarily closed. Please check back later
-            {contactEmail ? ` or contact ${contactEmail} for general inquiries.` : "."}
-          </p>
+      <section id="booking" className="booking-section booking-closed">
+        <div className="container-page booking-closed-inner">
+          <div>
+            <p className="section-kicker">Bookings</p>
+            <h2>Currently<br /><em>unavailable.</em></h2>
+          </div>
+          <div className="booking-closed-copy">
+            <span className="booking-status-dot booking-status-dot-muted" />
+            <p>New booking requests are temporarily closed.</p>
+            {contactEmail && (
+              <a href={`mailto:${contactEmail}`}>General inquiries <span>↗</span></a>
+            )}
+          </div>
         </div>
       </section>
     );
   }
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus("Sending…");
+    setStatus("sending");
+    setError("");
 
-    const form = event.currentTarget;
-    const data = Object.fromEntries(new FormData(form).entries());
+    try {
+      const form = event.currentTarget;
+      const data = Object.fromEntries(new FormData(form).entries());
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
 
-    const response = await fetch("/api/bookings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
+      if (!response.ok) {
+        setError(result.error || "Something went wrong. Please try again.");
+        setStatus("error");
+        return;
+      }
 
-    const result = await response.json();
-    setStatus(response.ok ? "Request received. Thank you." : result.error || "Something went wrong.");
-
-    if (response.ok) form.reset();
+      form.reset();
+      setBookingType("");
+      setBudget("");
+      setStatus("success");
+    } catch {
+      setError("Unable to send your request right now. Please try again.");
+      setStatus("error");
+    }
   }
 
   return (
-    <section id="booking" className="px-5 py-24 text-[#171412] md:py-28">
-      <div className="container-page grid gap-14 rounded-[2.4rem] border border-[#171412]/10 bg-[radial-gradient(circle_at_top,_rgba(184,141,94,0.14),transparent_35%),#f9f5f0] p-6 shadow-[0_30px_80px_rgba(17,15,13,0.08)] md:p-10 xl:grid-cols-[0.8fr_1.2fr]">
-        <div className="flex flex-col justify-between">
+    <section id="booking" className="booking-section">
+      <div className="container-page">
+        <div className="booking-header">
           <div>
-            <p className="text-[0.68rem] uppercase tracking-[0.28em] text-[#584e49]">Bookings</p>
-            <h2 className="mt-4 font-display text-5xl text-[#171412] md:text-7xl">Let&apos;s create.</h2>
-            <p className="mt-6 max-w-md text-base leading-7 text-[#4c413b]">
-              Tell me about your project, dates, location and creative direction.
-            </p>
+            <div className="booking-eyebrow">
+              <span className="booking-status-dot" />
+              Currently accepting projects
+            </div>
+            <p className="section-kicker">Bookings / 05</p>
+            <h2>Let&apos;s make<br /><em>something memorable.</em></h2>
           </div>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-            {[
-              ["Editorial", "Campaigns"],
-              ["Commercial", "Brand work"],
-              ["Fashion", "Editorial"],
-            ].map(([title, subtitle]) => (
-              <div key={title} className="rounded-[1.2rem] border border-[#171412]/10 bg-white/60 p-4 shadow-[0_12px_30px_rgba(17,15,13,0.03)]">
-                <div className="text-[0.58rem] uppercase tracking-[0.24em] text-[#584e49]">{title}</div>
-                <div className="mt-2 text-lg text-[#171412]">{subtitle}</div>
-              </div>
-            ))}
+          <div className="booking-header-copy">
+            <p>For editorial, campaigns, beauty, commercial and creative projects. Share the essentials and I&apos;ll get back to you with availability and next steps.</p>
+            <div className="booking-response">Typical response <strong>24–48 hours</strong></div>
           </div>
         </div>
 
-        <form onSubmit={submit} className="grid gap-4 rounded-[1.7rem] border border-[#171412]/10 bg-white/65 p-4 shadow-[0_24px_80px_rgba(17,15,13,0.06)] md:p-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block text-xs uppercase tracking-[0.2em] text-[#4c413b]">
-              <span className="mb-2 block">Name</span>
-              <input name="name" required placeholder="Name" className="w-full rounded-2xl border border-[#171412]/10 bg-[#f8f4f0] px-4 py-3 text-sm text-[#171412] placeholder:text-[#171412]/35 outline-none transition focus:border-[#b1875d] focus:bg-white" />
+        <form onSubmit={submit} className="booking-form">
+          <div className="booking-form-topline">
+            <span>Project inquiry</span>
+            <span>01 — Details</span>
+          </div>
+
+          <div className="booking-field-grid">
+            <label className="booking-field">
+              <span>Name <b>*</b></span>
+              <input name="name" required placeholder="Your name" autoComplete="name" />
             </label>
-            <label className="block text-xs uppercase tracking-[0.2em] text-[#4c413b]">
-              <span className="mb-2 block">Email</span>
-              <input name="email" required type="email" placeholder="Email" className="w-full rounded-2xl border border-[#171412]/10 bg-[#f8f4f0] px-4 py-3 text-sm text-[#171412] placeholder:text-[#171412]/35 outline-none transition focus:border-[#b1875d] focus:bg-white" />
+            <label className="booking-field">
+              <span>Email <b>*</b></span>
+              <input name="email" required type="email" placeholder="you@example.com" autoComplete="email" />
+            </label>
+            <label className="booking-field">
+              <span>Phone</span>
+              <input name="phone" placeholder="+1 555 000 0000" autoComplete="tel" />
+            </label>
+            <label className="booking-field">
+              <span>Company / brand</span>
+              <input name="company" placeholder="Company or agency" autoComplete="organization" />
             </label>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block text-xs uppercase tracking-[0.2em] text-[#4c413b]">
-              <span className="mb-2 block">Phone</span>
-              <input name="phone" placeholder="Phone" className="w-full rounded-2xl border border-[#171412]/10 bg-[#f8f4f0] px-4 py-3 text-sm text-[#171412] placeholder:text-[#171412]/35 outline-none transition focus:border-[#b1875d] focus:bg-white" />
+
+          <div className="booking-divider" />
+
+          <div className="booking-project-block">
+            <div className="booking-label">Project type</div>
+            <div className="booking-options" role="group" aria-label="Project type">
+              {projectTypes.map((type) => (
+                <button
+                  type="button"
+                  key={type}
+                  className={`booking-option ${bookingType === type ? "is-selected" : ""}`}
+                  onClick={() => setBookingType(type)}
+                  aria-pressed={bookingType === type}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+            <input type="hidden" name="bookingType" value={bookingType} />
+          </div>
+
+          <div className="booking-field-grid booking-field-grid-three">
+            <label className="booking-field">
+              <span>Preferred date</span>
+              <input name="preferredDate" type="date" />
             </label>
-            <label className="block text-xs uppercase tracking-[0.2em] text-[#4c413b]">
-              <span className="mb-2 block">Company</span>
-              <input name="company" placeholder="Company / Brand" className="w-full rounded-2xl border border-[#171412]/10 bg-[#f8f4f0] px-4 py-3 text-sm text-[#171412] placeholder:text-[#171412]/35 outline-none transition focus:border-[#b1875d] focus:bg-white" />
+            <label className="booking-field">
+              <span>Production location</span>
+              <input name="location" placeholder="City / country" />
+            </label>
+            <label className="booking-field">
+              <span>Budget range</span>
+              <select name="budget" value={budget} onChange={(event) => setBudget(event.target.value)}>
+                <option value="">Select range</option>
+                {budgetRanges.map((range) => <option key={range} value={range}>{range}</option>)}
+              </select>
             </label>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block text-xs uppercase tracking-[0.2em] text-[#4c413b]">
-              <span className="mb-2 block">Booking type</span>
-              <input name="bookingType" placeholder="Booking type" className="w-full rounded-2xl border border-[#171412]/10 bg-[#f8f4f0] px-4 py-3 text-sm text-[#171412] placeholder:text-[#171412]/35 outline-none transition focus:border-[#b1875d] focus:bg-white" />
-            </label>
-            <label className="block text-xs uppercase tracking-[0.2em] text-[#4c413b]">
-              <span className="mb-2 block">Preferred date</span>
-              <input name="preferredDate" type="date" className="w-full rounded-2xl border border-[#171412]/10 bg-[#f8f4f0] px-4 py-3 text-sm text-[#171412] placeholder:text-[#171412]/35 outline-none transition focus:border-[#b1875d] focus:bg-white" />
-            </label>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="block text-xs uppercase tracking-[0.2em] text-[#4c413b]">
-              <span className="mb-2 block">Location</span>
-              <input name="location" placeholder="Location" className="w-full rounded-2xl border border-[#171412]/10 bg-[#f8f4f0] px-4 py-3 text-sm text-[#171412] placeholder:text-[#171412]/35 outline-none transition focus:border-[#b1875d] focus:bg-white" />
-            </label>
-            <label className="block text-xs uppercase tracking-[0.2em] text-[#4c413b]">
-              <span className="mb-2 block">Budget</span>
-              <input name="budget" placeholder="Budget" className="w-full rounded-2xl border border-[#171412]/10 bg-[#f8f4f0] px-4 py-3 text-sm text-[#171412] placeholder:text-[#171412]/35 outline-none transition focus:border-[#b1875d] focus:bg-white" />
-            </label>
-          </div>
-          <label className="block text-xs uppercase tracking-[0.2em] text-[#4c413b]">
-            <span className="mb-2 block">Usage rights</span>
-            <input name="usageRights" placeholder="Usage rights / campaign scope" className="w-full rounded-2xl border border-[#171412]/10 bg-[#f8f4f0] px-4 py-3 text-sm text-[#171412] placeholder:text-[#171412]/35 outline-none transition focus:border-[#b1875d] focus:bg-white" />
+
+          <label className="booking-field booking-field-full">
+            <span>Usage / campaign scope</span>
+            <input name="usageRights" placeholder="Web, social, print, paid media, duration, territory…" />
           </label>
-          <label className="block text-xs uppercase tracking-[0.2em] text-[#4c413b]">
-            <span className="mb-2 block">Project details</span>
-            <textarea name="message" required rows={6} placeholder="Project details" className="w-full rounded-2xl border border-[#171412]/10 bg-[#f8f4f0] px-4 py-3 text-sm text-[#171412] placeholder:text-[#171412]/35 outline-none transition focus:border-[#b1875d] focus:bg-white" />
+
+          <label className="booking-field booking-message-field">
+            <span>Tell me about the project <b>*</b></span>
+            <textarea name="message" required minLength={10} rows={6} placeholder="Dates, deliverables, creative direction, usage and anything else that will help me understand the project." />
           </label>
-          <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
-            <button className="btn-primary w-fit bg-[#171412] text-[#f7f3ee] hover:bg-[#2d2925]">Send booking request</button>
-            {status && <p className="text-sm text-[#4c413b]">{status}</p>}
+
+          <div className="booking-submit-row">
+            <p>By submitting, you&apos;re requesting availability. Final rates and usage are confirmed separately.</p>
+            <button type="submit" disabled={status === "sending"} className="booking-submit">
+              <span>{status === "sending" ? "Sending request" : "Send inquiry"}</span>
+              <span>↗</span>
+            </button>
           </div>
+
+          {status === "success" && (
+            <div className="booking-feedback booking-feedback-success" role="status">
+              <strong>Request received.</strong> Thank you — I&apos;ll be in touch with availability and next steps.
+            </div>
+          )}
+          {status === "error" && (
+            <div className="booking-feedback booking-feedback-error" role="alert">
+              {error}
+            </div>
+          )}
         </form>
       </div>
     </section>
