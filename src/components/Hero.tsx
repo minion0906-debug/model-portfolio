@@ -20,6 +20,7 @@ export default function Hero({ slides, settings }: Props) {
     target: ref,
     offset: ["start start", "end start"],
   });
+
   const imageY = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const titleY = useTransform(scrollYProgress, [0, 1], [0, -90]);
   const imageScale = useTransform(scrollYProgress, [0, 1], [1.08, 1.18]);

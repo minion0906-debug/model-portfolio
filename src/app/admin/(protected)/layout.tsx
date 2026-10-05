@@ -1,4 +1,5 @@
-import { requireAdmin } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { getCurrentAdmin } from "@/lib/auth";
 import AdminShell from "@/components/admin/AdminShell";
 
 export default async function AdminProtectedLayout({
@@ -6,7 +7,11 @@ export default async function AdminProtectedLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const admin = await requireAdmin();
+  const admin = await getCurrentAdmin();
+
+  if (!admin) {
+    redirect("/admin/login");
+  }
 
   return <AdminShell email={admin.email}>{children}</AdminShell>;
 }
