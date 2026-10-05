@@ -83,7 +83,7 @@ export async function createAdminSession(adminId: string) {
     value: createSessionToken(adminId),
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
     maxAge: SESSION_MAX_AGE,
   });
@@ -97,7 +97,7 @@ export async function destroyAdminSession() {
     value: "",
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
     maxAge: 0,
   });

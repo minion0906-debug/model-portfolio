@@ -1,176 +1,77 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getCurrentAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const formatter = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+
 export default async function AdminDashboard() {
-  let galleryCount = 0;
-  let publishedGalleryCount = 0;
-  let videoCount = 0;
-  let publishedVideoCount = 0;
-  let newBookingsCount = 0;
-  let unreadMessagesCount = 0;
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect("/admin/login");
+  let galleryCount = 0, publishedGalleryCount = 0, videoCount = 0, publishedVideoCount = 0, newBookingsCount = 0, unreadMessagesCount = 0;
   let recentBookings: Array<{ id: string; name: string; email: string; status: string; createdAt: Date }> = [];
   let recentMessages: Array<{ id: string; name: string; email: string; read: boolean; createdAt: Date }> = [];
 
   try {
-    [
-      galleryCount,
-      publishedGalleryCount,
-      videoCount,
-      publishedVideoCount,
-      newBookingsCount,
-      unreadMessagesCount,
-      recentBookings,
-      recentMessages,
-    ] = await Promise.all([
-      prisma.media.count({ where: { type: "IMAGE" } }),
-      prisma.media.count({ where: { type: "IMAGE", published: true } }),
-      prisma.media.count({ where: { type: "VIDEO" } }),
-      prisma.media.count({ where: { type: "VIDEO", published: true } }),
-      prisma.bookingRequest.count({ where: { status: "NEW" } }),
-      prisma.contactMessage.count({ where: { read: false } }),
-      prisma.bookingRequest.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 5,
-        select: { id: true, name: true, email: true, status: true, createdAt: true },
-      }),
-      prisma.contactMessage.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 5,
-        select: { id: true, name: true, email: true, read: true, createdAt: true },
-      }),
+    [galleryCount, publishedGalleryCount, videoCount, publishedVideoCount, newBookingsCount, unreadMessagesCount, recentBookings, recentMessages] = await Promise.all([
+      prisma.media.count({ where: { type: "IMAGE" } }), prisma.media.count({ where: { type: "IMAGE", published: true } }),
+      prisma.media.count({ where: { type: "VIDEO" } }), prisma.media.count({ where: { type: "VIDEO", published: true } }),
+      prisma.bookingRequest.count({ where: { status: "NEW" } }), prisma.contactMessage.count({ where: { read: false } }),
+      prisma.bookingRequest.findMany({ orderBy: { createdAt: "desc" }, take: 5, select: { id: true, name: true, email: true, status: true, createdAt: true } }),
+      prisma.contactMessage.findMany({ orderBy: { createdAt: "desc" }, take: 5, select: { id: true, name: true, email: true, read: true, createdAt: true } }),
     ]);
-  } catch {
-    recentBookings = [];
-    recentMessages = [];
-  }
+  } catch { /* dashboard stays usable if a non-critical query fails */ }
 
   const activity = [
-    ...recentBookings.map((item) => ({
-      id: `booking-${item.id}`,
-      kind: "Booking",
-      title: item.name,
-      detail: item.status,
-      date: item.createdAt,
-      href: "/admin/bookings",
-    })),
-    ...recentMessages.map((item) => ({
-      id: `message-${item.id}`,
-      kind: "Message",
-      title: item.name,
-      detail: item.read ? "Read" : "Unread",
-      date: item.createdAt,
-      href: "/admin/messages",
-    })),
-  ].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 8);
+    ...recentBookings.map(item => ({ id: `b-${item.id}`, kind: "Booking", title: item.name, detail: item.status, date: item.createdAt, href: "/admin/bookings", tone: "booking" })),
+    ...recentMessages.map(item => ({ id: `m-${item.id}`, kind: "Message", title: item.name, detail: item.read ? "Read" : "Unread", date: item.createdAt, href: "/admin/messages", tone: "message" })),
+  ].sort((a,b) => b.date.getTime() - a.date.getTime()).slice(0, 7);
 
   const stats = [
-    { label: "Gallery images", value: galleryCount, detail: `${publishedGalleryCount} published`, href: "/admin/gallery" },
-    { label: "Videos", value: videoCount, detail: `${publishedVideoCount} published`, href: "/admin/videos" },
-    { label: "New bookings", value: newBookingsCount, detail: "Awaiting review", href: "/admin/bookings" },
-    { label: "Unread messages", value: unreadMessagesCount, detail: "Need attention", href: "/admin/messages" },
+    { label: "Gallery", value: galleryCount, sub: `${publishedGalleryCount} published`, href: "/admin/gallery", className: "purple" },
+    { label: "Video library", value: videoCount, sub: `${publishedVideoCount} published`, href: "/admin/videos", className: "blue" },
+    { label: "New bookings", value: newBookingsCount, sub: newBookingsCount ? "Needs review" : "All caught up", href: "/admin/bookings", className: "orange" },
+    { label: "Unread messages", value: unreadMessagesCount, sub: unreadMessagesCount ? "Needs attention" : "Inbox clear", href: "/admin/messages", className: "green" },
   ];
 
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  return <div className="dashboard-page">
+    <section className="dashboard-hero">
+      <div>
+        <div className="admin-eyebrow">Studio overview · October 2026</div>
+        <h1>Good morning.</h1>
+        <p>Everything important about your portfolio, content and incoming work in one place.</p>
+      </div>
+      <div className="dashboard-hero-actions"><Link href="/" target="_blank" className="admin-secondary-button">View website ↗</Link><Link href="/admin/gallery" className="admin-primary-button">Add new work <span>+</span></Link></div>
+    </section>
 
-  return (
-    <div className="space-y-8">
-      <header className="rounded-[2rem] border border-[#171412]/10 bg-[#141210]/90 p-6 text-white shadow-[0_30px_80px_rgba(17,16,15,0.28)] md:p-8">
-        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.34em] text-[#d7b98c]">Overview</p>
-            <h1 className="mt-3 font-display text-4xl md:text-6xl">Dashboard</h1>
-          </div>
-          <Link
-            href="/admin/settings"
-            className="w-fit rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-[10px] uppercase tracking-[0.22em] text-white transition hover:bg-white hover:text-[#171412]"
-          >
-            Site settings
-          </Link>
+    <section className="dashboard-stat-grid">
+      {stats.map(stat => <Link href={stat.href} key={stat.label} className={`dashboard-stat ${stat.className}`}>
+        <div className="dashboard-stat-top"><span>{stat.label}</span><span className="stat-arrow">↗</span></div>
+        <div className="dashboard-stat-number">{stat.value}</div><div className="dashboard-stat-sub">{stat.sub}</div>
+      </Link>)}
+    </section>
+
+    <section className="dashboard-grid">
+      <div className="admin-panel activity-panel">
+        <div className="admin-panel-heading"><div><span className="admin-eyebrow">Inbox</span><h2>Recent activity</h2></div><Link href="/admin/bookings">See all →</Link></div>
+        {activity.length ? <div className="activity-list">{activity.map(item => <Link href={item.href} key={item.id} className="activity-row">
+          <span className={`activity-icon ${item.tone}`}>{item.kind === "Booking" ? "B" : "M"}</span>
+          <span className="activity-main"><strong>{item.title}</strong><small>{item.kind} · {item.detail}</small></span>
+          <time>{formatter.format(item.date)}</time><span className="activity-chevron">→</span>
+        </Link>)}</div> : <div className="empty-state"><strong>Nothing new yet</strong><span>New bookings and messages will appear here.</span></div>}
+      </div>
+
+      <div className="admin-panel quick-panel">
+        <div className="admin-panel-heading"><div><span className="admin-eyebrow">Shortcuts</span><h2>Quick actions</h2></div></div>
+        <div className="quick-grid">
+          {[["Gallery", "/admin/gallery", "Add images"], ["Hero", "/admin/hero", "Edit cover"], ["Bookings", "/admin/bookings", "Review requests"], ["Messages", "/admin/messages", "Open inbox"], ["Videos", "/admin/videos", "Manage reels"], ["Settings", "/admin/settings", "Edit profile"]].map(([label, href, sub]) => <Link href={href} key={href} className="quick-action"><span><strong>{label}</strong><small>{sub}</small></span><b>↗</b></Link>)}
         </div>
-      </header>
+      </div>
+    </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat) => (
-          <Link
-            key={stat.label}
-            href={stat.href}
-            className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/85 p-6 shadow-[0_20px_40px_rgba(17,14,12,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_24px_50px_rgba(17,14,12,0.08)]"
-          >
-            <p className="text-[10px] uppercase tracking-[0.22em] text-[#584e49]">{stat.label}</p>
-            <p className="mt-4 font-display text-4xl text-[#171412]">{stat.value}</p>
-            <p className="mt-2 text-sm text-[#584e49]">{stat.detail}</p>
-          </Link>
-        ))}
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/85 p-6 shadow-[0_20px_40px_rgba(17,14,12,0.04)] md:p-8">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#584e49]">Recent activity</p>
-              <h2 className="mt-2 font-display text-3xl text-[#171412]">Latest incoming activity</h2>
-            </div>
-            <Link href="/admin/bookings" className="text-xs uppercase tracking-[0.2em] text-[#171412] underline-offset-4 hover:underline">
-              View bookings
-            </Link>
-          </div>
-
-          {activity.length === 0 ? (
-            <div className="mt-8 rounded-2xl bg-[#f5efe9] p-8 text-center text-sm text-[#584e49]">
-              No activity yet.
-            </div>
-          ) : (
-            <div className="mt-6 divide-y divide-[#171412]/10">
-              {activity.map((item) => (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
-                >
-                  <div className="min-w-0">
-                    <p className="text-[9px] uppercase tracking-[0.18em] text-[#7a6e67]">{item.kind}</p>
-                    <p className="mt-1 truncate text-sm font-medium text-[#171412]">{item.title}</p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <p className="text-xs text-[#584e49]">{item.detail}</p>
-                    <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-[#7a6e67]">{formatter.format(item.date)}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/85 p-6 shadow-[0_20px_40px_rgba(17,14,12,0.04)] md:p-8">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-[#584e49]">Quick actions</p>
-          <h2 className="mt-2 font-display text-3xl text-[#171412]">Manage your site</h2>
-
-          <div className="mt-6 grid gap-3">
-            {[
-              ["Upload gallery images", "/admin/gallery"],
-              ["Manage videos", "/admin/videos"],
-              ["Edit hero", "/admin/hero"],
-              ["Review bookings", "/admin/bookings"],
-              ["Read messages", "/admin/messages"],
-              ["Update profile", "/admin/settings"],
-            ].map(([label, href]) => (
-              <Link
-                key={href}
-                href={href}
-                className="flex items-center justify-between rounded-2xl border border-[#171412]/10 bg-[#f6efe9] px-4 py-3 text-sm text-[#171412] transition hover:border-[#171412]/20 hover:bg-[#171412] hover:text-white"
-              >
-                <span>{label}</span>
-                <span aria-hidden>→</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+    <section className="dashboard-footer-strip"><div><span className="status-pulse" /> Website is live</div><div>Portfolio content · {galleryCount + videoCount} total assets</div><Link href="/admin/settings">Manage site settings →</Link></section>
+  </div>;
 }
