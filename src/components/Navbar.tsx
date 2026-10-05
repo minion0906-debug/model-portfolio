@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 
 const navItems = [
-  { href: "#home", label: "Home" },
-  { href: "#gallery", label: "Images" },
-  { href: "#videos", label: "Videos" },
+  { href: "#gallery", label: "Work" },
+  { href: "#videos", label: "Motion" },
+  { href: "#about", label: "About" },
   { href: "#contact", label: "Contact" },
 ];
 
@@ -16,9 +16,9 @@ export default function Navbar() {
   return (
     <header className="portfolio-header">
       <div className="portfolio-nav-wrap">
-        <Link href="#home" className="portfolio-brand" aria-label="Home">
-          <span>LA</span>
-          <strong>Lera Aumila</strong>
+        <Link href="#home" className="portfolio-brand" aria-label="Lera Aumila home">
+          <span className="portfolio-brand-mark">LA</span>
+          <span className="portfolio-brand-name">Lera Aumila</span>
         </Link>
 
         <nav className="portfolio-nav-links" aria-label="Primary navigation">
@@ -27,7 +27,7 @@ export default function Navbar() {
               {item.label}
             </Link>
           ))}
-          <Link href="/admin/login" className="portfolio-login-link">Login</Link>
+          <Link href="#contact" className="portfolio-nav-cta">Book a project <span aria-hidden="true">↗</span></Link>
         </nav>
 
         <button
@@ -37,7 +37,8 @@ export default function Navbar() {
           aria-label="Toggle navigation"
           aria-expanded={open}
         >
-          {open ? "Close" : "Menu"}
+          <span>{open ? "Close" : "Menu"}</span>
+          <i aria-hidden="true" />
         </button>
       </div>
 
@@ -45,10 +46,12 @@ export default function Navbar() {
         <nav className="portfolio-mobile-nav" aria-label="Mobile navigation">
           {navItems.map((item) => (
             <Link key={`mobile-${item.label}`} href={item.href} onClick={() => setOpen(false)}>
-              {item.label}
+              <span>{item.label}</span><span aria-hidden="true">↗</span>
             </Link>
           ))}
-          <Link href="/admin/login" onClick={() => setOpen(false)}>Login</Link>
+          <Link href="#contact" onClick={() => setOpen(false)} className="mobile-book-link">
+            <span>Book a project</span><span aria-hidden="true">↗</span>
+          </Link>
         </nav>
       )}
     </header>

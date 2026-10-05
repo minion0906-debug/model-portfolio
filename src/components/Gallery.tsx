@@ -13,6 +13,11 @@ export default function Gallery({ images }: GalleryProps) {
   const filters = ["All", ...Array.from(new Set(images.map((image) => image.tag).filter(Boolean)))];
   const visibleImages = useMemo(() => filter === "All" ? images : images.filter((image) => image.tag === filter), [filter, images]);
 
+  function handleFilterChange(nextFilter: string) {
+    setFilter(nextFilter || "All");
+    setActiveIndex(null);
+  }
+
   return (
     <section id="gallery" className="portfolio-gallery section-pad">
       <div className="container-page">
@@ -39,7 +44,7 @@ export default function Gallery({ images }: GalleryProps) {
           <>
             <div className="gallery-filters" aria-label="Portfolio categories">
               {filters.map((item) => (
-                <button key={item} type="button" className={filter === item ? "gallery-filter active" : "gallery-filter"} onClick={() => setFilter(item || "All")}>
+                <button key={item} type="button" className={filter === item ? "gallery-filter active" : "gallery-filter"} onClick={() => handleFilterChange(item || "All")}>
                   {item || "Portfolio"}
                 </button>
               ))}
@@ -47,8 +52,12 @@ export default function Gallery({ images }: GalleryProps) {
 
             <div className="gallery-showcase" aria-label="Image portfolio">
               {visibleImages.map((image, index) => {
-                const featured = index === 0;
-                const layoutClass = featured ? "gallery-card gallery-card-featured" : "gallery-card";
+                const layoutClass = [
+                  "gallery-card gallery-card-featured",
+                  "gallery-card gallery-card-tall",
+                  "gallery-card gallery-card-standard",
+                  "gallery-card gallery-card-wide",
+                ][index % 4];
 
                 return (
                   <motion.button
@@ -66,7 +75,11 @@ export default function Gallery({ images }: GalleryProps) {
                       src={image.src}
                       alt={image.title}
                       fill
-                      sizes={featured ? "(max-width: 900px) 100vw, 58vw" : "(max-width: 900px) 50vw, 28vw"}
+                      sizes={
+                        index === 0 || index === 3
+                          ? "(max-width: 900px) 100vw, 58vw"
+                          : "(max-width: 900px) 50vw, 42vw"
+                      }
                       className="gallery-card-image"
                       priority={index < 2}
                     />
@@ -76,8 +89,11 @@ export default function Gallery({ images }: GalleryProps) {
                       <span>{image.tag || "Portfolio"}</span>
                     </span>
                     <span className="gallery-card-caption">
-                      <span className="gallery-card-title">{image.title}</span>
-                      <span className="gallery-card-open">View <b>+</b></span>
+                      <span>
+                        <span className="gallery-card-title">{image.title}</span>
+                        <span className="gallery-card-tagline">{image.tag || "Selected work"}</span>
+                      </span>
+                      <span className="gallery-card-open">Open <b>↗</b></span>
                     </span>
                   </motion.button>
                 );
@@ -96,11 +112,11 @@ export default function Gallery({ images }: GalleryProps) {
       <AnimatePresence>
         {activeIndex !== null && (
           <GalleryLightbox
-            images={images}
+            images={visibleImages}
             activeIndex={activeIndex}
             onClose={() => setActiveIndex(null)}
-            onPrevious={() => setActiveIndex((current) => (current === null ? 0 : (current - 1 + images.length) % images.length))}
-            onNext={() => setActiveIndex((current) => (current === null ? 0 : (current + 1) % images.length))}
+            onPrevious={() => setActiveIndex((current) => (current === null ? 0 : (current - 1 + visibleImages.length) % visibleImages.length))}
+            onNext={() => setActiveIndex((current) => (current === null ? 0 : (current + 1) % visibleImages.length))}
           />
         )}
       </AnimatePresence>

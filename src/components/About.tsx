@@ -5,62 +5,93 @@ type Props = {
   settings: PublicSiteSettings;
 };
 
+function splitSpecialties(value: string | null) {
+  return (value || "")
+    .split(/[,•|]/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 6);
+}
+
 export default function About({ settings }: Props) {
   const details = [
     ["Height", settings.height],
-    ["Location", settings.location],
     ["Clothing", settings.clothingSize],
     ["Shoe", settings.shoeSize],
     ["Languages", settings.languages],
-    ["Specialties", settings.specialties],
   ].filter(([, value]) => Boolean(value));
 
+  const specialties = splitSpecialties(settings.specialties);
+
   return (
-    <section id="about" className="section-pad relative bg-[#f7f3ee]">
-      <div className="container-page grid gap-12 md:grid-cols-[0.9fr_1.1fr] md:items-center">
-        <div className="panel-surface relative overflow-hidden rounded-[2.4rem] border-[#171412]/10 bg-[#fffdfb]/60 p-3 shadow-[0_30px_80px_rgba(17,15,13,0.06)]">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-[1.8rem] bg-neutral-200">
-            {settings.profileImage ? (
-              <div className="relative h-full w-full">
-                <Image
-                  src={settings.profileImage}
-                  alt={settings.name}
-                  width={900}
-                  height={1125}
-                  className="h-full w-full object-cover grayscale-[0.08] contrast-[1.05]"
-                  sizes="(max-width: 768px) 100vw, 40vw"
-                />
-              </div>
-            ) : (
-              <div className="flex h-full items-end bg-[radial-gradient(circle_at_top,_rgba(184,141,94,0.18),transparent_38%),linear-gradient(180deg,#ece2d7,#d5c8be)] p-8 text-neutral-500">
-                <span className="font-display text-4xl">Profile</span>
-              </div>
-            )}
+    <section id="about" className="profile-section">
+      <div className="container-page">
+        <div className="profile-header">
+          <div>
+            <p className="section-kicker">The profile</p>
+            <h2>More than<br /><em>a portfolio.</em></h2>
+          </div>
+          <div className="profile-header-copy">
+            <span className={settings.acceptingBookings ? "profile-status is-open" : "profile-status"}>
+              <i aria-hidden="true" />
+              {settings.acceptingBookings ? "Available for selected bookings" : "Bookings currently closed"}
+            </span>
+            <p>{settings.location || "Available for selected projects"}</p>
           </div>
         </div>
 
-        <div className="max-w-2xl">
-          <p className="section-kicker">About</p>
-          <h2 className="mt-4 font-display text-5xl leading-none tracking-[-0.05em] text-[#171412] md:text-7xl">{settings.name}</h2>
-          <div className="mt-6 h-px w-20 bg-[#171412]/10" />
-
-          <div className="mt-8 rounded-[1.8rem] border border-[#171412]/10 bg-[#fffdfb]/75 p-5 shadow-[0_26px_60px_rgba(17,15,13,0.04)] md:p-6">
-            <p className="text-[0.62rem] uppercase tracking-[0.28em] text-neutral-500">Creative direction</p>
-            <p className="mt-4 text-base leading-8 text-[#2c2724] md:text-lg">
-              {settings.bio || "Model, creative and editorial talent available for selected projects."}
-            </p>
+        <div className="profile-layout">
+          <div className="profile-image-wrap">
+            <div className="profile-image-frame">
+              {settings.profileImage ? (
+                <Image
+                  src={settings.profileImage}
+                  alt={settings.name}
+                  fill
+                  sizes="(max-width: 900px) 100vw, 48vw"
+                  className="profile-image"
+                />
+              ) : (
+                <div className="profile-image-placeholder">
+                  <span>{settings.name}</span>
+                </div>
+              )}
+            </div>
+            <div className="profile-image-note">Profile / 01</div>
           </div>
 
-          {details.length > 0 && (
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              {details.map(([label, value]) => (
-                <div key={label} className="rounded-[1.4rem] border border-[#171412]/10 bg-[#fffdfb]/70 p-4 shadow-[0_14px_28px_rgba(17,15,13,0.02)]">
-                  <p className="text-[0.62rem] uppercase tracking-[0.24em] text-neutral-500">{label}</p>
-                  <p className="mt-3 text-sm text-[#2c2724]">{value}</p>
+          <div className="profile-content">
+            <p className="profile-eyebrow">{settings.name}</p>
+            <h3>Contemporary presence.<br />Editorial point of view.</h3>
+            <p className="profile-bio">
+              {settings.bio || "Model, creative and editorial talent available for selected projects."}
+            </p>
+
+            {details.length > 0 && (
+              <div className="profile-details" aria-label="Model details">
+                {details.map(([label, value]) => (
+                  <div className="profile-detail" key={label}>
+                    <span>{label}</span>
+                    <strong>{value}</strong>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {specialties.length > 0 && (
+              <div className="profile-specialties">
+                <span className="profile-label">Specialties</span>
+                <div>
+                  {specialties.map((specialty) => <span key={specialty}>{specialty}</span>)}
                 </div>
-              ))}
+              </div>
+            )}
+
+            <div className="profile-actions">
+              <a href="#contact">Book a project <span aria-hidden="true">↗</span></a>
+              <a href="#gallery">View selected work <span aria-hidden="true">↗</span></a>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </section>
