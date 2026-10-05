@@ -18,8 +18,8 @@ export default function Hero({ slides, settings }: Props) {
     <section id="home" className="portfolio-hero" aria-label={`${settings.name} introduction`}>
       <div className="portfolio-hero-copy">
         <div className="portfolio-hero-inner">
-          <p className="portfolio-hero-kicker">Fashion · Editorial · Commercial</p>
-          <h1>{settings.name}</h1>
+          <p className="portfolio-hero-kicker">LAS VEGAS · FASHION · EDITORIAL</p>
+          <h1><span className="hero-name">{settings.name}</span><span className="hero-subname">Luxury Model Portfolio</span></h1>
           <div className="portfolio-hero-rule" />
           <p className="portfolio-hero-bio">
             {settings.bio || "Model, creative and editorial talent available for selected projects."}

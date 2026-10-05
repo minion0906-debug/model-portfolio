@@ -2,13 +2,16 @@
 
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import GalleryLightbox, { type GalleryImage } from "@/components/GalleryLightbox";
 
 type GalleryProps = { images: GalleryImage[] };
 
 export default function Gallery({ images }: GalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [filter, setFilter] = useState("All");
+  const filters = ["All", ...Array.from(new Set(images.map((image) => image.tag).filter(Boolean)))];
+  const visibleImages = useMemo(() => filter === "All" ? images : images.filter((image) => image.tag === filter), [filter, images]);
 
   return (
     <section id="gallery" className="portfolio-gallery section-pad">
@@ -34,8 +37,16 @@ export default function Gallery({ images }: GalleryProps) {
           </div>
         ) : (
           <>
+            <div className="gallery-filters" aria-label="Portfolio categories">
+              {filters.map((item) => (
+                <button key={item} type="button" className={filter === item ? "gallery-filter active" : "gallery-filter"} onClick={() => setFilter(item || "All")}>
+                  {item || "Portfolio"}
+                </button>
+              ))}
+            </div>
+
             <div className="gallery-showcase" aria-label="Image portfolio">
-              {images.map((image, index) => {
+              {visibleImages.map((image, index) => {
                 const featured = index === 0;
                 const layoutClass = featured ? "gallery-card gallery-card-featured" : "gallery-card";
 

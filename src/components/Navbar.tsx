@@ -17,8 +17,8 @@ export default function Navbar() {
     <header className="portfolio-header">
       <div className="portfolio-nav-wrap">
         <Link href="#home" className="portfolio-brand" aria-label="Home">
-          <span>AV</span>
-          <strong>Studio</strong>
+          <span>LA</span>
+          <strong>Lera Aumila</strong>
         </Link>
 
         <nav className="portfolio-nav-links" aria-label="Primary navigation">
