@@ -7,7 +7,7 @@ export async function ensureSiteSettings() {
 
   return prisma.siteSettings.create({
     data: {
-      name: "Avery",
+      name: "Lera Aumila",
       bio: "Model, creative and editorial talent available for selected projects.",
       location: "London, UK",
       height: "5'10\" / 178 cm",
