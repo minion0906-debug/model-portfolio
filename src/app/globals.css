@@ -151,3 +151,26 @@ section {
 }
 
 
+
+/* Editorial foundation */
+:root {
+  --background: #f7f3ee;
+  --background-strong: #eee7df;
+  --background-deep: #11110f;
+  --foreground: #171412;
+  --muted: #6c655f;
+  --line: rgba(23, 20, 18, 0.11);
+  --accent: #9c7048;
+  --accent-soft: rgba(156, 112, 72, 0.13);
+  --portfolio-pink: #9c7048;
+  --portfolio-border: rgba(23, 20, 18, 0.11);
+}
+
+body {
+  background: #f7f3ee;
+  color: var(--foreground);
+}
+
+::selection {
+  background: rgba(156, 112, 72, 0.2);
+}
