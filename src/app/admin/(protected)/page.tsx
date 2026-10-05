@@ -78,17 +78,17 @@ export default async function AdminDashboard() {
   });
 
   return (
-    <div className="space-y-8">
-      <header className="rounded-[2rem] border border-[#171412]/10 bg-[#141210]/90 p-6 text-white shadow-[0_30px_80px_rgba(17,16,15,0.28)] md:p-8">
-        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+    <div className="space-y-10">
+      <header>
+        <p className="text-xs uppercase tracking-[0.25em] text-neutral-500">Overview</p>
+        <div className="mt-2 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.34em] text-[#d7b98c]">Overview</p>
-            <h1 className="mt-3 font-display text-4xl md:text-6xl">Dashboard</h1>
+            <h1 className="font-display text-4xl md:text-5xl">Dashboard</h1>
+            <p className="mt-2 text-sm text-neutral-500">
+              A quick view of your portfolio and incoming requests.
+            </p>
           </div>
-          <Link
-            href="/admin/settings"
-            className="w-fit rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-[10px] uppercase tracking-[0.22em] text-white transition hover:bg-white hover:text-[#171412]"
-          >
+          <Link href="/admin/settings" className="w-fit rounded-full border border-black/10 px-5 py-2.5 text-sm hover:bg-black hover:text-white">
             Site settings
           </Link>
         </div>
@@ -96,49 +96,39 @@ export default async function AdminDashboard() {
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
-          <Link
-            key={stat.label}
-            href={stat.href}
-            className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/85 p-6 shadow-[0_20px_40px_rgba(17,14,12,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_24px_50px_rgba(17,14,12,0.08)]"
-          >
-            <p className="text-[10px] uppercase tracking-[0.22em] text-[#584e49]">{stat.label}</p>
-            <p className="mt-4 font-display text-4xl text-[#171412]">{stat.value}</p>
-            <p className="mt-2 text-sm text-[#584e49]">{stat.detail}</p>
+          <Link key={stat.label} href={stat.href} className="rounded-2xl border border-black/10 bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-sm">
+            <p className="text-xs uppercase tracking-[0.18em] text-neutral-500">{stat.label}</p>
+            <p className="mt-4 text-4xl font-medium">{stat.value}</p>
+            <p className="mt-2 text-sm text-neutral-500">{stat.detail}</p>
           </Link>
         ))}
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/85 p-6 shadow-[0_20px_40px_rgba(17,14,12,0.04)] md:p-8">
+        <div className="rounded-2xl border border-black/10 bg-white p-6 md:p-8">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.22em] text-[#584e49]">Recent activity</p>
-              <h2 className="mt-2 font-display text-3xl text-[#171412]">Latest incoming activity</h2>
+              <p className="text-xs uppercase tracking-[0.18em] text-neutral-500">Recent activity</p>
+              <h2 className="mt-2 font-display text-2xl">Latest incoming activity</h2>
             </div>
-            <Link href="/admin/bookings" className="text-xs uppercase tracking-[0.2em] text-[#171412] underline-offset-4 hover:underline">
-              View bookings
-            </Link>
+            <Link href="/admin/bookings" className="text-sm underline underline-offset-4">View bookings</Link>
           </div>
 
           {activity.length === 0 ? (
-            <div className="mt-8 rounded-2xl bg-[#f5efe9] p-8 text-center text-sm text-[#584e49]">
+            <div className="mt-8 rounded-xl bg-neutral-50 p-8 text-center text-sm text-neutral-500">
               No activity yet.
             </div>
           ) : (
-            <div className="mt-6 divide-y divide-[#171412]/10">
+            <div className="mt-6 divide-y divide-black/10">
               {activity.map((item) => (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
-                >
+                <Link key={item.id} href={item.href} className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
                   <div className="min-w-0">
-                    <p className="text-[9px] uppercase tracking-[0.18em] text-[#7a6e67]">{item.kind}</p>
-                    <p className="mt-1 truncate text-sm font-medium text-[#171412]">{item.title}</p>
+                    <p className="text-xs uppercase tracking-[0.15em] text-neutral-400">{item.kind}</p>
+                    <p className="mt-1 truncate text-sm font-medium">{item.title}</p>
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="text-xs text-[#584e49]">{item.detail}</p>
-                    <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-[#7a6e67]">{formatter.format(item.date)}</p>
+                    <p className="text-xs text-neutral-500">{item.detail}</p>
+                    <p className="mt-1 text-xs text-neutral-400">{formatter.format(item.date)}</p>
                   </div>
                 </Link>
               ))}
@@ -146,9 +136,9 @@ export default async function AdminDashboard() {
           )}
         </div>
 
-        <div className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/85 p-6 shadow-[0_20px_40px_rgba(17,14,12,0.04)] md:p-8">
-          <p className="text-[10px] uppercase tracking-[0.22em] text-[#584e49]">Quick actions</p>
-          <h2 className="mt-2 font-display text-3xl text-[#171412]">Manage your site</h2>
+        <div className="rounded-2xl border border-black/10 bg-white p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.18em] text-neutral-500">Quick actions</p>
+          <h2 className="mt-2 font-display text-2xl">Manage your site</h2>
 
           <div className="mt-6 grid gap-3">
             {[
@@ -159,11 +149,7 @@ export default async function AdminDashboard() {
               ["Read messages", "/admin/messages"],
               ["Update profile", "/admin/settings"],
             ].map(([label, href]) => (
-              <Link
-                key={href}
-                href={href}
-                className="flex items-center justify-between rounded-2xl border border-[#171412]/10 bg-[#f6efe9] px-4 py-3 text-sm text-[#171412] transition hover:border-[#171412]/20 hover:bg-[#171412] hover:text-white"
-              >
+              <Link key={href} href={href} className="flex items-center justify-between rounded-xl border border-black/10 px-4 py-3 text-sm transition hover:bg-black hover:text-white">
                 <span>{label}</span>
                 <span aria-hidden>→</span>
               </Link>

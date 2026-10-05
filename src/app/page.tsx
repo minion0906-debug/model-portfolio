@@ -36,10 +36,10 @@ export default async function HomePage() {
         <div className="container-page intro-grid">
           <div>
             <p className="section-kicker">Independent talent</p>
-            <h2>Find the right look<br />for the next brief.</h2>
+            <h2>Polished visuals.<br />Powerful stories.</h2>
           </div>
           <div>
-            <p className="intro-copy">A curated portfolio built for creative teams, photographers, brands and producers. Browse the work, see the range, then get in touch directly.</p>
+            <p className="intro-copy">Curated for fashion editors, beauty brands, creative directors and production teams seeking a contemporary, elevated point of view.</p>
             <div className="mini-links"><a href="#gallery">View portfolio <span>→</span></a><a href="#contact">Start a booking <span>→</span></a></div>
           </div>
         </div>

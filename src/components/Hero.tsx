@@ -18,7 +18,7 @@ export default function Hero({ slides, settings }: Props) {
     <section id="home" className="portfolio-hero" aria-label={`${settings.name} introduction`}>
       <div className="portfolio-hero-copy">
         <div className="portfolio-hero-inner">
-          <p className="portfolio-hero-kicker">MODEL · CREATIVE · EDITORIAL</p>
+          <p className="portfolio-hero-kicker">Fashion · Editorial · Commercial</p>
           <h1>{settings.name}</h1>
           <div className="portfolio-hero-rule" />
           <p className="portfolio-hero-bio">
@@ -27,7 +27,10 @@ export default function Hero({ slides, settings }: Props) {
           {settings.location && (
             <p className="portfolio-hero-location">Based in {settings.location}</p>
           )}
-          <a href="#contact" className="portfolio-hero-cta">Contact / Book <span aria-hidden="true">→</span></a>
+          <div className="portfolio-hero-actions">
+            <a href="#gallery" className="portfolio-hero-cta">View portfolio <span aria-hidden="true">→</span></a>
+            <a href="#contact" className="portfolio-hero-cta secondary">Book now <span aria-hidden="true">→</span></a>
+          </div>
         </div>
       </div>
 

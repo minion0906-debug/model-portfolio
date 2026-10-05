@@ -129,31 +129,35 @@ export default function SettingsManager() {
   }
 
   if (loading) {
-    return <div className="rounded-2xl border border-black/10 bg-white p-8 text-sm text-neutral-500">Loading settings…</div>;
+    return (
+      <div className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/80 p-8 text-sm text-[#584e49] shadow-[0_20px_40px_rgba(17,14,12,0.04)]">
+        Loading settings…
+      </div>
+    );
   }
 
   return (
-    <form onSubmit={save} className="space-y-8">
-      <section className="rounded-2xl border border-black/10 bg-white p-6 md:p-8">
-        <h2 className="font-display text-2xl">Profile</h2>
+    <form onSubmit={save} className="space-y-6">
+      <section className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/85 p-6 shadow-[0_20px_40px_rgba(17,14,12,0.04)] md:p-8">
+        <h2 className="font-display text-3xl text-[#171412]">Profile</h2>
 
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <label className="block">
-            <span className="text-xs uppercase tracking-[0.18em] text-neutral-500">Name</span>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-[#584e49]">Name</span>
             <input
               value={settings.name}
               onChange={(e) => update("name", e.target.value)}
-              className="mt-2 w-full rounded-xl border border-black/10 px-4 py-3 outline-none focus:border-black"
+              className="mt-2 w-full rounded-[1rem] border border-[#171412]/10 bg-white px-4 py-3 text-[#171412] outline-none transition focus:border-[#171412]/30"
               required
             />
           </label>
 
           <label className="block">
-            <span className="text-xs uppercase tracking-[0.18em] text-neutral-500">Profile image</span>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-[#584e49]">Profile image</span>
             <select
               value={settings.profileImage}
               onChange={(e) => update("profileImage", e.target.value)}
-              className="mt-2 w-full rounded-xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black"
+              className="mt-2 w-full rounded-[1rem] border border-[#171412]/10 bg-white px-4 py-3 text-[#171412] outline-none transition focus:border-[#171412]/30"
             >
               <option value="">No profile image</option>
               {images.map((image) => (
@@ -162,24 +166,24 @@ export default function SettingsManager() {
                 </option>
               ))}
             </select>
-            <p className="mt-2 text-xs text-neutral-500">Uses a published gallery image.</p>
+            <p className="mt-2 text-xs text-[#584e49]">Uses a published gallery image.</p>
           </label>
 
           <label className="block md:col-span-2">
-            <span className="text-xs uppercase tracking-[0.18em] text-neutral-500">Bio</span>
+            <span className="text-[10px] uppercase tracking-[0.18em] text-[#584e49]">Bio</span>
             <textarea
               value={settings.bio}
               onChange={(e) => update("bio", e.target.value)}
               rows={6}
-              className="mt-2 w-full rounded-xl border border-black/10 px-4 py-3 outline-none focus:border-black"
+              className="mt-2 w-full rounded-[1rem] border border-[#171412]/10 bg-white px-4 py-3 text-[#171412] outline-none transition focus:border-[#171412]/30"
               placeholder="Short public profile biography"
             />
           </label>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-black/10 bg-white p-6 md:p-8">
-        <h2 className="font-display text-2xl">Profile Details</h2>
+      <section className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/85 p-6 shadow-[0_20px_40px_rgba(17,14,12,0.04)] md:p-8">
+        <h2 className="font-display text-3xl text-[#171412]">Profile Details</h2>
 
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           {[
@@ -191,21 +195,21 @@ export default function SettingsManager() {
             ["specialties", "Specialties", "Editorial, beauty, commercial"],
           ].map(([key, label, placeholder]) => (
             <label key={key} className="block">
-              <span className="text-xs uppercase tracking-[0.18em] text-neutral-500">{label}</span>
+              <span className="text-[10px] uppercase tracking-[0.18em] text-[#584e49]">{label}</span>
               <input
                 value={settings[key as keyof Settings] as string}
                 onChange={(e) => update(key as keyof Settings, e.target.value as never)}
                 placeholder={placeholder}
-                className="mt-2 w-full rounded-xl border border-black/10 px-4 py-3 outline-none focus:border-black"
+                className="mt-2 w-full rounded-[1rem] border border-[#171412]/10 bg-white px-4 py-3 text-[#171412] outline-none transition focus:border-[#171412]/30"
               />
             </label>
           ))}
         </div>
       </section>
 
-      <section className="rounded-2xl border border-black/10 bg-white p-6 md:p-8">
-        <h2 className="font-display text-2xl">Contact & Socials</h2>
-        <p className="mt-2 text-sm text-neutral-500">Use full URLs for social profiles.</p>
+      <section className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/85 p-6 shadow-[0_20px_40px_rgba(17,14,12,0.04)] md:p-8">
+        <h2 className="font-display text-3xl text-[#171412]">Contact & Socials</h2>
+        <p className="mt-2 text-sm text-[#584e49]">Use full URLs for social profiles.</p>
 
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           {[
@@ -216,24 +220,24 @@ export default function SettingsManager() {
             ["youtube", "YouTube URL", "https://youtube.com/..."],
           ].map(([key, label, placeholder]) => (
             <label key={key} className="block">
-              <span className="text-xs uppercase tracking-[0.18em] text-neutral-500">{label}</span>
+              <span className="text-[10px] uppercase tracking-[0.18em] text-[#584e49]">{label}</span>
               <input
                 type={key === "email" ? "email" : "url"}
                 value={settings[key as keyof Settings] as string}
                 onChange={(e) => update(key as keyof Settings, e.target.value as never)}
                 placeholder={placeholder}
-                className="mt-2 w-full rounded-xl border border-black/10 px-4 py-3 outline-none focus:border-black"
+                className="mt-2 w-full rounded-[1rem] border border-[#171412]/10 bg-white px-4 py-3 text-[#171412] outline-none transition focus:border-[#171412]/30"
               />
             </label>
           ))}
         </div>
       </section>
 
-      <section className="rounded-2xl border border-black/10 bg-white p-6 md:p-8">
+      <section className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/85 p-6 shadow-[0_20px_40px_rgba(17,14,12,0.04)] md:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="font-display text-2xl">Booking Availability</h2>
-            <p className="mt-2 text-sm text-neutral-500">
+            <h2 className="font-display text-3xl text-[#171412]">Booking Availability</h2>
+            <p className="mt-2 text-sm text-[#584e49]">
               When disabled, new public booking requests are rejected.
             </p>
           </div>
@@ -242,7 +246,7 @@ export default function SettingsManager() {
             type="button"
             onClick={() => update("acceptingBookings", !settings.acceptingBookings)}
             className={`rounded-full px-5 py-3 text-sm font-medium transition ${
-              settings.acceptingBookings ? "bg-black text-white" : "bg-neutral-200 text-neutral-700"
+              settings.acceptingBookings ? "bg-[#171412] text-white" : "bg-[#efe7df] text-[#171412]"
             }`}
           >
             {settings.acceptingBookings ? "Accepting bookings" : "Bookings closed"}
@@ -253,11 +257,11 @@ export default function SettingsManager() {
       <div className="flex flex-wrap items-center gap-4">
         <button
           disabled={saving}
-          className="rounded-full bg-black px-6 py-3 text-sm font-medium text-white disabled:opacity-50"
+          className="rounded-full bg-[#171412] px-6 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {saving ? "Saving…" : "Save settings"}
         </button>
-        {message && <p className="text-sm text-neutral-600">{message}</p>}
+        {message && <p className="text-sm text-[#584e49]">{message}</p>}
       </div>
     </form>
   );

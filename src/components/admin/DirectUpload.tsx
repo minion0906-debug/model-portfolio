@@ -94,22 +94,43 @@ export default function DirectUpload({
   }
 
   return (
-    <div className="rounded-2xl border border-dashed border-black/15 bg-white p-5">
-      <input
-        ref={inputRef}
-        type="file"
-        accept={accept}
-        multiple={multiple}
-        disabled={uploading}
-        onChange={handleChange}
-        className="block w-full text-sm"
-      />
-      <p className="mt-3 text-xs text-neutral-500">
+    <div className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/85 p-5 shadow-[0_20px_40px_rgba(17,14,12,0.04)] md:p-6">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.22em] text-[#584e49]">Quick upload</p>
+          <h3 className="mt-2 font-display text-3xl text-[#171412]">
+            {kind === "video" ? "Video library" : "Portfolio images"}
+          </h3>
+        </div>
+        <span className="rounded-full border border-[#171412]/10 bg-[#f5efe9] px-3 py-1 text-[9px] uppercase tracking-[0.18em] text-[#171412]">
+          {kind === "video" ? "Video" : "Image"}
+        </span>
+      </div>
+
+      <label className="mt-6 flex cursor-pointer items-center justify-between gap-3 rounded-[1.25rem] border border-dashed border-[#171412]/20 bg-[#f8f4f0] px-4 py-4 transition hover:border-[#171412]/35 hover:bg-[#f3eee8]">
+        <input
+          ref={inputRef}
+          type="file"
+          accept={accept}
+          multiple={multiple}
+          disabled={uploading}
+          onChange={handleChange}
+          className="sr-only"
+        />
+        <span className="text-sm text-[#171412]">
+          {uploading ? "Uploading…" : `Select ${kind === "video" ? "video files" : "images"}`}
+        </span>
+        <span className="rounded-full bg-[#171412] px-3 py-1.5 text-[9px] uppercase tracking-[0.18em] text-white">
+          {uploading ? "Busy" : "Add"}
+        </span>
+      </label>
+
+      <p className="mt-3 text-xs leading-6 text-[#584e49]">
         {kind === "video"
           ? "Direct upload supports MP4, WebM and MOV up to 500MB."
           : "Direct upload supports JPG, PNG and WebP up to 10MB."}
       </p>
-      {status && <p className="mt-3 text-sm text-neutral-600">{status}</p>}
+      {status && <p className="mt-3 text-sm text-[#171412]">{status}</p>}
     </div>
   );
 }
