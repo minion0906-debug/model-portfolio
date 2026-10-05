@@ -22,34 +22,39 @@ export default function Contact({ settings }: Props) {
 
           <div className="mt-8 space-y-3 text-sm text-[#4c413b]">
             {settings.email && (
-              <p>
-                <a href={`mailto:${settings.email}`} className="transition-colors hover:text-[#171412]">
+              <div className="rounded-[1.1rem] border border-[#171412]/10 bg-white/40 p-3">
+                <div className="text-[0.62rem] uppercase tracking-[0.22em] text-[#584e49]">Email</div>
+                <a href={`mailto:${settings.email}`} className="mt-2 block text-base text-[#171412] transition-colors hover:text-[#584e49]">
                   {settings.email}
                 </a>
-              </p>
+              </div>
             )}
             {settings.phone && (
-              <p>
-                <a href={`tel:${settings.phone}`} className="transition-colors hover:text-[#171412]">
+              <div className="rounded-[1.1rem] border border-[#171412]/10 bg-white/40 p-3">
+                <div className="text-[0.62rem] uppercase tracking-[0.22em] text-[#584e49]">Phone</div>
+                <a href={`tel:${settings.phone}`} className="mt-2 block text-base text-[#171412] transition-colors hover:text-[#584e49]">
                   {settings.phone}
                 </a>
-              </p>
+              </div>
             )}
           </div>
 
           {socials.length > 0 && (
-            <div className="mt-8 flex flex-wrap gap-4 text-sm">
-              {socials.map(([label, url]) => (
-                <a
-                  key={label}
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[0.7rem] uppercase tracking-[0.22em] text-[#4c413b] transition-colors hover:text-[#171412]"
-                >
-                  {label}
-                </a>
-              ))}
+            <div className="mt-8 space-y-3">
+              <div className="text-[0.62rem] uppercase tracking-[0.22em] text-[#584e49]">Follow</div>
+              <div className="flex flex-wrap gap-3 text-sm">
+                {socials.map(([label, url]) => (
+                  <a
+                    key={label}
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border border-[#171412]/10 bg-white/45 px-4 py-2 text-[0.65rem] uppercase tracking-[0.22em] text-[#4c413b] transition-colors hover:border-[#171412]/20 hover:text-[#171412]"
+                  >
+                    {label}
+                  </a>
+                ))}
+              </div>
             </div>
           )}
 

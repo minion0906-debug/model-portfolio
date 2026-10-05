@@ -11,6 +11,7 @@ const bookingSchema = z.object({
   preferredDate: z.string().optional().or(z.literal("")),
   location: z.string().trim().max(200).optional().or(z.literal("")),
   budget: z.string().trim().max(120).optional().or(z.literal("")),
+  usageRights: z.string().trim().max(500).optional().or(z.literal("")),
   message: z.string().trim().min(10).max(4000),
 });
 
@@ -55,6 +56,7 @@ export async function POST(request: Request) {
         preferredDate,
         location: data.location || null,
         budget: data.budget || null,
+        usageRights: data.usageRights || null,
         message: data.message,
       },
     });

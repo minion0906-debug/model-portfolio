@@ -7,12 +7,18 @@ import { ensureSiteSettings } from "@/lib/admin-settings";
 const settingsSchema = z.object({
   name: z.string().trim().min(1).max(120),
   bio: z.string().trim().max(2000),
+  profileImage: z.string().trim().max(1000).or(z.literal("")),
+  location: z.string().trim().max(200).or(z.literal("")),
+  height: z.string().trim().max(80).or(z.literal("")),
+  clothingSize: z.string().trim().max(80).or(z.literal("")),
+  shoeSize: z.string().trim().max(80).or(z.literal("")),
+  languages: z.string().trim().max(200).or(z.literal("")),
+  specialties: z.string().trim().max(300).or(z.literal("")),
   email: z.string().trim().email().max(320).or(z.literal("")),
-  phone: z.string().trim().max(80),
+  phone: z.string().trim().max(80).or(z.literal("")),
   instagram: z.string().trim().url().max(500).or(z.literal("")),
   tiktok: z.string().trim().url().max(500).or(z.literal("")),
   youtube: z.string().trim().url().max(500).or(z.literal("")),
-  profileImage: z.string().trim().max(1000).or(z.literal("")),
   acceptingBookings: z.boolean(),
 });
 

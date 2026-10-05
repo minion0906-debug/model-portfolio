@@ -6,9 +6,18 @@ type Props = {
 };
 
 export default function About({ settings }: Props) {
+  const details = [
+    ["Height", settings.height],
+    ["Location", settings.location],
+    ["Clothing", settings.clothingSize],
+    ["Shoe", settings.shoeSize],
+    ["Languages", settings.languages],
+    ["Specialties", settings.specialties],
+  ].filter(([, value]) => Boolean(value));
+
   return (
     <section id="about" className="section-pad relative bg-[#f7f3ee]">
-      <div className="container-page grid gap-12 md:grid-cols-[0.88fr_1.12fr] md:items-center">
+      <div className="container-page grid gap-12 md:grid-cols-[0.9fr_1.1fr] md:items-center">
         <div className="panel-surface relative overflow-hidden rounded-[2.4rem] border-[#171412]/10 bg-[#fffdfb]/60 p-3 shadow-[0_30px_80px_rgba(17,15,13,0.06)]">
           <div className="relative aspect-[4/5] overflow-hidden rounded-[1.8rem] bg-neutral-200">
             {settings.profileImage ? (
@@ -42,18 +51,16 @@ export default function About({ settings }: Props) {
             </p>
           </div>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            {[
-              ["Editorial", "Global campaigns"],
-              ["Fashion", "Luxury styling"],
-              ["Commercial", "Brand storytelling"],
-            ].map(([label, detail]) => (
-              <div key={label} className="rounded-[1.4rem] border border-[#171412]/10 bg-[#fffdfb]/70 p-4 shadow-[0_14px_28px_rgba(17,15,13,0.02)]">
-                <p className="text-[0.62rem] uppercase tracking-[0.24em] text-neutral-500">{label}</p>
-                <p className="mt-3 text-sm text-[#2c2724]">{detail}</p>
-              </div>
-            ))}
-          </div>
+          {details.length > 0 && (
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              {details.map(([label, value]) => (
+                <div key={label} className="rounded-[1.4rem] border border-[#171412]/10 bg-[#fffdfb]/70 p-4 shadow-[0_14px_28px_rgba(17,15,13,0.02)]">
+                  <p className="text-[0.62rem] uppercase tracking-[0.24em] text-neutral-500">{label}</p>
+                  <p className="mt-3 text-sm text-[#2c2724]">{value}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>

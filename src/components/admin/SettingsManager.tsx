@@ -12,6 +12,12 @@ type Settings = {
   name: string;
   bio: string;
   profileImage: string;
+  location: string;
+  height: string;
+  clothingSize: string;
+  shoeSize: string;
+  languages: string;
+  specialties: string;
   email: string;
   phone: string;
   instagram: string;
@@ -24,6 +30,12 @@ const emptySettings: Settings = {
   name: "",
   bio: "",
   profileImage: "",
+  location: "",
+  height: "",
+  clothingSize: "",
+  shoeSize: "",
+  languages: "",
+  specialties: "",
   email: "",
   phone: "",
   instagram: "",
@@ -49,6 +61,12 @@ export default function SettingsManager() {
         name: data.settings.name || "",
         bio: data.settings.bio || "",
         profileImage: data.settings.profileImage || "",
+        location: data.settings.location || "",
+        height: data.settings.height || "",
+        clothingSize: data.settings.clothingSize || "",
+        shoeSize: data.settings.shoeSize || "",
+        languages: data.settings.languages || "",
+        specialties: data.settings.specialties || "",
         email: data.settings.email || "",
         phone: data.settings.phone || "",
         instagram: data.settings.instagram || "",
@@ -93,6 +111,12 @@ export default function SettingsManager() {
       name: data.settings.name || "",
       bio: data.settings.bio || "",
       profileImage: data.settings.profileImage || "",
+      location: data.settings.location || "",
+      height: data.settings.height || "",
+      clothingSize: data.settings.clothingSize || "",
+      shoeSize: data.settings.shoeSize || "",
+      languages: data.settings.languages || "",
+      specialties: data.settings.specialties || "",
       email: data.settings.email || "",
       phone: data.settings.phone || "",
       instagram: data.settings.instagram || "",
@@ -151,6 +175,31 @@ export default function SettingsManager() {
               placeholder="Short public profile biography"
             />
           </label>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-black/10 bg-white p-6 md:p-8">
+        <h2 className="font-display text-2xl">Profile Details</h2>
+
+        <div className="mt-6 grid gap-6 md:grid-cols-2">
+          {[
+            ["location", "Location", "London, UK"],
+            ["height", "Height", "5'10\" / 178 cm"],
+            ["clothingSize", "Clothing Size", "US 4 / EU 34"],
+            ["shoeSize", "Shoe Size", "US 8 / EU 39"],
+            ["languages", "Languages", "English, French"],
+            ["specialties", "Specialties", "Editorial, beauty, commercial"],
+          ].map(([key, label, placeholder]) => (
+            <label key={key} className="block">
+              <span className="text-xs uppercase tracking-[0.18em] text-neutral-500">{label}</span>
+              <input
+                value={settings[key as keyof Settings] as string}
+                onChange={(e) => update(key as keyof Settings, e.target.value as never)}
+                placeholder={placeholder}
+                className="mt-2 w-full rounded-xl border border-black/10 px-4 py-3 outline-none focus:border-black"
+              />
+            </label>
+          ))}
         </div>
       </section>
 
