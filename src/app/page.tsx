@@ -49,14 +49,14 @@ export default async function HomePage() {
 
       <VideoSection videos={videos} />
 
+      <About settings={settings} />
+
       <section id="cities" className="city-section">
         <div className="container-page">
           <div className="city-heading"><div><p className="section-kicker">Available for work</p><h2>Based here.<br />Available everywhere.</h2></div><p>Local bookings, destination shoots and travel projects are welcome.</p></div>
           <div className="city-grid">{cities.map((city, i) => <a href="#contact" key={city} className="city-card"><span>{String(i + 1).padStart(2, "0")}</span><strong>{city}</strong><em>View availability →</em></a>)}</div>
         </div>
       </section>
-
-      <About settings={settings} />
       <BookingCTA acceptingBookings={settings.acceptingBookings} contactEmail={settings.email} />
       <Contact settings={settings} />
     </main>
