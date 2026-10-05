@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     if (!result.success) {
       return NextResponse.json(
         { error: "Please enter a valid email and password." },
-        { status: 400 },
+        { status: 400, headers: { "Cache-Control": "no-store" } },
       );
     }
 
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     if (!admin) {
       return NextResponse.json(
         { error: "Invalid email or password." },
-        { status: 401 },
+        { status: 401, headers: { "Cache-Control": "no-store" } },
       );
     }
 
@@ -42,15 +42,13 @@ export async function POST(request: Request) {
     if (!validPassword) {
       return NextResponse.json(
         { error: "Invalid email or password." },
-        { status: 401 },
+        { status: 401, headers: { "Cache-Control": "no-store" } },
       );
     }
 
     await createAdminSession(admin.id);
 
-    return NextResponse.json({
-      success: true,
-    });
+    return NextResponse.json({ success: true }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Admin login error:", error);
 
