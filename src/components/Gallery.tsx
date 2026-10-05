@@ -66,7 +66,7 @@ export default function Gallery({ images }: GalleryProps) {
                     </span>
                     <span className="gallery-card-caption">
                       <span className="gallery-card-title">{image.title}</span>
-                      <span className="gallery-card-open">View full image <b>+</b></span>
+                      <span className="gallery-card-open">View <b>+</b></span>
                     </span>
                   </motion.button>
                 );

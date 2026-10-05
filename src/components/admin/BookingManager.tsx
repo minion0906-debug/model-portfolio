@@ -72,21 +72,24 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">CMS / Bookings</p>
-        <div className="mt-3 flex flex-col justify-between gap-3 md:flex-row md:items-end">
+    <div className="space-y-6">
+      <div className="rounded-[2rem] border border-[#171412]/10 bg-[#141210] p-6 text-white shadow-[0_30px_80px_rgba(17,16,15,0.28)] md:p-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="font-display text-4xl">Booking requests</h1>
-            <p className="mt-2 text-sm text-neutral-500">
-              Review inquiries and move each request through the booking workflow.
-            </p>
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[#d7b98c]">Client enquiries</p>
+            <h1 className="mt-2 font-display text-4xl md:text-5xl">Booking requests</h1>
           </div>
-          <span className="text-sm text-neutral-500">{bookings.length} total</span>
+          <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[9px] uppercase tracking-[0.18em] text-white/80">
+            {bookings.length} total
+          </span>
         </div>
       </div>
 
-      {message && <div className="border border-black/10 bg-white px-4 py-3 text-sm">{message}</div>}
+      {message && (
+        <div className="rounded-2xl border border-[#171412]/10 bg-[#fffdfb]/85 px-4 py-3 text-sm text-[#171412] shadow-[0_20px_40px_rgba(17,14,12,0.04)]">
+          {message}
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2">
         {["ALL", ...statuses].map((item) => (
@@ -94,8 +97,8 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
             key={item}
             type="button"
             onClick={() => setFilter(item)}
-            className={`border px-3 py-2 text-xs uppercase tracking-[0.12em] ${
-              filter === item ? "border-black bg-black text-white" : "border-black/15"
+            className={`rounded-full border px-3 py-2 text-[10px] uppercase tracking-[0.18em] transition ${
+              filter === item ? "border-[#171412] bg-[#171412] text-white" : "border-[#171412]/10 bg-[#fffdfb]/70 text-[#171412] hover:bg-white"
             }`}
           >
             {item}
@@ -104,9 +107,9 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[0.9fr_1.5fr]">
-        <div className="space-y-2">
+        <div className="space-y-3">
           {filtered.length === 0 ? (
-            <div className="border border-dashed border-black/20 bg-white p-8 text-sm text-neutral-500">
+            <div className="rounded-[1.5rem] border border-dashed border-[#171412]/20 bg-[#fffdfb]/80 p-8 text-sm text-[#584e49] shadow-[0_20px_40px_rgba(17,14,12,0.04)]">
               No booking requests in this filter.
             </div>
           ) : filtered.map((booking) => (
@@ -114,60 +117,60 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
               key={booking.id}
               type="button"
               onClick={() => setSelectedId(booking.id)}
-              className={`block w-full border bg-white p-4 text-left ${
-                selected?.id === booking.id ? "border-black" : "border-black/10"
+              className={`block w-full rounded-[1.5rem] border bg-[#fffdfb]/85 p-4 text-left shadow-[0_18px_40px_rgba(17,14,12,0.04)] transition ${
+                selected?.id === booking.id ? "border-[#171412]" : "border-[#171412]/10 hover:border-[#171412]/25"
               }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="font-medium">{booking.name}</p>
-                  <p className="mt-1 text-xs text-neutral-500">{booking.email}</p>
+                  <p className="font-medium text-[#171412]">{booking.name}</p>
+                  <p className="mt-1 text-xs text-[#584e49]">{booking.email}</p>
                 </div>
-                <span className="text-[10px] uppercase tracking-[0.12em] text-neutral-500">
+                <span className="rounded-full bg-[#f5efe9] px-2 py-1 text-[9px] uppercase tracking-[0.18em] text-[#171412]">
                   {booking.status}
                 </span>
               </div>
-              <p className="mt-3 text-xs text-neutral-400">{formatDate(booking.createdAt)}</p>
+              <p className="mt-3 text-[10px] uppercase tracking-[0.18em] text-[#7a6e67]">{formatDate(booking.createdAt)}</p>
             </button>
           ))}
         </div>
 
         {selected ? (
-          <article className="border border-black/10 bg-white p-5 md:p-7">
-            <div className="flex flex-col justify-between gap-4 border-b border-black/10 pb-5 md:flex-row">
+          <article className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/90 p-5 shadow-[0_20px_40px_rgba(17,14,12,0.04)] md:p-7">
+            <div className="flex flex-col justify-between gap-4 border-b border-[#171412]/10 pb-5 md:flex-row md:items-center">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-neutral-400">Request</p>
-                <h2 className="mt-2 font-display text-3xl">{selected.name}</h2>
+                <p className="text-[10px] uppercase tracking-[0.22em] text-[#584e49]">Request</p>
+                <h2 className="mt-2 font-display text-3xl text-[#171412]">{selected.name}</h2>
               </div>
               <select
                 value={selected.status}
                 onChange={(e) => updateStatus(selected.id, e.target.value)}
-                className="border border-black/15 px-3 py-2 text-xs uppercase tracking-[0.12em]"
+                className="rounded-full border border-[#171412]/10 bg-white px-3 py-2 text-[10px] uppercase tracking-[0.18em] text-[#171412] outline-none"
               >
                 {statuses.map((status) => <option key={status}>{status}</option>)}
               </select>
             </div>
 
             <div className="grid gap-5 py-6 text-sm sm:grid-cols-2">
-              <div><span className="text-xs uppercase tracking-[0.15em] text-neutral-400">Email</span><p className="mt-1">{selected.email}</p></div>
-              <div><span className="text-xs uppercase tracking-[0.15em] text-neutral-400">Phone</span><p className="mt-1">{selected.phone || "—"}</p></div>
-              <div><span className="text-xs uppercase tracking-[0.15em] text-neutral-400">Company</span><p className="mt-1">{selected.company || "—"}</p></div>
-              <div><span className="text-xs uppercase tracking-[0.15em] text-neutral-400">Booking Type</span><p className="mt-1">{selected.bookingType || "—"}</p></div>
-              <div><span className="text-xs uppercase tracking-[0.15em] text-neutral-400">Preferred Date</span><p className="mt-1">{formatDate(selected.preferredDate)}</p></div>
-              <div><span className="text-xs uppercase tracking-[0.15em] text-neutral-400">Location</span><p className="mt-1">{selected.location || "—"}</p></div>
-              <div><span className="text-xs uppercase tracking-[0.15em] text-neutral-400">Budget</span><p className="mt-1">{selected.budget || "—"}</p></div>
-              <div><span className="text-xs uppercase tracking-[0.15em] text-neutral-400">Received</span><p className="mt-1">{formatDate(selected.createdAt)}</p></div>
+              <div><span className="text-[10px] uppercase tracking-[0.18em] text-[#7a6e67]">Email</span><p className="mt-1 text-[#171412]">{selected.email}</p></div>
+              <div><span className="text-[10px] uppercase tracking-[0.18em] text-[#7a6e67]">Phone</span><p className="mt-1 text-[#171412]">{selected.phone || "—"}</p></div>
+              <div><span className="text-[10px] uppercase tracking-[0.18em] text-[#7a6e67]">Company</span><p className="mt-1 text-[#171412]">{selected.company || "—"}</p></div>
+              <div><span className="text-[10px] uppercase tracking-[0.18em] text-[#7a6e67]">Booking Type</span><p className="mt-1 text-[#171412]">{selected.bookingType || "—"}</p></div>
+              <div><span className="text-[10px] uppercase tracking-[0.18em] text-[#7a6e67]">Preferred Date</span><p className="mt-1 text-[#171412]">{formatDate(selected.preferredDate)}</p></div>
+              <div><span className="text-[10px] uppercase tracking-[0.18em] text-[#7a6e67]">Location</span><p className="mt-1 text-[#171412]">{selected.location || "—"}</p></div>
+              <div><span className="text-[10px] uppercase tracking-[0.18em] text-[#7a6e67]">Budget</span><p className="mt-1 text-[#171412]">{selected.budget || "—"}</p></div>
+              <div><span className="text-[10px] uppercase tracking-[0.18em] text-[#7a6e67]">Received</span><p className="mt-1 text-[#171412]">{formatDate(selected.createdAt)}</p></div>
             </div>
 
-            <div className="border-t border-black/10 pt-6">
-              <p className="text-xs uppercase tracking-[0.15em] text-neutral-400">Project Details</p>
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-neutral-700">{selected.message}</p>
+            <div className="border-t border-[#171412]/10 pt-6">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-[#7a6e67]">Project Details</p>
+              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#584e49]">{selected.message}</p>
             </div>
 
             <button
               type="button"
               onClick={() => remove(selected.id)}
-              className="mt-7 border border-red-200 px-4 py-2 text-xs uppercase tracking-[0.12em] text-red-700"
+              className="mt-7 rounded-full border border-[#c96d5b]/30 bg-[#fef4f2] px-4 py-2 text-[10px] uppercase tracking-[0.18em] text-[#8d3f35] transition hover:bg-[#fce9e5]"
             >
               Delete request
             </button>

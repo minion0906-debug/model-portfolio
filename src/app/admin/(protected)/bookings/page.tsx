@@ -8,5 +8,9 @@ export default async function BookingsAdminPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  return <BookingManager initialBookings={bookings} />;
+  return (
+    <div className="space-y-6">
+      <BookingManager initialBookings={bookings} />
+    </div>
+  );
 }
