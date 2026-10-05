@@ -230,7 +230,7 @@ export default function HeroManager({
                 <input
                   value={newTitle}
                   onChange={(event) => setNewTitle(event.target.value)}
-                  placeholder="Avery"
+                  placeholder="lera aumila"
                   className="w-full border border-black/15 px-3 py-3 outline-none focus:border-black"
                 />
               </label>
@@ -315,7 +315,7 @@ export default function HeroManager({
                         Slide {index + 1}
                       </p>
                       <h3 className="mt-2 font-display text-2xl">
-                        {slide.title || slide.media.title || "Avery"}
+                        {slide.title || slide.media.title || "Lera Aumila"}
                       </h3>
                       <p className="mt-2 text-sm text-neutral-500">
                         {slide.subtitle || "Model · Creative · Editorial"}

@@ -37,7 +37,7 @@ export async function getPublishedHeroSlides(): Promise<PublicHeroSlide[]> {
       id: slide.id,
       src: slide.media.thumbnail || slide.media.url,
       alt: slide.media.title || slide.title || "Hero image",
-      title: slide.title || slide.media.title || "Avery",
+      title: slide.title || slide.media.title || "Lera Aumila",
       subtitle: slide.subtitle || "Model · Creative · Editorial",
     }));
   } catch {

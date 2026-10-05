@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./portfolio.css";
 
 export const metadata: Metadata = {
-  title: "Avery | Model Portfolio",
-  description: "Model portfolio and booking site.",
+  title: "Lera Aumila | Model Portfolio",
+  description: "Las Vegas fashion model portfolio and booking site.",
 };
 
 export default function RootLayout({

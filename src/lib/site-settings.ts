@@ -19,10 +19,10 @@ export type PublicSiteSettings = {
 };
 
 const fallback: PublicSiteSettings = {
-  name: "Avery",
-  bio: "Model, creative and editorial talent available for selected projects.",
+  name: "Lera Aumila",
+  bio: "Fashion model and creative talent based in Las Vegas, available for editorial, beauty, commercial and brand projects.",
   profileImage: null,
-  location: "London, UK",
+  location: "Las Vegas, USA",
   height: "5'10\"",
   clothingSize: "US 4 / EU 34",
   shoeSize: "US 8 / EU 39",

@@ -111,7 +111,7 @@ async function main() {
       id: "default-site-settings",
     },
     update: {
-      name: "Avery",
+      name: "Lera Aumila",
       bio: "Editorial and commercial model working across fashion, beauty, lifestyle and creative campaigns.",
       location: "London, UK",
       height: "5'10\" / 178 cm",
@@ -124,7 +124,7 @@ async function main() {
     },
     create: {
       id: "default-site-settings",
-      name: "Avery",
+      name: "Lera Aumila",
       bio: "Editorial and commercial model working across fashion, beauty, lifestyle and creative campaigns.",
       location: "London, UK",
       height: "5'10\" / 178 cm",
