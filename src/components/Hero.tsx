@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import type { PublicHeroSlide } from "@/lib/hero";
@@ -34,12 +33,12 @@ export default function Hero({ slides, settings }: Props) {
           animate={{ scale: 1.08, opacity: 1 }}
           transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          <Image
+          <img
             src={image}
             alt={slides?.[0]?.alt || settings.name}
-            fill
-            priority
-            sizes="(max-width: 800px) 100vw, 72vw"
+            className="studio-hero-media"
+            fetchPriority="high"
+            decoding="async"
           />
         </motion.div>
         <div className="studio-hero-vignette" />
