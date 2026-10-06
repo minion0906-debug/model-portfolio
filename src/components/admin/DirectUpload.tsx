@@ -36,6 +36,28 @@ export default function DirectUpload({
     const presign = await presignResponse.json();
 
     if (!presignResponse.ok) {
+      // Development/local fallback: use the existing server upload pipeline
+      // when S3 direct uploads are not configured.
+      if (presign.error?.includes("MEDIA_STORAGE=s3")) {
+        const form = new FormData();
+        if (kind === "video") {
+          form.append("video", file);
+        } else {
+          form.append("files", file);
+        }
+
+        const fallbackResponse = await fetch(
+          kind === "video" ? "/api/admin/videos/upload" : "/api/admin/gallery/upload",
+          { method: "POST", body: form },
+        );
+
+        const fallback = await fallbackResponse.json();
+        if (!fallbackResponse.ok) {
+          throw new Error(fallback.error || "Unable to upload file.");
+        }
+        return;
+      }
+
       throw new Error(presign.error || "Unable to prepare upload.");
     }
 

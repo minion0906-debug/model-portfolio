@@ -1,89 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DirectUpload from "@/components/admin/DirectUpload";
 
-type Item = {
-  id: string;
-  url: string;
-  title: string | null;
-  published: boolean;
-};
+type Item = { id:string; url:string; title:string|null; description:string|null; published:boolean };
 
-export default function GalleryManager() {
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  async function load() {
-    setLoading(true);
-    const response = await fetch("/api/admin/gallery", { cache: "no-store" });
-    if (response.ok) setItems((await response.json()).media || []);
-    setLoading(false);
-  }
-
-  useEffect(() => { void load(); }, []);
-
-  if (loading) {
-    return (
-      <div className="rounded-[1.75rem] border border-[#171412]/10 bg-[#fffdfb]/80 p-6 text-sm text-[#584e49] shadow-[0_20px_40px_rgba(17,14,12,0.04)]">
-        Loading gallery…
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="rounded-[2rem] border border-[#171412]/10 bg-[#141210] p-6 text-white shadow-[0_30px_80px_rgba(17,16,15,0.28)] md:p-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.34em] text-[#d7b98c]">Portfolio curation</p>
-            <h2 className="mt-2 font-display text-4xl md:text-5xl">Gallery manager</h2>
-          </div>
-          <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[9px] uppercase tracking-[0.18em] text-white/80">
-            {items.length} assets
-          </span>
-        </div>
-      </div>
-
-      <DirectUpload
-        kind="image"
-        multiple
-        accept="image/jpeg,image/png,image/webp"
-        onComplete={load}
-      />
-
-      {items.length === 0 ? (
-        <div className="rounded-[1.75rem] border border-dashed border-[#171412]/18 bg-[#fffdfb]/80 p-10 text-center shadow-[0_20px_40px_rgba(17,14,12,0.04)]">
-          <p className="font-display text-3xl text-[#171412]">No images yet.</p>
-          <p className="mt-2 text-sm text-[#584e49]">Upload your first curated frame to begin building the portfolio.</p>
-        </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {items.map((item) => (
-            <article key={item.id} className="group overflow-hidden rounded-[1.5rem] border border-[#171412]/10 bg-[#fffdfb]/85 shadow-[0_18px_40px_rgba(17,14,12,0.04)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_28px_50px_rgba(17,14,12,0.08)]">
-              <div className="relative aspect-[4/5] overflow-hidden bg-[#f3eee8]">
-                <img
-                  src={item.url}
-                  alt={item.title || "Gallery image"}
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
-                <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3">
-                  <span className="rounded-full border border-white/30 bg-black/25 px-2 py-1 text-[8px] uppercase tracking-[0.2em] text-white backdrop-blur-sm">
-                    {item.published ? "Published" : "Draft"}
-                  </span>
-                </div>
-              </div>
-              <div className="p-4">
-                <p className="truncate text-sm font-medium text-[#171412]">{item.title || "Untitled"}</p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[#7a6e67]">
-                  {item.published ? "Live in portfolio" : "Hidden from portfolio"}
-                </p>
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+export default function GalleryManager(){
+ const [items,setItems]=useState<Item[]>([]);
+ const [loading,setLoading]=useState(true);
+ const [query,setQuery]=useState("");
+ const [filter,setFilter]=useState<"all"|"published"|"draft">("all");
+ const [selected,setSelected]=useState<string[]>([]);
+ function toggleSelect(id:string){setSelected(s=>s.includes(id)?s.filter(x=>x!==id):[...s,id]);}
+ async function bulkPublish(published:boolean){await Promise.all(selected.map(id=>fetch(`/api/admin/gallery/${id}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({published})})));setSelected([]);load();}
+ async function load(){setLoading(true); const r=await fetch('/api/admin/gallery',{cache:'no-store'}); if(r.ok)setItems((await r.json()).media||[]); setLoading(false)}
+ useEffect(()=>{void load()},[]);
+ async function remove(id:string){if(!confirm('Delete this image?'))return; await fetch('/api/admin/gallery/'+id,{method:'DELETE'}); load();}
+ async function edit(item:Item){const title=prompt('Title',item.title||''); if(title===null)return; await fetch('/api/admin/gallery/'+item.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,description:item.description||''})}); load();}
+ async function toggle(item:Item){await fetch('/api/admin/gallery/'+item.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({published:!item.published})});load();}
+ const filtered=useMemo(()=>items.filter(i=>{
+   const match=(i.title||'').toLowerCase().includes(query.toLowerCase());
+   const status=filter==='all'||(filter==='published'?i.published:!i.published);
+   return match&&status;
+ }),[items,query,filter]);
+ if(loading)return <div className="p-6">Loading gallery...</div>;
+ return <div className="space-y-6">
+ <DirectUpload kind="image" multiple accept="image/jpeg,image/png,image/webp" onComplete={load}/>
+ <div className="flex flex-wrap gap-3"><button className="rounded border px-3" onClick={()=>bulkPublish(true)}>Publish Selected</button><button className="rounded border px-3" onClick={()=>bulkPublish(false)}>Hide Selected</button>
+  <input className="rounded border p-2" placeholder="Search images" value={query} onChange={e=>setQuery(e.target.value)}/>
+  <select className="rounded border p-2" value={filter} onChange={e=>setFilter(e.target.value as any)}><option value="all">All</option><option value="published">Published</option><option value="draft">Draft</option></select>
+ </div>
+ <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{filtered.map(i=><article key={i.id} className="rounded-xl border p-3"><input type="checkbox" checked={selected.includes(i.id)} onChange={()=>toggleSelect(i.id)}/><img src={i.url} className="aspect-[4/5] w-full object-cover rounded-lg"/><div className="mt-3 text-sm">{i.title||'Untitled'}</div><div className="mt-3 flex gap-2 text-xs"><button onClick={()=>edit(i)}>Edit</button><button onClick={()=>toggle(i)}>{i.published?'Hide':'Publish'}</button><button onClick={()=>remove(i.id)}>Delete</button></div></article>)}</div></div>
 }
