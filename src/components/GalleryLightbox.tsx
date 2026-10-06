@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type GalleryImage = {
   id: string;
@@ -21,15 +21,27 @@ type Props = {
 
 export default function GalleryLightbox({ images, activeIndex, onClose, onPrevious, onNext }: Props) {
   const image = activeIndex === null ? null : images[activeIndex];
+  const [zoom, setZoom] = useState(1);
+  const [loaded, setLoaded] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const lastDistance = useRef<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const lastTap = useRef(0);
 
   useEffect(() => {
     if (activeIndex === null) return;
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
+    setLoaded(false);
+
     const old = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const key = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
       if (e.key === "ArrowLeft") onPrevious();
       if (e.key === "ArrowRight") onNext();
+      if (e.key === "+") setZoom((z) => Math.min(z + .25, 4));
+      if (e.key === "-") setZoom((z) => Math.max(z - .25, 1));
     };
     window.addEventListener("keydown", key);
     return () => {
@@ -38,10 +50,51 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
     };
   }, [activeIndex, onClose, onPrevious, onNext]);
 
+  const wheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    setZoom((z) => Math.min(Math.max(z - e.deltaY * .002, 1), 4));
+  };
+
+  const touchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const [a, b] = e.touches;
+      const distance = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+      if (lastDistance.current) {
+        setZoom((z) => Math.min(Math.max(z + (distance - lastDistance.current!) * .005, 1), 4));
+      }
+      lastDistance.current = distance;
+    }
+  };
+
+  const touchEnd = () => { lastDistance.current = null; };
+
+  const doubleZoom = () => {
+    setZoom((z) => z > 1 ? 1 : 2.5);
+  };
+
+  const tap = () => {
+    const now = Date.now();
+    if (now - lastTap.current < 300) doubleZoom();
+    lastTap.current = now;
+  };
+
+  const swipeStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.changedTouches[0].clientX;
+  };
+
+  const swipeEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || zoom > 1) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 80) diff > 0 ? onNext() : onPrevious();
+    touchStartX.current = null;
+  };
+
   return <AnimatePresence>{image && (
     <motion.div className="fixed inset-0 z-[200] flex h-screen w-screen items-center justify-center bg-black" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={onClose}>
-      <motion.div key={image.id} className="relative h-full w-full" initial={{scale:1.03,opacity:0}} animate={{scale:1,opacity:1}} exit={{scale:1.03,opacity:0}} transition={{duration:.3}} onClick={e=>e.stopPropagation()}>
-        <Image src={image.src} alt={image.title} fill sizes="100vw" className="object-contain" priority />
+      <motion.div className="relative h-full w-full overflow-hidden touch-none" onClick={(e)=>e.stopPropagation()} onWheel={wheel} onTouchMove={touchMove} onTouchEnd={touchEnd} onTouchStart={swipeStart} onClickCapture={tap} onTouchCancel={swipeEnd} onDoubleClick={doubleZoom}>
+        <motion.div className="h-full w-full" animate={{scale:zoom, x:position.x, y:position.y}} drag={zoom > 1} dragConstraints={{left:-400,right:400,top:-400,bottom:400}} transition={{type:"spring", stiffness:200, damping:25}}>
+          <Image src={image.src} alt={image.title} fill sizes="100vw" priority onLoad={()=>setLoaded(true)} className={`object-contain transition duration-700 ${loaded ? "opacity-100 blur-0" : "opacity-50 blur-xl"}`} />
+        </motion.div>
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/60 to-transparent px-8 pb-10 pt-32 text-white">
           <p className="text-[10px] uppercase tracking-[.35em] text-white/60">{image.tag}</p>
           <h3 className="mt-2 text-3xl md:text-5xl">{image.title}</h3>

@@ -7,14 +7,6 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
   const [active, setActive] = useState<number | null>(null);
   const [filter, setFilter] = useState("All");
   const [page, setPage] = useState(1);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
   const filters = ["All", ...Array.from(new Set(images.map((x) => x.tag).filter(Boolean)))];
   const filtered = useMemo(() => filter === "All" ? images : images.filter((x) => x.tag === filter), [images, filter]);
   const pageSize = 4;
@@ -30,7 +22,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
         {images.length ? <>
           <div className="studio-filters">{filters.map((item) => <button key={item} className={filter === item ? "is-active" : ""} onClick={() => { setFilter(item || "All"); setPage(1); setActive(null); }}>{item}</button>)}</div>
           <div className="studio-gallery-grid">
-            {visible.map((image, index) => <motion.button key={image.id} className={`studio-shot shot-${index % 6}`} onClick={() => !isMobile && setActive(index)} initial={{opacity:0,y:24}} whileInView={{opacity:1,y:0}} viewport={{once:true,amount:.1}} transition={{duration:.55,delay:Math.min(index,4)*.05}}>
+            {visible.map((image, index) => <motion.button key={image.id} className={`studio-shot shot-${index % 6}`} onClick={() => setActive(index)} initial={{opacity:0,y:24}} whileInView={{opacity:1,y:0}} viewport={{once:true,amount:.1}} transition={{duration:.55,delay:Math.min(index,4)*.05}}>
               <img
                 src={image.src}
                 alt={image.title}

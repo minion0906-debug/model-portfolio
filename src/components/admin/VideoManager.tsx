@@ -15,7 +15,7 @@ type Video = {
 
 export default function VideoManager() {
   const [videos, setVideos] = useState<Video[]>([]);
-  const [preview, setPreview] = useState<Video | null>(null);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   async function load() {
@@ -46,18 +46,18 @@ export default function VideoManager() {
       />
 
       <div className="grid gap-5 grid-cols-2 lg:grid-cols-3">
-        {videos.map((video) => (
+        {videos.map((video, index) => (
           <div key={video.id} className="rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
             {video.thumbnail ? (
               <img
-                onDoubleClick={() => setPreview(video)}
+                onDoubleClick={() => setPreviewIndex(index)}
                 src={video.thumbnail}
                 alt={video.title ?? "Video thumbnail"}
                 className="h-40 w-full rounded-xl object-cover"
               />
             ) : (
               <video
-                onDoubleClick={() => setPreview(video)}
+                onDoubleClick={() => setPreviewIndex(index)}
                 src={video.url}
                 className="h-40 w-full rounded-xl object-cover"
               />
@@ -77,15 +77,18 @@ export default function VideoManager() {
         ))}
       </div>
 
-      {preview && (
+      {previewIndex !== null && videos[previewIndex] && (
         <MediaPreviewModal
-          item={preview}
+          item={videos[previewIndex]}
+          items={videos}
           kind="video"
-          onClose={() => setPreview(null)}
+          onClose={() => setPreviewIndex(null)}
           onSaved={() => {
-            setPreview(null);
+            setPreviewIndex(null);
             setRefreshKey((value) => value + 1);
           }}
+          onPrevious={() => setPreviewIndex((index) => (index === null ? null : (index - 1 + videos.length) % videos.length))}
+          onNext={() => setPreviewIndex((index) => (index === null ? null : (index + 1) % videos.length))}
         />
       )}
     </div>
