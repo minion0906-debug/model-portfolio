@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import GalleryLightbox, { type GalleryImage } from "@/components/GalleryLightbox";
@@ -20,7 +19,13 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
           <div className="studio-filters">{filters.map((item) => <button key={item} className={filter === item ? "is-active" : ""} onClick={() => { setFilter(item || "All"); setActive(null); }}>{item}</button>)}</div>
           <div className="studio-gallery-grid">
             {visible.map((image, index) => <motion.button key={image.id} className={`studio-shot shot-${index % 6}`} onClick={() => setActive(index)} initial={{opacity:0,y:24}} whileInView={{opacity:1,y:0}} viewport={{once:true,amount:.1}} transition={{duration:.55,delay:Math.min(index,4)*.05}}>
-              <Image src={image.src} alt={image.title} fill sizes="(max-width: 800px) 100vw, 50vw" className="studio-shot-image" />
+              <img
+                src={image.src}
+                alt={image.title}
+                className="studio-shot-image"
+                loading={index < 2 ? "eager" : "lazy"}
+                decoding="async"
+              />
               <span className="studio-shot-overlay" /><span className="studio-shot-meta"><b>{String(index+1).padStart(2,"0")}</b><em>{image.tag || "Selected work"}</em></span><span className="studio-shot-title">{image.title}<i>↗</i></span>
             </motion.button>)}
           </div>

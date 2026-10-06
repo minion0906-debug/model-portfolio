@@ -275,3 +275,22 @@ html{scroll-behavior:smooth}
   .admin-app *, .admin-app *::before, .admin-app *::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
 
+
+/* Public media robustness: database/S3/R2 URLs render directly without Next image-host restrictions. */
+.studio-shot-image{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;}
+.studio-hero-media{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;object-position:center;}
+.studio-profile-photo>img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;}
+
+@media (max-width:700px){
+  .studio-gallery-grid{display:block;}
+  .studio-shot,.shot-0,.shot-1,.shot-2,.shot-3,.shot-4,.shot-5{display:block;position:relative;width:100%;height:72vw;min-height:380px;margin:0 0 10px;}
+  .studio-shot-image{position:absolute;inset:0;width:100%;height:100%;}
+  .studio-motion-grid{display:block;}
+  .studio-film,.studio-film.featured{display:block;width:100%;margin:0 0 45px;}
+  .studio-film-frame,.studio-film.featured .studio-film-frame{width:100%;aspect-ratio:4/3;}
+  .studio-film video{display:block;width:100%;height:100%;object-fit:cover;}
+}
+@media (max-width:420px){
+  .studio-shot,.shot-0,.shot-1,.shot-2,.shot-3,.shot-4,.shot-5{height:118vw;min-height:0;}
+  .studio-film-frame,.studio-film.featured .studio-film-frame{aspect-ratio:4/3;}
+}
