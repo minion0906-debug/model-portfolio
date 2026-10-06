@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
   for (const file of files) {
     if (!allowed.has(file.type)) {
-      return NextResponse.json({ error: `Unsupported image type: ${file.type}` }, { status: 400 });
+      return NextResponse.json({ error: `Unsupported image type: ${file.type || "unknown"}` }, { status: 400 });
     }
 
     if (file.size > MAX_FILE_SIZE) {

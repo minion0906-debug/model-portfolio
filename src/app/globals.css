@@ -294,3 +294,55 @@ html{scroll-behavior:smooth}
   .studio-shot,.shot-0,.shot-1,.shot-2,.shot-3,.shot-4,.shot-5{height:118vw;min-height:0;}
   .studio-film-frame,.studio-film.featured .studio-film-frame{aspect-ratio:4/3;}
 }
+
+
+/* Gallery and video pagination layouts */
+.studio-gallery-grid,
+.studio-motion-grid {
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 16px;
+}
+.studio-shot,
+.studio-film {
+  grid-column: span 1 !important;
+  margin-top: 0 !important;
+  height: auto !important;
+  min-height: 420px;
+}
+.studio-shot-image,
+.studio-film-frame video {
+  width: 100%;
+  height: 100%;
+}
+.studio-shot {
+  aspect-ratio: 3 / 4;
+}
+.studio-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 36px;
+}
+.studio-pagination button {
+  min-width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  background: transparent;
+}
+.studio-pagination button.is-active {
+  background: var(--ink);
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .studio-gallery-grid,
+  .studio-motion-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+  }
+  .studio-shot,
+  .studio-film {
+    min-height: 0;
+    aspect-ratio: 1 / 1.15;
+  }
+}

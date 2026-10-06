@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   }
 
   if (!allowedVideos.has(video.type)) {
-    return NextResponse.json({ error: "Unsupported video type." }, { status: 400 });
+    return NextResponse.json({ error: `Unsupported video type: ${video.type || "unknown"}.` }, { status: 400 });
   }
 
   if (video.size > MAX_VIDEO_SIZE) {
