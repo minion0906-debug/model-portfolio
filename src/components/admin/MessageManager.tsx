@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Message = {
   id: string;
@@ -30,12 +30,23 @@ export default function MessageManager({
     initialMessages[0]?.id ?? null,
   );
   const [notice, setNotice] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 8;
 
   const filtered = useMemo(() => {
     if (filter === "UNREAD") return messages.filter((message) => !message.read);
     if (filter === "READ") return messages.filter((message) => message.read);
     return messages;
   }, [messages, filter]);
+
+  // Keep pagination valid when changing filters.
+  useEffect(() => {
+    setPage((current) => Math.min(current, Math.max(1, Math.ceil(filtered.length / pageSize))));
+  }, [filtered.length]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const pagedMessages = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const selected =
     messages.find((message) => message.id === selectedId) ?? filtered[0] ?? null;
@@ -74,6 +85,7 @@ export default function MessageManager({
     const next = messages.filter((item) => item.id !== message.id);
     setMessages(next);
     setSelectedId(next[0]?.id ?? null);
+    setPage((current) => Math.min(current, Math.max(1, Math.ceil(next.length / pageSize))));
     setNotice("Message deleted.");
   }
 
@@ -107,7 +119,7 @@ export default function MessageManager({
           <button
             key={item}
             type="button"
-            onClick={() => setFilter(item)}
+            onClick={() => { setFilter(item); setPage(1); }}
             className={`border px-3 py-2 text-xs uppercase tracking-[0.12em] ${
               filter === item
                 ? "border-black bg-black text-white"
@@ -126,7 +138,7 @@ export default function MessageManager({
               No messages in this filter.
             </div>
           ) : (
-            filtered.map((message) => (
+            pagedMessages.map((message) => (
               <button
                 key={message.id}
                 type="button"
@@ -159,6 +171,16 @@ export default function MessageManager({
                 </p>
               </button>
             ))
+          )}
+
+          {filtered.length > pageSize && (
+            <div className="flex items-center justify-between border border-[#171412]/10 bg-white px-4 py-3">
+              <p className="text-xs text-[#584e49]">Page {currentPage} of {pageCount}</p>
+              <div className="flex gap-2">
+                <button type="button" disabled={currentPage === 1} onClick={() => setPage((p) => Math.max(1, p - 1))} className="rounded-full border border-[#171412]/10 px-3 py-2 text-xs disabled:opacity-40">Previous</button>
+                <button type="button" disabled={currentPage === pageCount} onClick={() => setPage((p) => Math.min(pageCount, p + 1))} className="rounded-full border border-[#171412]/10 px-3 py-2 text-xs disabled:opacity-40">Next</button>
+              </div>
+            </div>
           )}
         </div>
 

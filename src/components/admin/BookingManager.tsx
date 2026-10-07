@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Booking = {
   id: string;
@@ -29,12 +29,21 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
   const [filter, setFilter] = useState("ALL");
   const [selectedId, setSelectedId] = useState<string | null>(initialBookings[0]?.id ?? "");
   const [message, setMessage] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 8;
 
   const filtered = useMemo(
     () => filter === "ALL" ? bookings : bookings.filter((booking) => booking.status === filter),
     [bookings, filter],
   );
 
+  useEffect(() => {
+    setPage((current) => Math.min(current, Math.max(1, Math.ceil(filtered.length / pageSize))));
+  }, [filtered.length]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const pagedBookings = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const selected = bookings.find((booking) => booking.id === selectedId) ?? filtered[0];
 
   async function updateStatus(id: string, status: string) {
@@ -68,6 +77,7 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
     const next = bookings.filter((booking) => booking.id !== id);
     setBookings(next);
     setSelectedId(next[0]?.id ?? "");
+    setPage((current) => Math.min(current, Math.max(1, Math.ceil(next.length / pageSize))));
     setMessage("Booking deleted.");
   }
 
@@ -96,7 +106,7 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
           <button
             key={item}
             type="button"
-            onClick={() => setFilter(item)}
+            onClick={() => { setFilter(item); setPage(1); }}
             className={`rounded-full border px-3 py-2 text-[10px] uppercase tracking-[0.18em] transition ${
               filter === item ? "border-[#171412] bg-[#171412] text-white" : "border-[#171412]/10 bg-[#fffdfb]/70 text-[#171412] hover:bg-white"
             }`}
@@ -112,7 +122,7 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
             <div className="rounded-[1.5rem] border border-dashed border-[#171412]/20 bg-[#fffdfb]/80 p-8 text-sm text-[#584e49] shadow-[0_20px_40px_rgba(17,14,12,0.04)]">
               No booking requests in this filter.
             </div>
-          ) : filtered.map((booking) => (
+          ) : pagedBookings.map((booking) => (
             <button
               key={booking.id}
               type="button"
@@ -133,6 +143,16 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
               <p className="mt-3 text-[10px] uppercase tracking-[0.18em] text-[#7a6e67]">{formatDate(booking.createdAt)}</p>
             </button>
           ))}
+
+          {filtered.length > pageSize && (
+            <div className="flex items-center justify-between rounded-[1rem] border border-[#171412]/10 bg-white px-4 py-3">
+              <p className="text-xs text-[#584e49]">Page {currentPage} of {pageCount}</p>
+              <div className="flex gap-2">
+                <button type="button" disabled={currentPage === 1} onClick={() => setPage((p) => Math.max(1, p - 1))} className="rounded-full border border-[#171412]/10 px-3 py-2 text-xs disabled:opacity-40">Previous</button>
+                <button type="button" disabled={currentPage === pageCount} onClick={() => setPage((p) => Math.min(pageCount, p + 1))} className="rounded-full border border-[#171412]/10 px-3 py-2 text-xs disabled:opacity-40">Next</button>
+              </div>
+            </div>
+          )}
         </div>
 
         {selected ? (

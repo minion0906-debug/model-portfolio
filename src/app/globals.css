@@ -294,3 +294,310 @@ html{scroll-behavior:smooth}
   .studio-shot,.shot-0,.shot-1,.shot-2,.shot-3,.shot-4,.shot-5{height:118vw;min-height:0;}
   .studio-film-frame,.studio-film.featured .studio-film-frame{aspect-ratio:4/3;}
 }
+
+
+/* Admin media uses the exact public gallery / motion tile language. */
+.admin-public-gallery-grid .admin-media-tile,
+.admin-public-motion .admin-media-tile { position: relative; }
+.admin-public-gallery-grid .admin-media-tile { overflow: visible; }
+.admin-public-gallery-grid .admin-media-tile > button { position: absolute; inset: 0; }
+.admin-media-actions {
+  position: absolute; z-index: 30; left: 12px; right: 12px; bottom: 12px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  pointer-events: none;
+}
+.admin-media-actions > * { pointer-events: auto; }
+.admin-media-actions button,
+.admin-media-status {
+  border: 1px solid rgba(255,255,255,.28); background: rgba(0,0,0,.68); color: #fff;
+  border-radius: 999px; padding: 7px 10px; font-size: 8px; font-weight: 700;
+  letter-spacing: .13em; text-transform: uppercase; backdrop-filter: blur(10px);
+}
+.admin-media-actions button { cursor: pointer; }
+.admin-media-actions button:hover { background: rgba(255,255,255,.16); }
+.admin-media-status.is-published { border-color: rgba(215,255,72,.5); color: #d7ff48; }
+.admin-media-status.is-hidden { color: rgba(255,255,255,.62); }
+.admin-media-actions-dark { position: static; margin-top: 10px; }
+.admin-media-actions-dark button,
+.admin-media-actions-dark .admin-media-status { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.16); }
+.admin-media-actions-dark .admin-media-status.is-published { background: rgba(215,255,72,.08); border-color: rgba(215,255,72,.4); }
+.admin-public-motion { padding-top: 70px; padding-bottom: 90px; }
+@media(max-width:800px) {
+  .admin-public-gallery-grid .admin-media-tile { height: 118vw; min-height: 0; margin-bottom: 10px; }
+  .admin-public-motion .studio-film.featured .studio-film-frame,
+  .admin-public-motion .studio-film-frame { aspect-ratio: 4/3; }
+  .admin-media-actions { left: 8px; right: 8px; bottom: 8px; }
+}
+
+
+/* =========================================================
+   PUBLIC UI HARDENING
+   Keep the editorial desktop composition intact while making
+   public media deterministic on tablets and phones.
+   ========================================================= */
+
+html, body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.studio-site,
+.studio-shell,
+.studio-gallery,
+.studio-motion,
+.studio-profile,
+.studio-booking,
+.studio-contact,
+.studio-footer {
+  min-width: 0;
+}
+
+.studio-shot {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.studio-shot-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center;
+}
+
+.studio-shot-overlay,
+.studio-shot-meta,
+.studio-shot-title {
+  z-index: 1;
+}
+
+.studio-film-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #171715;
+}
+
+.studio-film-frame video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  background: #171715;
+}
+
+.studio-hero-image {
+  overflow: hidden;
+}
+
+.studio-hero-media {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: center;
+}
+
+.studio-profile-photo {
+  position: relative;
+  overflow: hidden;
+}
+
+.studio-profile-photo > img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+
+/* Tablet: retain the desktop composition, but prevent narrow columns. */
+@media (max-width: 1000px) {
+  .studio-shell {
+    width: min(calc(100% - 40px), 1440px);
+  }
+
+  .studio-section-head,
+  .studio-motion-head,
+  .studio-booking-head,
+  .studio-contact-grid {
+    gap: 28px;
+  }
+
+  .studio-gallery-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .studio-shot,
+  .shot-0,
+  .shot-1,
+  .shot-2,
+  .shot-3,
+  .shot-4,
+  .shot-5 {
+    min-height: 0;
+  }
+
+  .shot-0 { grid-column: span 4; height: 58vw; }
+  .shot-1 { grid-column: span 2; height: 47vw; margin-top: 11vw; }
+  .shot-2 { grid-column: span 2; height: 51vw; }
+  .shot-3 { grid-column: span 4; height: 61vw; margin-top: -8vw; }
+  .shot-4 { grid-column: span 4; height: 47vw; }
+  .shot-5 { grid-column: span 2; height: 56vw; margin-top: 8vw; }
+
+  .studio-motion-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .studio-film {
+    grid-column: span 3;
+  }
+
+  .studio-film.featured {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Phones: one media item per row; no fixed/minimum heights that can
+   collapse or overflow on small viewports. */
+@media (max-width: 800px) {
+  .studio-shell,
+  .studio-nav-inner {
+    width: calc(100% - 32px);
+  }
+
+  .studio-gallery-grid,
+  .studio-motion-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .studio-shot,
+  .shot-0,
+  .shot-1,
+  .shot-2,
+  .shot-3,
+  .shot-4,
+  .shot-5 {
+    grid-column: 1;
+    width: 100%;
+    height: clamp(360px, 118vw, 620px);
+    min-height: 0;
+    margin: 0;
+  }
+
+  .studio-shot-image {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .studio-motion-grid {
+    gap: 34px;
+  }
+
+  .studio-film,
+  .studio-film.featured {
+    grid-column: 1;
+    width: 100%;
+    margin: 0;
+  }
+
+  .studio-film-frame,
+  .studio-film.featured .studio-film-frame {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .studio-film video {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: cover;
+  }
+
+  .studio-film-info {
+    grid-template-columns: 58px minmax(0, 1fr) 20px;
+    gap: 8px;
+  }
+
+  .studio-film-info h3 {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .studio-pagination {
+    flex-wrap: wrap;
+  }
+}
+
+/* Very small phones: keep controls and captions comfortably inside the viewport. */
+@media (max-width: 420px) {
+  .studio-shell,
+  .studio-nav-inner {
+    width: calc(100% - 24px);
+  }
+
+  .studio-shot,
+  .shot-0,
+  .shot-1,
+  .shot-2,
+  .shot-3,
+  .shot-4,
+  .shot-5 {
+    height: min(118vw, 540px);
+  }
+
+  .studio-shot-meta {
+    left: 14px;
+    right: 14px;
+    top: 14px;
+  }
+
+  .studio-shot-title {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    font-size: 15px;
+  }
+
+  .studio-film-info {
+    padding: 14px 0;
+  }
+}
+
+/* Touch devices should not depend on hover for useful media behavior. */
+@media (hover: none) {
+  .studio-shot:hover .studio-shot-image,
+  .studio-film:hover .studio-film-frame {
+    transform: none;
+    filter: none;
+  }
+
+  .studio-shot:active .studio-shot-image {
+    transform: scale(1.015);
+  }
+}
+
+/* Respect reduced-motion users without breaking media sizing. */
+@media (prefers-reduced-motion: reduce) {
+  .studio-shot-image,
+  .studio-film-frame {
+    transition: none !important;
+  }
+}
