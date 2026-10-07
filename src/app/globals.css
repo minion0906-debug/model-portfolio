@@ -346,3 +346,36 @@ html{scroll-behavior:smooth}
     aspect-ratio: 1 / 1.15;
   }
 }
+
+/* Admin media uses the exact public gallery / motion tile language. */
+.admin-public-gallery-grid .admin-media-tile,
+.admin-public-motion .admin-media-tile { position: relative; }
+.admin-public-gallery-grid .admin-media-tile { overflow: visible; }
+.admin-public-gallery-grid .admin-media-tile > button { position: absolute; inset: 0; }
+.admin-media-actions {
+  position: absolute; z-index: 30; left: 12px; right: 12px; bottom: 12px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  pointer-events: none;
+}
+.admin-media-actions > * { pointer-events: auto; }
+.admin-media-actions button,
+.admin-media-status {
+  border: 1px solid rgba(255,255,255,.28); background: rgba(0,0,0,.68); color: #fff;
+  border-radius: 999px; padding: 7px 10px; font-size: 8px; font-weight: 700;
+  letter-spacing: .13em; text-transform: uppercase; backdrop-filter: blur(10px);
+}
+.admin-media-actions button { cursor: pointer; }
+.admin-media-actions button:hover { background: rgba(255,255,255,.16); }
+.admin-media-status.is-published { border-color: rgba(215,255,72,.5); color: #d7ff48; }
+.admin-media-status.is-hidden { color: rgba(255,255,255,.62); }
+.admin-media-actions-dark { position: static; margin-top: 10px; }
+.admin-media-actions-dark button,
+.admin-media-actions-dark .admin-media-status { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.16); }
+.admin-media-actions-dark .admin-media-status.is-published { background: rgba(215,255,72,.08); border-color: rgba(215,255,72,.4); }
+.admin-public-motion { padding-top: 70px; padding-bottom: 90px; }
+@media(max-width:800px) {
+  .admin-public-gallery-grid .admin-media-tile { height: 118vw; min-height: 0; margin-bottom: 10px; }
+  .admin-public-motion .studio-film.featured .studio-film-frame,
+  .admin-public-motion .studio-film-frame { aspect-ratio: 4/3; }
+  .admin-media-actions { left: 8px; right: 8px; bottom: 8px; }
+}

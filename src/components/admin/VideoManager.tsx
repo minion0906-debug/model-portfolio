@@ -7,6 +7,7 @@ import MediaPreviewModal from "@/components/admin/MediaPreviewModal";
 type Video = {
   id: string;
   title: string | null;
+  description?: string | null;
   url: string;
   thumbnail: string | null;
   published: boolean;
@@ -17,23 +18,54 @@ export default function VideoManager() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   async function load() {
-    const res = await fetch("/api/admin/videos");
+    const res = await fetch("/api/admin/videos", { cache: "no-store" });
     if (res.ok) {
-      setVideos((await res.json()).videos);
+      setVideos((await res.json()).videos || []);
     }
   }
 
   useEffect(() => {
-    load();
+    void load();
   }, [refreshKey]);
 
   async function remove(id: string) {
     if (!confirm("Delete this video?")) return;
 
-    await fetch(`/api/admin/videos/${id}`, { method: "DELETE" });
-    setRefreshKey((value) => value + 1);
+    const res = await fetch(`/api/admin/videos/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setPreviewIndex(null);
+      setRefreshKey((value) => value + 1);
+    }
+  }
+
+  async function togglePublished(video: Video) {
+    setTogglingId(video.id);
+
+    try {
+      const res = await fetch(`/api/admin/videos/${video.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ published: !video.published }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Unable to update video visibility.");
+      }
+
+      setVideos((current) =>
+        current.map((item) =>
+          item.id === video.id ? { ...item, published: !video.published } : item,
+        ),
+      );
+    } catch (error) {
+      console.error(error);
+      alert("Could not change video visibility. Please try again.");
+    } finally {
+      setTogglingId(null);
+    }
   }
 
   return (
@@ -45,37 +77,38 @@ export default function VideoManager() {
         onComplete={() => setRefreshKey((value) => value + 1)}
       />
 
-      <div className="grid gap-5 grid-cols-2 lg:grid-cols-3">
-        {videos.map((video, index) => (
-          <div key={video.id} className="rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
-            {video.thumbnail ? (
-              <img
-                onDoubleClick={() => setPreviewIndex(index)}
-                src={video.thumbnail}
-                alt={video.title ?? "Video thumbnail"}
-                className="h-40 w-full rounded-xl object-cover"
-              />
-            ) : (
-              <video
-                onDoubleClick={() => setPreviewIndex(index)}
-                src={video.url}
-                className="h-40 w-full rounded-xl object-cover"
-              />
-            )}
-
-            <h3 className="mt-3 font-semibold text-slate-900">{video.title}</h3>
-            <p className="text-sm text-slate-600">{video.published ? "Published" : "Hidden"}</p>
-
-            <button
-              type="button"
-              onClick={() => remove(video.id)}
-              className="mt-3 rounded bg-black px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
-            >
-              Delete
-            </button>
+      <section className="studio-motion admin-public-motion">
+        <div className="studio-shell">
+          <div className="studio-motion-head">
+            <div><p className="studio-label">03 / Motion</p><h2>Beyond<br /><em>the still.</em></h2></div>
+            <p>Campaign films, movement and personality. This admin preview uses the same tiles as the public homepage.</p>
           </div>
-        ))}
-      </div>
+          {videos.length ? (
+            <div className="studio-motion-grid">
+              {videos.map((video, index) => (
+                <article key={video.id} className={`studio-film admin-media-tile ${index === 0 ? "featured" : ""}`}>
+                  <button type="button" onClick={() => setPreviewIndex(index)} className="studio-film-frame block w-full cursor-zoom-in border-0 p-0 text-left" aria-label={`Open ${video.title || "video"} preview`}>
+                    <video src={video.url} poster={video.thumbnail || undefined} controls playsInline preload="metadata" />
+                  </button>
+                  <div className="studio-film-info">
+                    <span>Film {String(index + 1).padStart(2, "0")}</span>
+                    <h3>{video.title || "Untitled film"}</h3>
+                    <b>↗</b>
+                  </div>
+                  <div className="admin-media-actions admin-media-actions-dark">
+                    <span className={`admin-media-status ${video.published ? "is-published" : "is-hidden"}`}>{video.published ? "Published" : "Hidden"}</span>
+                    <button type="button" onClick={() => void togglePublished(video)} disabled={togglingId === video.id}>{togglingId === video.id ? "Updating…" : video.published ? "Hide" : "Publish"}</button>
+                    <button type="button" onClick={() => setPreviewIndex(index)}>Edit</button>
+                    <button type="button" onClick={() => void remove(video.id)}>Delete</button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="studio-empty studio-empty-dark">Motion work will appear here.</div>
+          )}
+        </div>
+      </section>
 
       {previewIndex !== null && videos[previewIndex] && (
         <MediaPreviewModal

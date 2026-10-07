@@ -7,7 +7,7 @@ export default function AdminVideosPage() {
         <p className="text-[10px] uppercase tracking-[0.22em] text-[#584e49]">Media</p>
         <h1 className="mt-2 font-display text-4xl md:text-5xl text-[#171412]">Videos</h1>
         <p className="mt-2 text-sm leading-7 text-[#584e49]">
-          Upload large videos directly to object storage and keep the motion portfolio polished and current.
+          Upload large videos directly to object storage. New videos start hidden; publish them here when they are ready for the public homepage.
         </p>
       </div>
       <VideoManager />

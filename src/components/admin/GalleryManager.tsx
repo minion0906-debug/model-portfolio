@@ -60,31 +60,25 @@ export default function GalleryManager() {
     <div className="space-y-6">
       <DirectUpload kind="image" multiple accept="image/jpeg,image/png,image/webp" onComplete={load} />
 
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="studio-gallery-grid admin-public-gallery-grid">
         {items.map((item, index) => (
-          <article key={item.id} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-            <img
+          <article key={item.id} className={`studio-shot shot-${index % 6} admin-media-tile`} style={{ cursor: "default" }}>
+            <button
+              type="button"
               onClick={() => setPreviewIndex(index)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setPreviewIndex(index); } }}
-              src={item.url}
-              alt={item.title || "Gallery item"}
-              className="aspect-[4/5] w-full rounded-lg object-cover"
-            />
-
-            <div className="mt-3 text-sm text-slate-700">{item.title || "Untitled"}</div>
-
-            <div className="mt-3 flex gap-2 text-xs">
-              <button type="button" onClick={() => edit(item)}>
-                Edit
-              </button>
-              <button type="button" onClick={() => toggle(item)}>
-                {item.published ? "Hide" : "Publish"}
-              </button>
-              <button type="button" onClick={() => remove(item.id)}>
-                Delete
-              </button>
+              className="absolute inset-0 z-10 h-full w-full border-0 bg-transparent p-0 text-left"
+              aria-label={`Open ${item.title || "gallery image"} preview`}
+            >
+              <img src={item.url} alt={item.title || "Gallery item"} className="studio-shot-image" loading={index < 2 ? "eager" : "lazy"} />
+              <span className="studio-shot-overlay" />
+              <span className="studio-shot-meta"><b>{String(index + 1).padStart(2, "0")}</b><em>{item.published ? "Published" : "Hidden"}</em></span>
+              <span className="studio-shot-title">{item.title || "Untitled"}<i>↗</i></span>
+            </button>
+            <div className="admin-media-actions">
+              <span className={`admin-media-status ${item.published ? "is-published" : "is-hidden"}`}>{item.published ? "Published" : "Hidden"}</span>
+              <button type="button" onClick={() => void edit(item)}>Edit</button>
+              <button type="button" onClick={() => void toggle(item)}>{item.published ? "Hide" : "Publish"}</button>
+              <button type="button" onClick={() => void remove(item.id)}>Delete</button>
             </div>
           </article>
         ))}
