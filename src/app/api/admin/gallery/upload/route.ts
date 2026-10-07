@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePublicPortfolio } from "@/lib/public-cache";
 import { requireAdmin } from "@/lib/admin-api";
 import { storeImage } from "@/lib/media-storage";
 
@@ -51,6 +52,8 @@ export async function POST(request: Request) {
 
     created.push(media);
   }
+
+  revalidatePublicPortfolio();
 
   return NextResponse.json({ media: created }, { status: 201 });
 }

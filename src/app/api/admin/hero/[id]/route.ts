@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePublicPortfolio } from "@/lib/public-cache";
 import { requireAdmin } from "@/lib/auth";
 
 type Params = { params: Promise<{ id: string }> };
@@ -20,6 +21,8 @@ export async function PUT(request: Request, { params }: Params) {
         subtitle: subtitle || null,
       },
     });
+
+    revalidatePublicPortfolio();
 
     return NextResponse.json({ slide });
   } catch (error) {
@@ -43,6 +46,8 @@ export async function PATCH(request: Request, { params }: Params) {
       data: { active: body.active },
     });
 
+    revalidatePublicPortfolio();
+
     return NextResponse.json({ slide });
   } catch (error) {
     console.error("Toggle hero slide error:", error);
@@ -56,6 +61,8 @@ export async function DELETE(_request: Request, { params }: Params) {
     const { id } = await params;
 
     await prisma.heroSlide.delete({ where: { id } });
+
+    revalidatePublicPortfolio();
 
     return NextResponse.json({ ok: true });
   } catch (error) {

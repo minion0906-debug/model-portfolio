@@ -1,4 +1,5 @@
-import { prisma } from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
+import { prisma, logDatabaseError, withDatabaseRetry } from "@/lib/prisma";
 
 export type PublicSiteSettings = {
   name: string;
@@ -36,30 +37,39 @@ const fallback: PublicSiteSettings = {
   acceptingBookings: true,
 };
 
-export async function getSiteSettings(): Promise<PublicSiteSettings> {
-  try {
-    const settings = await prisma.siteSettings.findFirst();
+const loadSiteSettings = unstable_cache(
+  async (): Promise<PublicSiteSettings> => {
+    try {
+      const settings = await withDatabaseRetry(() => prisma.siteSettings.findFirst());
 
-    if (!settings) return fallback;
+      if (!settings) return fallback;
 
-    return {
-      name: settings.name || fallback.name,
-      bio: settings.bio || "",
-      profileImage: settings.profileImage,
-      location: settings.location || fallback.location,
-      height: settings.height || fallback.height,
-      clothingSize: settings.clothingSize || fallback.clothingSize,
-      shoeSize: settings.shoeSize || fallback.shoeSize,
-      languages: settings.languages || fallback.languages,
-      specialties: settings.specialties || fallback.specialties,
-      email: settings.email,
-      phone: settings.phone,
-      instagram: settings.instagram,
-      tiktok: settings.tiktok,
-      youtube: settings.youtube,
-      acceptingBookings: settings.acceptingBookings,
-    };
-  } catch {
-    return fallback;
-  }
+      return {
+        name: settings.name || fallback.name,
+        bio: settings.bio || "",
+        profileImage: settings.profileImage,
+        location: settings.location || fallback.location,
+        height: settings.height || fallback.height,
+        clothingSize: settings.clothingSize || fallback.clothingSize,
+        shoeSize: settings.shoeSize || fallback.shoeSize,
+        languages: settings.languages || fallback.languages,
+        specialties: settings.specialties || fallback.specialties,
+        email: settings.email,
+        phone: settings.phone,
+        instagram: settings.instagram,
+        tiktok: settings.tiktok,
+        youtube: settings.youtube,
+        acceptingBookings: settings.acceptingBookings,
+      };
+    } catch (error) {
+      logDatabaseError("settings", error);
+      return fallback;
+    }
+  },
+  ["public-settings"],
+  { revalidate: 60, tags: ["public-portfolio"] },
+);
+
+export function getSiteSettings() {
+  return loadSiteSettings();
 }
