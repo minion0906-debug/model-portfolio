@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePublicPortfolio } from "@/lib/public-cache";
 import { requireAdmin } from "@/lib/auth";
 
 export async function PUT(request: Request) {
@@ -23,6 +24,8 @@ export async function PUT(request: Request) {
         }),
       ),
     );
+
+    revalidatePublicPortfolio();
 
     return NextResponse.json({ ok: true });
   } catch (error) {

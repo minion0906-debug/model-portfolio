@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { revalidatePublicPortfolio } from "@/lib/public-cache";
 import { getAdminForApi } from "@/lib/admin-api";
 
 const reorderSchema = z.object({
@@ -53,6 +54,7 @@ export async function PUT(request: Request) {
   );
 
   revalidatePath("/");
+  revalidatePublicPortfolio();
   revalidatePath("/admin/gallery");
 
   return NextResponse.json({ success: true });

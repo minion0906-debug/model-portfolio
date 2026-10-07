@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { revalidatePublicPortfolio } from "@/lib/public-cache";
 import { getAdminForApi } from "@/lib/admin-api";
 import {
   deleteLocalVideoFile,
@@ -58,6 +59,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
   });
 
   revalidatePath("/");
+  revalidatePublicPortfolio();
   revalidatePath("/admin/videos");
 
   return NextResponse.json({ media: updated });
@@ -96,6 +98,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   });
 
   revalidatePath("/");
+  revalidatePublicPortfolio();
   revalidatePath("/admin/videos");
 
   return NextResponse.json({ media: updated });
@@ -135,6 +138,7 @@ export async function DELETE(_: Request, { params }: RouteContext) {
   }
 
   revalidatePath("/");
+  revalidatePublicPortfolio();
   revalidatePath("/admin/videos");
 
   return NextResponse.json({ success: true });

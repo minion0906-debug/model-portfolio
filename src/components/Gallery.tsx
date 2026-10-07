@@ -11,6 +11,10 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
   const filtered = useMemo(() => filter === "All" ? images : images.filter((x) => x.tag === filter), [images, filter]);
   const pageSize = 4;
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+
+  useEffect(() => {
+    setPage((current) => Math.min(current, totalPages));
+  }, [totalPages]);
   const visible = useMemo(() => filtered.slice((page - 1) * pageSize, page * pageSize), [filtered, page]);
   return (
     <section id="gallery" className="studio-gallery">

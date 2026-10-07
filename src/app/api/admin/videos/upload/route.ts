@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePublicPortfolio } from "@/lib/public-cache";
 import { requireAdmin } from "@/lib/admin-api";
 import { storeVideo, storeVideoThumbnail } from "@/lib/media-storage";
 
@@ -54,6 +55,8 @@ export async function POST(request: Request) {
       published: false,
     },
   });
+
+  revalidatePublicPortfolio();
 
   return NextResponse.json({ media }, { status: 201 });
 }

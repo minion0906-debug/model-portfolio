@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDatabaseRetry } from "@/lib/prisma";
 import { createHmac, randomBytes, timingSafeEqual } from "crypto";
 
 const SESSION_COOKIE = "model_admin_session";
@@ -113,15 +113,10 @@ export async function getCurrentAdmin() {
 
   if (!session) return null;
 
-  return prisma.admin.findUnique({
-    where: {
-      id: session.adminId,
-    },
-    select: {
-      id: true,
-      email: true,
-    },
-  });
+  return withDatabaseRetry(() => prisma.admin.findUnique({
+    where: { id: session.adminId },
+    select: { id: true, email: true },
+  }));
 }
 
 export async function requireAdmin() {

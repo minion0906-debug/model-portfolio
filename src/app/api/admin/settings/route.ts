@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { revalidatePublicPortfolio } from "@/lib/public-cache";
 import { requireAdmin } from "@/lib/admin-api";
 import { ensureSiteSettings } from "@/lib/admin-settings";
 
@@ -74,6 +75,8 @@ export async function PATCH(request: Request) {
       where: { id: current.id },
       data: body,
     });
+
+    revalidatePublicPortfolio();
 
     return NextResponse.json({ settings });
   } catch {

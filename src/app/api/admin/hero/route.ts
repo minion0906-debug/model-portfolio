@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePublicPortfolio } from "@/lib/public-cache";
 import { requireAdmin } from "@/lib/auth";
 
 export async function POST(request: Request) {
@@ -58,6 +59,8 @@ export async function POST(request: Request) {
         },
       },
     });
+
+    revalidatePublicPortfolio();
 
     return NextResponse.json({ slide }, { status: 201 });
   } catch (error) {
