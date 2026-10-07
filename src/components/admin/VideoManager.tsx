@@ -77,37 +77,46 @@ export default function VideoManager() {
         onComplete={() => setRefreshKey((value) => value + 1)}
       />
 
-      <section className="studio-motion admin-public-motion">
-        <div className="studio-shell">
-          <div className="studio-motion-head">
-            <div><p className="studio-label">03 / Motion</p><h2>Beyond<br /><em>the still.</em></h2></div>
-            <p>Campaign films, movement and personality. This admin preview uses the same tiles as the public homepage.</p>
-          </div>
-          {videos.length ? (
-            <div className="studio-motion-grid">
-              {videos.map((video, index) => (
-                <article key={video.id} className={`studio-film admin-media-tile ${index === 0 ? "featured" : ""}`}>
-                  <button type="button" onClick={() => setPreviewIndex(index)} className="studio-film-frame block w-full cursor-zoom-in border-0 p-0 text-left" aria-label={`Open ${video.title || "video"} preview`}>
-                    <video src={video.url} poster={video.thumbnail || undefined} controls playsInline preload="metadata" />
+      <section className="admin-video-tiles">
+        {videos.length ? (
+          <div className="studio-motion-grid">
+            {videos.map((video, index) => (
+              <article key={video.id} className={`studio-film admin-media-tile ${index === 0 ? "featured" : ""}`}>
+                <button
+                  type="button"
+                  onClick={() => setPreviewIndex(index)}
+                  className="studio-film-frame block w-full cursor-zoom-in border-0 p-0 text-left"
+                  aria-label={`Open ${video.title || "video"} preview`}
+                >
+                  <video
+                    src={video.url}
+                    poster={video.thumbnail || undefined}
+                    controls
+                    playsInline
+                    preload="metadata"
+                  />
+                </button>
+                <div className="studio-film-info">
+                  <span>Film {String(index + 1).padStart(2, "0")}</span>
+                  <h3>{video.title || "Untitled film"}</h3>
+                  <b>↗</b>
+                </div>
+                <div className="admin-media-actions admin-media-actions-dark">
+                  <span className={`admin-media-status ${video.published ? "is-published" : "is-hidden"}`}>
+                    {video.published ? "Published" : "Hidden"}
+                  </span>
+                  <button type="button" onClick={() => void togglePublished(video)} disabled={togglingId === video.id}>
+                    {togglingId === video.id ? "Updating…" : video.published ? "Hide" : "Publish"}
                   </button>
-                  <div className="studio-film-info">
-                    <span>Film {String(index + 1).padStart(2, "0")}</span>
-                    <h3>{video.title || "Untitled film"}</h3>
-                    <b>↗</b>
-                  </div>
-                  <div className="admin-media-actions admin-media-actions-dark">
-                    <span className={`admin-media-status ${video.published ? "is-published" : "is-hidden"}`}>{video.published ? "Published" : "Hidden"}</span>
-                    <button type="button" onClick={() => void togglePublished(video)} disabled={togglingId === video.id}>{togglingId === video.id ? "Updating…" : video.published ? "Hide" : "Publish"}</button>
-                    <button type="button" onClick={() => setPreviewIndex(index)}>Edit</button>
-                    <button type="button" onClick={() => void remove(video.id)}>Delete</button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div className="studio-empty studio-empty-dark">Motion work will appear here.</div>
-          )}
-        </div>
+                  <button type="button" onClick={() => setPreviewIndex(index)}>Edit</button>
+                  <button type="button" onClick={() => void remove(video.id)}>Delete</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="studio-empty studio-empty-dark">No videos uploaded yet.</div>
+        )}
       </section>
 
       {previewIndex !== null && videos[previewIndex] && (

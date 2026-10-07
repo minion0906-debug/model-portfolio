@@ -29,6 +29,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                 className="studio-shot-image"
                 loading={index < 2 ? "eager" : "lazy"}
                 decoding="async"
+                draggable={false}
               />
               <span className="studio-shot-overlay" /><span className="studio-shot-meta"><b>{String(index+1).padStart(2,"0")}</b><em>{image.tag || "Selected work"}</em></span><span className="studio-shot-title">{image.title}<i>↗</i></span>
             </motion.button>)}

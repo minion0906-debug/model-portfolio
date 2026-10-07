@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
@@ -93,7 +92,13 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
     <motion.div className="fixed inset-0 z-[200] flex h-screen w-screen items-center justify-center bg-black" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={onClose}>
       <motion.div className="relative h-full w-full overflow-hidden touch-none" onClick={(e)=>e.stopPropagation()} onWheel={wheel} onTouchMove={touchMove} onTouchEnd={touchEnd} onTouchStart={swipeStart} onClickCapture={tap} onTouchCancel={swipeEnd} onDoubleClick={doubleZoom}>
         <motion.div className="h-full w-full" animate={{scale:zoom, x:position.x, y:position.y}} drag={zoom > 1} dragConstraints={{left:-400,right:400,top:-400,bottom:400}} transition={{type:"spring", stiffness:200, damping:25}}>
-          <Image src={image.src} alt={image.title} fill sizes="100vw" priority onLoad={()=>setLoaded(true)} className={`object-contain transition duration-700 ${loaded ? "opacity-100 blur-0" : "opacity-50 blur-xl"}`} />
+          <img
+          src={image.src}
+          alt={image.title}
+          onLoad={() => setLoaded(true)}
+          draggable={false}
+          className={`h-full w-full object-contain transition duration-700 ${loaded ? "opacity-100 blur-0" : "opacity-50 blur-xl"}`}
+        />
         </motion.div>
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/60 to-transparent px-8 pb-10 pt-32 text-white">
           <p className="text-[10px] uppercase tracking-[.35em] text-white/60">{image.tag}</p>
