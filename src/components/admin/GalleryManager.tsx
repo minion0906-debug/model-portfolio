@@ -64,7 +64,10 @@ export default function GalleryManager() {
         {items.map((item, index) => (
           <article key={item.id} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
             <img
-              onDoubleClick={() => setPreviewIndex(index)}
+              onClick={() => setPreviewIndex(index)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setPreviewIndex(index); } }}
               src={item.url}
               alt={item.title || "Gallery item"}
               className="aspect-[4/5] w-full rounded-lg object-cover"

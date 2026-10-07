@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type MediaItem = {
   id: string;
@@ -33,11 +33,14 @@ export default function MediaPreviewModal({
   const [description, setDescription] = useState(item.description || "");
   const [zoom, setZoom] = useState(1);
   const [saving, setSaving] = useState(false);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const dragStart = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
 
   useEffect(() => {
     setTitle(item.title || "");
     setDescription(item.description || "");
     setZoom(1);
+    setPan({ x: 0, y: 0 });
   }, [item]);
 
   const canNavigate = items.length > 1;
@@ -45,6 +48,73 @@ export default function MediaPreviewModal({
     () => items.findIndex((candidate) => candidate.id === item.id),
     [item.id, items]
   );
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        onPrevious?.();
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        onNext?.();
+      } else if (event.key === "+" || event.key === "=") {
+        event.preventDefault();
+        setZoom((value) => Math.min(4, Number((value + 0.25).toFixed(2))));
+      } else if (event.key === "-") {
+        event.preventDefault();
+        setZoom((value) => {
+          const next = Math.max(1, Number((value - 0.25).toFixed(2)));
+          if (next === 1) setPan({ x: 0, y: 0 });
+          return next;
+        });
+      } else if (event.key === "0") {
+        event.preventDefault();
+        setZoom(1);
+        setPan({ x: 0, y: 0 });
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose, onNext, onPrevious]);
+
+  function updateZoom(next: number) {
+    const value = Math.min(4, Math.max(1, Number(next.toFixed(2))));
+    setZoom(value);
+    if (value === 1) setPan({ x: 0, y: 0 });
+  }
+
+  function handleWheel(event: React.WheelEvent<HTMLDivElement>) {
+    if (kind !== "image") return;
+    event.preventDefault();
+    updateZoom(zoom - event.deltaY * 0.002);
+  }
+
+  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    if (kind !== "image" || zoom <= 1) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragStart.current = {
+      x: event.clientX,
+      y: event.clientY,
+      panX: pan.x,
+      panY: pan.y,
+    };
+  }
+
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    if (!dragStart.current) return;
+    setPan({
+      x: dragStart.current.panX + event.clientX - dragStart.current.x,
+      y: dragStart.current.panY + event.clientY - dragStart.current.y,
+    });
+  }
+
+  function handlePointerUp() {
+    dragStart.current = null;
+  }
 
   async function save() {
     setSaving(true);
@@ -116,7 +186,7 @@ export default function MediaPreviewModal({
               <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setZoom((value) => Math.max(1, Number((value - 0.25).toFixed(2))))}
+                  onClick={() => updateZoom(zoom - 0.25)}
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/30 text-lg text-white transition hover:bg-black/50"
                   aria-label="Zoom out"
                 >
@@ -124,7 +194,7 @@ export default function MediaPreviewModal({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setZoom((value) => Math.min(4, Number((value + 0.25).toFixed(2))))}
+                  onClick={() => updateZoom(zoom + 0.25)}
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/30 text-lg text-white transition hover:bg-black/50"
                   aria-label="Zoom in"
                 >
@@ -132,19 +202,30 @@ export default function MediaPreviewModal({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setZoom(1)}
+                  onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
                   className="rounded-full border border-white/15 bg-black/30 px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/80 transition hover:bg-black/50"
                 >
                   Reset
                 </button>
               </div>
 
+              {kind === "image" && (
+                <div className="pointer-events-none absolute bottom-4 left-4 z-10 rounded-full border border-white/10 bg-black/35 px-3 py-2 text-[9px] uppercase tracking-[0.16em] text-white/60 backdrop-blur-md">
+                  Wheel zoom · Drag when zoomed · ← → navigate · Esc close
+                </div>
+              )}
+
               <motion.div
-                className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[22px]"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
-                onDoubleClick={() => setZoom((value) => (value > 1 ? 1 : 2.2))}
+                onDoubleClick={() => updateZoom(zoom > 1 ? 1 : 2.2)}
+                onWheel={handleWheel}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+                className={`relative flex h-full w-full items-center justify-center overflow-hidden rounded-[22px] ${zoom > 1 ? "cursor-grab active:cursor-grabbing" : "cursor-zoom-in"}`}
               >
                 {kind === "image" ? (
                   <motion.img
@@ -153,9 +234,9 @@ export default function MediaPreviewModal({
                     alt={title || "Media preview"}
                     className="max-h-[72vh] w-full rounded-[18px] object-contain shadow-[0_20px_50px_rgba(0,0,0,0.45)]"
                     initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: zoom, transition: { duration: 0.25 } }}
+                    animate={{ opacity: 1, scale: zoom, x: pan.x, y: pan.y, transition: { duration: 0.25 } }}
                     style={{ transformOrigin: "center center" }}
-                    onLoad={() => setZoom(1)}
+                    onLoad={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
                   />
                 ) : (
                   <motion.video
@@ -164,7 +245,7 @@ export default function MediaPreviewModal({
                     controls
                     className="max-h-[72vh] w-full rounded-[18px] object-contain shadow-[0_20px_50px_rgba(0,0,0,0.45)]"
                     initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: zoom, transition: { duration: 0.25 } }}
+                    animate={{ opacity: 1, scale: zoom, x: pan.x, y: pan.y, transition: { duration: 0.25 } }}
                     style={{ transformOrigin: "center center" }}
                   />
                 )}
