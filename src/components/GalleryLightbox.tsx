@@ -1,13 +1,16 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import PayPalCheckout from "@/components/PayPalCheckout";
 
 export type GalleryImage = {
   id: string;
   src: string;
   title: string;
   tag: string;
+  priceCents: number;
+  currency: string;
 };
 
 type Props = {
@@ -24,6 +27,8 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [purchased, setPurchased] = useState(false);
+  const [checkingAccess, setCheckingAccess] = useState(false);
   const lastDistance = useRef<number | null>(null);
   const touchStartX = useRef<number | null>(null);
   const lastTap = useRef(0);
@@ -34,6 +39,16 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
     setPosition({ x: 0, y: 0 });
     setLoaded(false);
     setFailed(false);
+    setPurchased(image ? image.priceCents <= 0 : false);
+    setCheckingAccess(Boolean(image && image.priceCents > 0));
+
+    if (image?.priceCents > 0) {
+      void fetch(`/api/media/${image.id}?check=1`, { cache: "no-store" })
+        .then((response) => response.ok ? response.json() : { authorized: false })
+        .then((data) => setPurchased(Boolean(data.authorized)))
+        .catch(() => setPurchased(false))
+        .finally(() => setCheckingAccess(false));
+    }
 
     const old = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -76,6 +91,11 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
   const swipeStart = (e: React.TouchEvent) => {
     touchStartX.current = e.changedTouches[0].clientX;
   };
+  const handlePurchaseSuccess = useCallback(() => {
+    setPurchased(true);
+    setCheckingAccess(false);
+  }, []);
+
   const swipeEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null || zoom > 1) return;
     const diff = touchStartX.current - e.changedTouches[0].clientX;
@@ -89,12 +109,12 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
         <motion.div className="h-full w-full" animate={{scale:zoom, x:position.x, y:position.y}} drag={zoom > 1} dragConstraints={{left:-400,right:400,top:-400,bottom:400}} transition={{type:"spring", stiffness:200, damping:25}}>
           {!failed ? (
             <img
-              src={image.src}
+              src={image.priceCents > 0 && purchased ? `/api/media/${image.id}` : image.src}
               alt={image.title}
               draggable={false}
               onLoad={() => setLoaded(true)}
               onError={() => setFailed(true)}
-              className={`h-full w-full object-contain transition duration-700 ${loaded ? "opacity-100 blur-0" : "opacity-50 blur-xl"}`}
+              className={`h-full w-full object-contain transition duration-700 ${loaded ? "opacity-100" : "opacity-50"} ${image.priceCents > 0 && !purchased ? "scale-105 blur-md brightness-50" : "blur-0"}`}
             />
           ) : (
             <div className="flex h-full items-center justify-center px-8 text-center text-sm uppercase tracking-[.2em] text-white/60">
@@ -102,6 +122,24 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
             </div>
           )}
         </motion.div>
+        {image.priceCents > 0 && !purchased && !checkingAccess && (
+          <div className="absolute left-1/2 top-1/2 z-20 w-[min(92vw,420px)] -translate-x-1/2 -translate-y-1/2 rounded-[24px] border border-white/10 bg-black/75 p-6 shadow-2xl backdrop-blur-xl" onClick={(e) => e.stopPropagation()}>
+            <p className="text-[9px] uppercase tracking-[0.25em] text-white/50">Premium image</p>
+            <h4 className="mt-2 text-2xl font-semibold text-white">Unlock this work</h4>
+            <p className="mt-2 mb-5 text-sm leading-6 text-white/55">Purchase once to unlock the full-resolution image in this browser.</p>
+            <PayPalCheckout
+              mediaId={image.id}
+              priceCents={image.priceCents}
+              currency={image.currency}
+              onSuccess={handlePurchaseSuccess}
+            />
+          </div>
+        )}
+        {image.priceCents > 0 && checkingAccess && (
+          <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-black/65 px-5 py-3 text-[10px] uppercase tracking-[0.2em] text-white/60 backdrop-blur-xl">
+            Checking purchase…
+          </div>
+        )}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/60 to-transparent px-8 pb-10 pt-32 text-white">
           <p className="text-[10px] uppercase tracking-[.35em] text-white/60">{image.tag}</p>
           <h3 className="mt-2 text-3xl md:text-5xl">{image.title}</h3>

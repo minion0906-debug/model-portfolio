@@ -35,7 +35,7 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                 decoding="async"
                 draggable={false}
               />
-              <span className="studio-shot-overlay" /><span className="studio-shot-meta"><b>{String(index+1).padStart(2,"0")}</b><em>{image.tag || "Selected work"}</em></span><span className="studio-shot-title">{image.title}<i>↗</i></span>
+              <span className="studio-shot-overlay" /><span className="studio-shot-meta"><b>{String(index+1).padStart(2,"0")}</b><em>{image.priceCents > 0 ? `${image.currency} ${(image.priceCents / 100).toFixed(2)}` : (image.tag || "Selected work")}</em></span><span className="studio-shot-title">{image.title}<i>↗</i></span>
             </motion.button>)}
           </div>
           {totalPages > 1 && <div className="studio-pagination">{Array.from({length: totalPages}, (_, i) => <button key={i} className={page === i+1 ? "is-active" : ""} onClick={() => setPage(i+1)}>{i+1}</button>)}</div>}

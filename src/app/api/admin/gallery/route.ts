@@ -22,6 +22,8 @@ export async function GET() {
       url: true,
       thumbnail: true,
       published: true,
+      priceCents: true,
+      currency: true,
       createdAt: true,
     },
   });

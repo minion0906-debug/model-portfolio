@@ -8,6 +8,8 @@ type MediaItem = {
   title?: string | null;
   description?: string | null;
   url: string;
+  priceCents?: number;
+  currency?: string;
 };
 
 type Props = {
@@ -31,6 +33,8 @@ export default function MediaPreviewModal({
 }: Props) {
   const [title, setTitle] = useState(item.title || "");
   const [description, setDescription] = useState(item.description || "");
+  const [price, setPrice] = useState(((item.priceCents || 0) / 100).toFixed(2));
+  const [currency, setCurrency] = useState(item.currency || "USD");
   const [zoom, setZoom] = useState(1);
   const [saving, setSaving] = useState(false);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -39,6 +43,8 @@ export default function MediaPreviewModal({
   useEffect(() => {
     setTitle(item.title || "");
     setDescription(item.description || "");
+    setPrice(((item.priceCents || 0) / 100).toFixed(2));
+    setCurrency(item.currency || "USD");
     setZoom(1);
     setPan({ x: 0, y: 0 });
   }, [item]);
@@ -122,7 +128,7 @@ export default function MediaPreviewModal({
       await fetch(`/api/admin/${kind === "image" ? "gallery" : "videos"}/${item.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description }),
+        body: JSON.stringify({ title, description, priceCents: Math.round(Math.max(0, Number(price) || 0) * 100), currency }),
       });
       onSaved();
     } finally {
@@ -280,6 +286,36 @@ export default function MediaPreviewModal({
                     placeholder="Description"
                   />
                 </label>
+
+                <div className="grid grid-cols-[1fr_110px] gap-3">
+                  <label className="block text-sm text-slate-300">
+                    <span className="mb-2 block text-[10px] uppercase tracking-[0.2em] text-slate-400">Price</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={price}
+                      onChange={(event) => setPrice(event.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2.5 text-white outline-none transition focus:border-slate-400"
+                      placeholder="0.00"
+                    />
+                    <span className="mt-1 block text-[9px] text-slate-500">Set 0 for free.</span>
+                  </label>
+                  <label className="block text-sm text-slate-300">
+                    <span className="mb-2 block text-[10px] uppercase tracking-[0.2em] text-slate-400">Currency</span>
+                    <select
+                      value={currency}
+                      onChange={(event) => setCurrency(event.target.value)}
+                      className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-3 py-2.5 text-white outline-none"
+                    >
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                      <option value="GBP">GBP</option>
+                      <option value="CAD">CAD</option>
+                      <option value="AUD">AUD</option>
+                    </select>
+                  </label>
+                </div>
               </div>
 
               <div className="mt-6 flex items-center gap-3">
