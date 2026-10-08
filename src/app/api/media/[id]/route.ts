@@ -5,6 +5,7 @@ import { stat } from "node:fs/promises";
 import path from "node:path";
 import { Readable } from "node:stream";
 import { prisma } from "@/lib/prisma";
+import { getCustomerEmail } from "@/lib/customer-auth";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -36,11 +37,13 @@ function parseRange(range: string | null, size: number) {
 async function hasAccess(mediaId: string, priceCents: number) {
   if (priceCents <= 0) return true;
   const token = (await cookies()).get(`media_access_${mediaId}`)?.value;
-  if (!token) return false;
-  const payment = await prisma.payment.findFirst({
-    where: { mediaId, accessToken: token, status: "COMPLETED" },
-    select: { id: true },
-  });
+  if (token) {
+    const payment = await prisma.payment.findFirst({ where: { mediaId, accessToken: token, status: "COMPLETED" }, select: { id: true } });
+    if (payment) return true;
+  }
+  const email = await getCustomerEmail();
+  if (!email) return false;
+  const payment = await prisma.payment.findFirst({ where: { mediaId, payerEmail: email, status: "COMPLETED" }, select: { id: true } });
   return Boolean(payment);
 }
 
@@ -101,7 +104,6 @@ export async function GET(request: Request, { params }: Context) {
             "Accept-Ranges": "bytes",
             "Cache-Control": "private, no-store",
           ...(download ? { "Content-Disposition": `attachment; filename="${media.id}.${media.type === "IMAGE" ? "jpg" : "mp4"}"` } : {}),
-            ...(download ? { "Content-Disposition": `attachment; filename="${media.id}.${media.type === "IMAGE" ? "jpg" : "mp4"}"` } : {}),
           },
         });
       }

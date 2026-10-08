@@ -10,6 +10,7 @@ type PayPalEvent = {
   resource?: {
     id?: string;
     status?: string;
+    amount?: { value?: string; currency_code?: string };
     supplementary_data?: { related_ids?: { order_id?: string } };
     custom_id?: string;
     purchase_units?: Array<{ custom_id?: string }>;
@@ -48,15 +49,23 @@ export async function POST(request: Request) {
       event.resource?.supplementary_data?.related_ids?.order_id ||
       event.resource?.id;
 
-    if (["PAYMENT.CAPTURE.COMPLETED"].includes(event.event_type) && orderId) {
+    if (["PAYMENT.CAPTURE.COMPLETED", "PAYMENT.CAPTURE.REFUNDED"].includes(event.event_type) && orderId) {
       const payment = await prisma.payment.findUnique({ where: { paypalOrderId: orderId } });
       if (payment) {
         await prisma.payment.update({
           where: { id: payment.id },
-          data: {
-            status: "COMPLETED",
-            capturedAt: payment.capturedAt || new Date(),
-          },
+          data: event.event_type === "PAYMENT.CAPTURE.REFUNDED"
+            ? {
+                status: "REFUNDED",
+                refundedAt: new Date(),
+                refundId: event.resource?.id || undefined,
+                refundAmountCents: event.resource?.amount?.value ? Math.round(Number(event.resource.amount.value) * 100) : payment.amountCents,
+                refundReason: "PayPal refund webhook",
+              }
+            : {
+                status: "COMPLETED",
+                capturedAt: payment.capturedAt || new Date(),
+              },
         });
       }
     }

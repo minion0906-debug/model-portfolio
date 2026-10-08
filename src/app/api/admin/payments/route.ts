@@ -39,32 +39,36 @@ export async function GET(request: Request) {
       } : {}),
     };
 
-    const [payments, completedAggregate, allCount, completedCount, pendingCount, failedCount] = await Promise.all([
+    const [payments, completedAggregate, refundedAggregate, allCount, completedCount, pendingCount, failedCount, refundedCount] = await Promise.all([
       prisma.payment.findMany({
         where,
         orderBy: { createdAt: "desc" },
         take,
         select: {
           id: true, paypalOrderId: true, amountCents: true, currency: true, status: true,
-          payerName: true, payerEmail: true, createdAt: true, capturedAt: true,
+          payerName: true, payerEmail: true, createdAt: true, capturedAt: true, refundedAt: true, refundId: true, refundAmountCents: true, refundReason: true,
           media: { select: { id: true, title: true, type: true, thumbnail: true, url: true } },
         },
       }),
       prisma.payment.aggregate({ where: { ...where, status: "COMPLETED" }, _sum: { amountCents: true } }),
+      prisma.payment.aggregate({ where: { ...where, status: "REFUNDED" }, _sum: { refundAmountCents: true } }),
       prisma.payment.count({ where }),
       prisma.payment.count({ where: { ...where, status: "COMPLETED" } }),
       prisma.payment.count({ where: { ...where, status: "PENDING" } }),
       prisma.payment.count({ where: { ...where, status: "FAILED" } }),
+      prisma.payment.count({ where: { ...where, status: "REFUNDED" } }),
     ]);
 
     return NextResponse.json({
       payments,
       summary: {
-        revenueCents: completedAggregate._sum.amountCents || 0,
+        revenueCents: (completedAggregate._sum.amountCents || 0) - (refundedAggregate._sum.refundAmountCents || 0),
+        refundedCents: refundedAggregate._sum.refundAmountCents || 0,
         total: allCount,
         completed: completedCount,
         pending: pendingCount,
         failed: failedCount,
+        refunded: refundedCount,
       },
     });
   } catch (error) {
