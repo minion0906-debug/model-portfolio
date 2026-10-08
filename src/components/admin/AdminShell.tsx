@@ -12,6 +12,7 @@ const nav = [
   ["/admin/hero", "Hero", "spark"],
   ["/admin/bookings", "Bookings", "calendar"],
   ["/admin/messages", "Messages", "mail"],
+  ["/admin/payments", "Payments", "card"],
   ["/admin/settings", "Settings", "settings"],
 ] as const;
 
@@ -23,6 +24,7 @@ function Icon({ name, size = 18 }: { name: string; size?: number }) {
   if (name === "spark") return <svg {...common}><path d="m12 2 1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6L12 2Z"/><path d="m19 16 .7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7L19 16Z"/></svg>;
   if (name === "calendar") return <svg {...common}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>;
   if (name === "mail") return <svg {...common}><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>;
+  if (name === "card") return <svg {...common}><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h3"/></svg>;
   if (name === "settings") return <svg {...common}><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="m4.9 4.9 1.8 1.8M17.3 17.3l1.8 1.8M4 12H2m20 0h-2M12 4V2m0 20v-2m-7.1-.9 1.8-1.8m12.4-12.4 1.8-1.8"/></svg>;
   if (name === "logout") return <svg {...common}><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="m14 8 4 4-4 4M18 12H8"/></svg>;
   if (name === "menu") return <svg {...common}><path d="M4 7h16M4 12h16M4 17h16"/></svg>;

@@ -116,6 +116,7 @@ export async function capturePayPalOrder(orderId: string) {
   return data as {
     id: string;
     status: string;
+    payer?: { name?: { given_name?: string; surname?: string }; email_address?: string };
     purchase_units?: Array<{
       reference_id?: string;
       custom_id?: string;

@@ -61,9 +61,18 @@ export async function POST(_: Request, { params }: Context) {
       return NextResponse.json({ error: "Payment item verification failed." }, { status: 400 });
     }
 
+    const payerName = [data.payer?.name?.given_name, data.payer?.name?.surname]
+      .filter(Boolean)
+      .join(" ") || null;
+
     await prisma.payment.update({
       where: { id: payment.id },
-      data: { status: "COMPLETED", capturedAt: new Date() },
+      data: {
+        status: "COMPLETED",
+        capturedAt: new Date(),
+        payerName,
+        payerEmail: data.payer?.email_address || null,
+      },
     });
 
     const cookieStore = await cookies();
