@@ -90,6 +90,42 @@ export async function createPayPalOrder(input: {
   return data as { id: string; status: string };
 }
 
+export async function verifyPayPalWebhook(input: {
+  transmissionId: string;
+  transmissionTime: string;
+  transmissionSig: string;
+  certUrl: string;
+  authAlgo: string;
+  webhookEvent: unknown;
+}) {
+  const webhookId = process.env.PAYPAL_WEBHOOK_ID;
+  if (!webhookId) throw new Error("PAYPAL_WEBHOOK_ID is not configured.");
+  const accessToken = await getAccessToken();
+  const response = await fetch(`${PAYPAL_BASE}/v1/notifications/verify-webhook-signature`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      auth_algo: input.authAlgo,
+      cert_url: input.certUrl,
+      transmission_id: input.transmissionId,
+      transmission_sig: input.transmissionSig,
+      transmission_time: input.transmissionTime,
+      webhook_id: webhookId,
+      webhook_event: input.webhookEvent,
+    }),
+    cache: "no-store",
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    console.error("PayPal webhook verification error:", data);
+    throw new Error(`PayPal webhook verification failed (${response.status}).`);
+  }
+  return data?.verification_status === "SUCCESS";
+}
+
 export async function capturePayPalOrder(orderId: string) {
   const accessToken = await getAccessToken();
 
