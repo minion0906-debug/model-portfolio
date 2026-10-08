@@ -121,4 +121,4 @@ This is a strong foundation for the CMS, but before a high-traffic public launch
 - Session revocation
 
 #Neon Database
-connect Neon database with Database_url
+connect Neon database with DATABASE_URL
