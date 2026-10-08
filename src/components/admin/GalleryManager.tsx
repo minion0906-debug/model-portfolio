@@ -10,6 +10,8 @@ type Item = {
   title: string | null;
   description: string | null;
   published: boolean;
+  priceCents: number;
+  currency: string;
 };
 
 export default function GalleryManager() {
@@ -31,17 +33,6 @@ export default function GalleryManager() {
   async function remove(id: string) {
     if (!confirm("Delete this image?")) return;
     await fetch(`/api/admin/gallery/${id}`, { method: "DELETE" });
-    load();
-  }
-
-  async function edit(item: Item) {
-    const title = prompt("Title", item.title || "");
-    if (title === null) return;
-    await fetch(`/api/admin/gallery/${item.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description: item.description || "" }),
-    });
     load();
   }
 
@@ -76,7 +67,7 @@ export default function GalleryManager() {
             </button>
             <div className="admin-media-actions">
               <span className={`admin-media-status ${item.published ? "is-published" : "is-hidden"}`}>{item.published ? "Published" : "Hidden"}</span>
-              <button type="button" onClick={() => void edit(item)}>Edit</button>
+              <button type="button" onClick={() => setPreviewIndex(index)}>Edit</button>
               <button type="button" onClick={() => void toggle(item)}>{item.published ? "Hide" : "Publish"}</button>
               <button type="button" onClick={() => void remove(item.id)}>Delete</button>
             </div>

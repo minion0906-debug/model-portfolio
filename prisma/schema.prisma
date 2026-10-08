@@ -140,6 +140,17 @@ enum BookingStatus {
 }
 
 
+model PayPalWebhookEvent {
+  id          String   @id @default(cuid())
+  eventId     String   @unique
+  eventType   String
+  resourceId  String?
+  processedAt DateTime @default(now())
+
+  @@index([eventType])
+  @@index([processedAt])
+}
+
 model Payment {
   id            String        @id @default(cuid())
   mediaId       String
@@ -147,6 +158,8 @@ model Payment {
   amountCents   Int
   currency      String        @default("USD")
   status        String        @default("PENDING")
+  payerName     String?
+  payerEmail    String?
   accessToken   String        @unique
   createdAt     DateTime      @default(now())
   capturedAt    DateTime?

@@ -7,6 +7,8 @@ export type PublicVideo = {
   poster: string | null;
   title: string;
   description: string;
+  priceCents: number;
+  currency: string;
 };
 
 const loadPublishedVideos = unstable_cache(
@@ -21,6 +23,8 @@ const loadPublishedVideos = unstable_cache(
           thumbnail: true,
           title: true,
           description: true,
+          priceCents: true,
+          currency: true,
         },
       }));
 
@@ -30,6 +34,8 @@ const loadPublishedVideos = unstable_cache(
         poster: video.thumbnail,
         title: video.title || "Untitled film",
         description: video.description || "",
+        priceCents: video.priceCents,
+        currency: video.currency,
       }));
     } catch (error) {
       logDatabaseError("videos", error);

@@ -12,6 +12,8 @@ type Video = {
   thumbnail: string | null;
   published: boolean;
   createdAt: string;
+  priceCents: number;
+  currency: string;
 };
 
 export default function VideoManager() {
@@ -102,7 +104,7 @@ export default function VideoManager() {
                   <b>↗</b>
                 </div>
                 <div className="admin-media-actions admin-media-actions-dark">
-                  <span className={`admin-media-status ${video.published ? "is-published" : "is-hidden"}`}>
+                  <span className="admin-media-price">{video.priceCents > 0 ? `${video.currency} ${(video.priceCents / 100).toFixed(2)}` : "Free"}</span><span className={`admin-media-status ${video.published ? "is-published" : "is-hidden"}`}>
                     {video.published ? "Published" : "Hidden"}
                   </span>
                   <button type="button" onClick={() => void togglePublished(video)} disabled={togglingId === video.id}>

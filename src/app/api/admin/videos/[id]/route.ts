@@ -12,6 +12,8 @@ import {
 const editSchema = z.object({
   title: z.string().trim().max(120),
   description: z.string().trim().max(1000),
+  priceCents: z.number().int().min(0).max(100000000),
+  currency: z.string().trim().toUpperCase().regex(/^[A-Z]{3}$/),
 });
 
 const publishSchema = z.object({
@@ -50,6 +52,8 @@ export async function PUT(request: Request, { params }: RouteContext) {
     data: {
       title: parsed.data.title || null,
       description: parsed.data.description || null,
+      priceCents: parsed.data.priceCents,
+      currency: parsed.data.currency,
     },
     select: {
       id: true,

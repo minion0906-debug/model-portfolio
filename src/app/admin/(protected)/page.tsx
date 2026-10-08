@@ -8,6 +8,8 @@ export default async function AdminDashboard() {
   let publishedVideoCount = 0;
   let newBookingsCount = 0;
   let unreadMessagesCount = 0;
+  let paymentRevenueCents = 0;
+  let paymentSalesCount = 0;
   let recentBookings: Array<{ id: string; name: string; email: string; status: string; createdAt: Date }> = [];
   let recentMessages: Array<{ id: string; name: string; email: string; read: boolean; createdAt: Date }> = [];
 
@@ -19,6 +21,8 @@ export default async function AdminDashboard() {
       publishedVideoCount,
       newBookingsCount,
       unreadMessagesCount,
+      paymentRevenueCents,
+      paymentSalesCount,
       recentBookings,
       recentMessages,
     ] = await Promise.all([
@@ -28,6 +32,8 @@ export default async function AdminDashboard() {
       prisma.media.count({ where: { type: "VIDEO", published: true } }),
       prisma.bookingRequest.count({ where: { status: "NEW" } }),
       prisma.contactMessage.count({ where: { read: false } }),
+      prisma.payment.aggregate({ where: { status: "COMPLETED" }, _sum: { amountCents: true } }).then(result => result._sum.amountCents || 0),
+      prisma.payment.count({ where: { status: "COMPLETED" } }),
       prisma.bookingRequest.findMany({
         orderBy: { createdAt: "desc" },
         take: 5,
@@ -68,6 +74,7 @@ export default async function AdminDashboard() {
     { label: "Videos", value: videoCount, detail: `${publishedVideoCount} published`, href: "/admin/videos" },
     { label: "New bookings", value: newBookingsCount, detail: "Awaiting review", href: "/admin/bookings" },
     { label: "Unread messages", value: unreadMessagesCount, detail: "Need attention", href: "/admin/messages" },
+    { label: "Payment sales", value: paymentSalesCount, detail: `$${(paymentRevenueCents / 100).toFixed(2)} completed revenue`, href: "/admin/payments" },
   ];
 
   const formatter = new Intl.DateTimeFormat("en-US", {
@@ -94,7 +101,7 @@ export default async function AdminDashboard() {
         </div>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {stats.map((stat) => (
           <Link key={stat.label} href={stat.href} className="rounded-2xl border border-black/10 bg-white p-6 transition hover:-translate-y-0.5 hover:shadow-sm">
             <p className="text-xs uppercase tracking-[0.18em] text-neutral-500">{stat.label}</p>
@@ -147,6 +154,7 @@ export default async function AdminDashboard() {
               ["Edit hero", "/admin/hero"],
               ["Review bookings", "/admin/bookings"],
               ["Read messages", "/admin/messages"],
+              ["View payments", "/admin/payments"],
               ["Update profile", "/admin/settings"],
             ].map(([label, href]) => (
               <Link key={href} href={href} className="flex items-center justify-between rounded-xl border border-black/10 px-4 py-3 text-sm transition hover:bg-black hover:text-white">
