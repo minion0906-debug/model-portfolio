@@ -78,6 +78,7 @@ export async function GET(request: Request, { params }: Context) {
 
   const contentType = mimeFor(media.url, media.type);
   const range = request.headers.get("range");
+  const download = url.searchParams.get("download") === "1";
 
   if (media.url.startsWith("/uploads/")) {
     const relative = media.url.replace(/^\/+/, "");
@@ -99,6 +100,8 @@ export async function GET(request: Request, { params }: Context) {
             "Content-Length": String(info.size),
             "Accept-Ranges": "bytes",
             "Cache-Control": "private, no-store",
+          ...(download ? { "Content-Disposition": `attachment; filename="${media.id}.${media.type === "IMAGE" ? "jpg" : "mp4"}"` } : {}),
+            ...(download ? { "Content-Disposition": `attachment; filename="${media.id}.${media.type === "IMAGE" ? "jpg" : "mp4"}"` } : {}),
           },
         });
       }
@@ -117,6 +120,7 @@ export async function GET(request: Request, { params }: Context) {
           "Content-Range": `bytes ${parsedRange.start}-${parsedRange.end}/${info.size}`,
           "Accept-Ranges": "bytes",
           "Cache-Control": "private, no-store",
+          ...(download ? { "Content-Disposition": `attachment; filename="${media.id}.${media.type === "IMAGE" ? "jpg" : "mp4"}"` } : {}),
         },
       });
     } catch {
@@ -140,6 +144,7 @@ export async function GET(request: Request, { params }: Context) {
     if (value) headers.set(name, value);
   }
   headers.set("Cache-Control", "private, no-store");
+  if (download) headers.set("Content-Disposition", `attachment; filename="${media.id}.${media.type === "IMAGE" ? "jpg" : "mp4"}"`);
 
   return new Response(upstream.body, { status: upstream.status, headers });
 }
