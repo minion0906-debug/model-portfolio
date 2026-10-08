@@ -166,3 +166,41 @@ export async function capturePayPalOrder(orderId: string) {
     }>;
   };
 }
+
+export async function getPayPalOrder(orderId: string) {
+  const accessToken = await getAccessToken();
+  const response = await fetch(`${PAYPAL_BASE}/v2/checkout/orders/${encodeURIComponent(orderId)}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: "no-store",
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    console.error("PayPal get order error:", data);
+    throw new Error(data?.message || "PayPal order could not be retrieved.");
+  }
+  return data;
+}
+
+export async function refundPayPalCapture(input: { captureId: string; amountCents?: number; currency?: string; note?: string }) {
+  const accessToken = await getAccessToken();
+  const body = input.amountCents
+    ? { amount: { value: (input.amountCents / 100).toFixed(2), currency_code: input.currency || "USD" }, note_to_payer: input.note?.slice(0, 255) }
+    : { note_to_payer: input.note?.slice(0, 255) };
+  const response = await fetch(`${PAYPAL_BASE}/v2/payments/captures/${encodeURIComponent(input.captureId)}/refund`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      "PayPal-Request-Id": randomBytes(16).toString("hex"),
+      Prefer: "return=representation",
+    },
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    console.error("PayPal refund error:", data);
+    throw new Error(data?.message || "PayPal could not refund the payment.");
+  }
+  return data as { id: string; status: string; amount?: { value?: string; currency_code?: string }; create_time?: string };
+}

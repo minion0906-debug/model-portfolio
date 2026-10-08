@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { getCustomerEmail } from "@/lib/customer-auth";
 
 function money(cents: number, currency: string) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(cents / 100);
@@ -10,10 +11,16 @@ export default async function PurchasesPage() {
   const cookieStore = await cookies();
   const accessCookies = cookieStore.getAll().filter((cookie) => cookie.name.startsWith("media_access_"));
   const tokens = accessCookies.map((cookie) => cookie.value).filter(Boolean);
+  const customerEmail = await getCustomerEmail();
 
-  const payments = tokens.length
-    ? await prisma.payment.findMany({
-        where: { accessToken: { in: tokens }, status: "COMPLETED" },
+  const payments = await prisma.payment.findMany({
+        where: {
+          status: "COMPLETED",
+          OR: [
+            ...(tokens.length ? [{ accessToken: { in: tokens } }] : []),
+            ...(customerEmail ? [{ payerEmail: customerEmail }] : []),
+          ],
+        },
         orderBy: { capturedAt: "desc" },
         select: {
           id: true,
@@ -23,8 +30,7 @@ export default async function PurchasesPage() {
           capturedAt: true,
           media: { select: { id: true, title: true, type: true, thumbnail: true } },
         },
-      })
-    : [];
+      });
 
   return (
     <main className="min-h-screen bg-[#0b0b0c] px-5 py-8 text-white sm:px-8 lg:px-12">
@@ -34,19 +40,21 @@ export default async function PurchasesPage() {
             <p className="text-[10px] uppercase tracking-[0.3em] text-white/40">Customer library</p>
             <h1 className="mt-2 text-3xl font-medium tracking-tight sm:text-5xl">Your purchases</h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-white/50">
-              Purchased media available on this browser. Your access is protected by a private purchase token.
+              Purchased media is available here after checkout. You can also recover your library on another device with a secure email link.
             </p>
           </div>
-          <Link href="/#gallery" className="rounded-full border border-white/15 px-5 py-2.5 text-xs uppercase tracking-[0.16em] text-white/70 transition hover:bg-white hover:text-black">
-            Back to portfolio
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            {!customerEmail && <Link href="/account" className="rounded-full bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-black">Recover purchases</Link>}
+            {customerEmail && <form action="/api/customer/logout" method="post"><button className="rounded-full border border-white/15 px-5 py-2.5 text-xs uppercase tracking-[0.16em] text-white/70 transition hover:bg-white hover:text-black">Sign out</button></form>}
+            <Link href="/#gallery" className="rounded-full border border-white/15 px-5 py-2.5 text-xs uppercase tracking-[0.16em] text-white/70 transition hover:bg-white hover:text-black">Back to portfolio</Link>
+          </div>
         </div>
 
         {payments.length === 0 ? (
           <section className="rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-16 text-center">
-            <p className="text-2xl font-medium">No purchases on this browser</p>
+            <p className="text-2xl font-medium">No purchases yet</p>
             <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/45">
-              When you complete a paid purchase, it will appear here automatically.
+              Completed purchases appear here automatically. If you are using a new device, recover your library with the secure email link.
             </p>
             <Link href="/#gallery" className="mt-7 inline-flex rounded-full bg-white px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-black">
               Browse work
