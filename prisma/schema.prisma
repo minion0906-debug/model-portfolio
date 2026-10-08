@@ -30,8 +30,11 @@ model Media {
   sortOrder   Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  priceCents  Int       @default(0)
+  currency    String    @default("USD")
   heroSlides  HeroSlide[]
   tags        MediaTag[]
+  payments    Payment[]
 
   @@index([type])
   @@index([published])
@@ -135,3 +138,21 @@ enum BookingStatus {
   COMPLETED
   CANCELLED
 }
+
+
+model Payment {
+  id            String        @id @default(cuid())
+  mediaId       String
+  paypalOrderId String        @unique
+  amountCents   Int
+  currency      String        @default("USD")
+  status        String        @default("PENDING")
+  accessToken   String        @unique
+  createdAt     DateTime      @default(now())
+  capturedAt    DateTime?
+  media         Media         @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@index([mediaId])
+  @@index([status])
+}
+
