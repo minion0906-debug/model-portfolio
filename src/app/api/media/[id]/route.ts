@@ -104,7 +104,6 @@ export async function GET(request: Request, { params }: Context) {
             "Accept-Ranges": "bytes",
             "Cache-Control": "private, no-store",
           ...(download ? { "Content-Disposition": `attachment; filename="${media.id}.${media.type === "IMAGE" ? "jpg" : "mp4"}"` } : {}),
-            ...(download ? { "Content-Disposition": `attachment; filename="${media.id}.${media.type === "IMAGE" ? "jpg" : "mp4"}"` } : {}),
           },
         });
       }

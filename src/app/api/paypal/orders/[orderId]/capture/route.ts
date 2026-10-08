@@ -87,9 +87,10 @@ export async function POST(_: Request, { params }: Context) {
     return NextResponse.json({ success: true, mediaId: payment.mediaId });
   } catch (error) {
     console.error("PayPal capture failed:", error);
+    // Provider response bodies can contain operational details; expose only a generic message.
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to capture PayPal payment." },
-      { status: 500 },
+      { error: "Unable to complete the payment right now. Please try again." },
+      { status: 500, headers: { "Cache-Control": "no-store" } },
     );
   }
 }

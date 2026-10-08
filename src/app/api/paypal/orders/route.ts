@@ -45,9 +45,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ orderId: order.id, paymentId: payment.id });
   } catch (error) {
     console.error("PayPal order creation failed:", error);
+    // Keep provider errors and configuration details in server logs only.
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to start PayPal checkout." },
-      { status: 500 },
+      { error: "Unable to start PayPal checkout. Please try again later." },
+      { status: 500, headers: { "Cache-Control": "no-store" } },
     );
   }
 }
