@@ -123,4 +123,4 @@ This is a strong foundation for the CMS, but before a high-traffic public launch
 #Neon Database
 connect Neon database with DATABASE_URL
 
-# add Paypal 
+# add Paypal base
