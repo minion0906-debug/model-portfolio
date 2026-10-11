@@ -42,7 +42,7 @@ export async function POST(_: Request, { params }: Context) {
     if (
       data.status !== "COMPLETED" ||
       capture?.status !== "COMPLETED" ||
-      paidValue !== payment.amountCents / 100 ||
+      Math.round(paidValue * 100) !== payment.amountCents ||
       paidCurrency !== payment.currency
     ) {
       await prisma.payment.update({
