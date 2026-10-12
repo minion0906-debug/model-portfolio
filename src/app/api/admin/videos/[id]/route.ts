@@ -130,8 +130,10 @@ export async function DELETE(_: Request, { params }: RouteContext) {
     return NextResponse.json({ error: "Video not found." }, { status: 404 });
   }
 
-  await prisma.media.delete({
-    where: { id },
+  await prisma.$transaction(async (tx) => {
+    await tx.mediaTag.deleteMany({ where: { mediaId: id } });
+    await tx.payment.deleteMany({ where: { mediaId: id } });
+    await tx.media.delete({ where: { id } });
   });
 
   try {
