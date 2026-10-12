@@ -20,7 +20,12 @@ type PayPalEvent = {
 export async function POST(request: Request) {
   try {
     const rawBody = await request.text();
-    const event = JSON.parse(rawBody) as PayPalEvent;
+    let event: PayPalEvent;
+    try {
+      event = JSON.parse(rawBody) as PayPalEvent;
+    } catch {
+      return NextResponse.json({ error: "Invalid PayPal webhook." }, { status: 400 });
+    }
     const transmissionId = request.headers.get("paypal-transmission-id");
     const transmissionTime = request.headers.get("paypal-transmission-time");
     const transmissionSig = request.headers.get("paypal-transmission-sig");
@@ -42,41 +47,52 @@ export async function POST(request: Request) {
 
     if (!valid) return NextResponse.json({ error: "Invalid webhook signature." }, { status: 400 });
 
-    const existing = await prisma.payPalWebhookEvent.findUnique({ where: { eventId: event.id } });
-    if (existing) return NextResponse.json({ received: true, duplicate: true });
-
     const orderId =
       event.resource?.supplementary_data?.related_ids?.order_id ||
       event.resource?.id;
 
-    if (["PAYMENT.CAPTURE.COMPLETED", "PAYMENT.CAPTURE.REFUNDED"].includes(event.event_type) && orderId) {
-      const payment = await prisma.payment.findUnique({ where: { paypalOrderId: orderId } });
-      if (payment) {
-        await prisma.payment.update({
-          where: { id: payment.id },
-          data: event.event_type === "PAYMENT.CAPTURE.REFUNDED"
-            ? {
-                status: "REFUNDED",
-                refundedAt: new Date(),
-                refundId: event.resource?.id || undefined,
-                refundAmountCents: event.resource?.amount?.value ? Math.round(Number(event.resource.amount.value) * 100) : payment.amountCents,
-                refundReason: "PayPal refund webhook",
-              }
-            : {
-                status: "COMPLETED",
-                capturedAt: payment.capturedAt || new Date(),
-              },
+    // Record the event and apply its state transition in one transaction. The
+    // unique eventId constraint makes duplicate/concurrent deliveries idempotent.
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.payPalWebhookEvent.create({
+          data: {
+            eventId: event.id!,
+            eventType: event.event_type!,
+            resourceId: event.resource?.id || null,
+          },
         });
-      }
-    }
 
-    await prisma.payPalWebhookEvent.create({
-      data: {
-        eventId: event.id,
-        eventType: event.event_type,
-        resourceId: event.resource?.id || null,
-      },
-    });
+        if (["PAYMENT.CAPTURE.COMPLETED", "PAYMENT.CAPTURE.REFUNDED"].includes(event.event_type!) && orderId) {
+          const payment = await tx.payment.findUnique({ where: { paypalOrderId: orderId } });
+          if (payment && !(event.event_type === "PAYMENT.CAPTURE.COMPLETED" && payment.status === "REFUNDED")) {
+            await tx.payment.update({
+              where: { id: payment.id },
+              data: event.event_type === "PAYMENT.CAPTURE.REFUNDED"
+                ? {
+                    status: "REFUNDED",
+                    refundedAt: new Date(),
+                    refundId: event.resource?.id || undefined,
+                    refundAmountCents: event.resource?.amount?.value && Number.isFinite(Number(event.resource.amount.value))
+                      ? Math.round(Number(event.resource.amount.value) * 100)
+                      : payment.amountCents,
+                    refundReason: "PayPal refund webhook",
+                  }
+                : {
+                    status: "COMPLETED",
+                    capturedAt: payment.capturedAt || new Date(),
+                  },
+            });
+          }
+        }
+      });
+    } catch (error) {
+      // Another delivery may have inserted the unique event ID first.
+      if (typeof error === "object" && error !== null && "code" in error && error.code === "P2002") {
+        return NextResponse.json({ received: true, duplicate: true });
+      }
+      throw error;
+    }
 
     return NextResponse.json({ received: true });
   } catch (error) {

@@ -22,7 +22,27 @@ export async function POST(request: Request) {
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
     await prisma.magicLink.create({ data: { email, tokenHash: hashToken(raw), expiresAt } });
 
-    const origin = new URL(request.url).origin;
+    // Do not derive emailed links from the incoming Host header: a forged host can
+    // turn a legitimate recovery email into a phishing link. Production must use
+    // the explicitly configured canonical origin.
+    const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+    let origin: string;
+    if (configuredSiteUrl) {
+      const siteUrl = new URL(configuredSiteUrl);
+      if (
+        (siteUrl.protocol !== "https:" && process.env.NODE_ENV === "production") ||
+        (siteUrl.protocol !== "https:" && siteUrl.protocol !== "http:") ||
+        siteUrl.username || siteUrl.password || siteUrl.pathname !== "/" ||
+        siteUrl.search || siteUrl.hash
+      ) {
+        throw new Error("NEXT_PUBLIC_SITE_URL must be a canonical origin (HTTPS in production).");
+      }
+      origin = siteUrl.origin;
+    } else if (process.env.NODE_ENV !== "production") {
+      origin = new URL(request.url).origin;
+    } else {
+      throw new Error("NEXT_PUBLIC_SITE_URL is required in production.");
+    }
     const result = await sendMagicLink(email, `${origin}/api/customer/verify?token=${raw}`);
     return NextResponse.json({ ok: true, message: "If purchases exist for that email, a secure link has been sent.", ...(result.developmentLink ? { developmentLink: result.developmentLink } : {}) });
   } catch (error) {

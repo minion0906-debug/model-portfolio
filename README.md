@@ -124,3 +124,6 @@ This is a strong foundation for the CMS, but before a high-traffic public launch
 connect Neon database with DATABASE_URL
 
 # add Paypal base
+## Complete upgrade patch
+
+See [`README-COMPLETE-UPGRADE.md`](./README-COMPLETE-UPGRADE.md) for the latest security hardening notes, safe deployment checklist, and staging tests. This patch improves one-time customer purchase recovery and idempotent PayPal webhook processing without introducing a database migration.
