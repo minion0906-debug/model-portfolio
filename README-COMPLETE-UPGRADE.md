@@ -8,6 +8,7 @@ This upgrade is designed to preserve the existing Next.js, Prisma, PostgreSQL, a
 - Magic-link redemption uses a conditional database update so two concurrent submissions cannot both consume the same token.
 - PayPal webhook event insertion and payment status changes now happen in one database transaction. The unique event ID is used to safely acknowledge duplicate/concurrent deliveries, and a late capture event cannot change an already-refunded payment back to completed.
 - Malformed PayPal webhook JSON returns `400` instead of being treated as a server error.
+- Customer recovery emails use `NEXT_PUBLIC_SITE_URL` as the canonical origin in production, preventing untrusted request host values from influencing emailed sign-in links.
 - Added this deployment and verification guide.
 
 ## Safe deployment procedure
@@ -28,6 +29,7 @@ This upgrade is designed to preserve the existing Next.js, Prisma, PostgreSQL, a
 5. Test PayPal in sandbox: successful capture, duplicate webhook delivery, refund, duplicate refund event, and a capture-completed event arriving after refund.
 6. Confirm the deployed environment uses a unique `AUTH_SECRET`, `NEXT_PUBLIC_SITE_URL` set to the canonical HTTPS origin, production PayPal credentials only when ready, and the matching `PAYPAL_WEBHOOK_ID`.
 7. Roll out during a low-traffic window and keep the previous deployment available for rollback. No database migration is introduced by this patch.
+8. Verify `NEXT_PUBLIC_SITE_URL` is exactly the canonical origin, for example `https://portfolio.example.com` (no path, query, or trailing route). Production requires HTTPS.
 
 ## Production items that still need infrastructure or manual verification
 
@@ -40,3 +42,8 @@ This upgrade is designed to preserve the existing Next.js, Prisma, PostgreSQL, a
 ## Important
 
 The uploaded project archive does not include production environment secrets, hosting configuration, or access to the live database. This patch can be prepared and statically checked here, but deployment and real PayPal/database verification must be done in your hosting environment.
+
+
+## Follow-up hardening pass
+
+The customer magic-link endpoint no longer builds production email links from the incoming request origin. Set `NEXT_PUBLIC_SITE_URL` to the canonical HTTPS origin in production. This prevents a forged `Host` header from changing the destination embedded in a legitimate recovery email. Development can still fall back to the request origin when the variable is omitted.
