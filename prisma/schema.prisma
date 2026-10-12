@@ -125,6 +125,16 @@ model ContactMessage {
   @@index([createdAt])
 }
 
+model MediaBlob {
+  id          String   @id @default(cuid())
+  data        Bytes
+  contentType String
+  size        Int
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 enum MediaType {
   IMAGE
   VIDEO
