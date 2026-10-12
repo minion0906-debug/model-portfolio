@@ -25,51 +25,55 @@ function publicUrl(key: string) {
 }
 
 export async function POST(request: Request) {
-  const admin = await requireAdmin();
-  if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  if (process.env.MEDIA_STORAGE !== "s3") {
-    return NextResponse.json(
-      { error: "Direct uploads require MEDIA_STORAGE=s3." },
-      { status: 400 },
-    );
-  }
-
-  if (
-    !process.env.S3_BUCKET ||
-    !process.env.S3_REGION ||
-    !process.env.S3_ENDPOINT ||
-    !process.env.S3_ACCESS_KEY_ID ||
-    !process.env.S3_SECRET_ACCESS_KEY ||
-    !process.env.S3_PUBLIC_URL
-  ) {
-    return NextResponse.json(
-      { error: "Object storage is not fully configured." },
-      { status: 500 },
-    );
-  }
-
   try {
-    const input = validateDirectUpload(await request.json());
-    const key = createUploadKey(input.filename, input.kind);
+    const admin = await requireAdmin();
+    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const command = new PutObjectCommand({
-      Bucket: process.env.S3_BUCKET,
-      Key: key,
-      ContentType: input.contentType,
-      CacheControl: "public, max-age=31536000, immutable",
-    });
+    if (process.env.MEDIA_STORAGE !== "s3") {
+      return NextResponse.json(
+        { error: "Direct uploads require MEDIA_STORAGE=s3." },
+        { status: 400 },
+      );
+    }
 
-    const uploadUrl = await getSignedUrl(getClient(), command, { expiresIn: 600 });
+    if (
+      !process.env.S3_BUCKET ||
+      !process.env.S3_REGION ||
+      !process.env.S3_ENDPOINT ||
+      !process.env.S3_ACCESS_KEY_ID ||
+      !process.env.S3_SECRET_ACCESS_KEY ||
+      !process.env.S3_PUBLIC_URL
+    ) {
+      return NextResponse.json(
+        { error: "Object storage is not fully configured." },
+        { status: 500 },
+      );
+    }
 
-    return NextResponse.json({
-      uploadUrl,
-      key,
-      url: publicUrl(key),
-      expiresIn: 600,
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Invalid upload request.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    try {
+      const input = validateDirectUpload(await request.json());
+      const key = createUploadKey(input.filename, input.kind);
+
+      const command = new PutObjectCommand({
+        Bucket: process.env.S3_BUCKET,
+        Key: key,
+        ContentType: input.contentType,
+        CacheControl: "public, max-age=31536000, immutable",
+      });
+
+      const uploadUrl = await getSignedUrl(getClient(), command, { expiresIn: 600 });
+
+      return NextResponse.json({
+        uploadUrl,
+        key,
+        url: publicUrl(key),
+        expiresIn: 600,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Invalid upload request.";
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
+  } catch {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 }

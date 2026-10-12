@@ -19,6 +19,20 @@ export default function DirectUpload({
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState("");
 
+  async function parseJsonResponse(response: Response) {
+    const text = await response.text();
+
+    if (!text) {
+      return {};
+    }
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      throw new Error(text || `Request failed (${response.status}).`);
+    }
+  }
+
   async function uploadFile(file: File) {
     setStatus(`Preparing ${file.name}…`);
 
@@ -33,7 +47,7 @@ export default function DirectUpload({
       }),
     });
 
-    const presign = await presignResponse.json();
+    const presign = await parseJsonResponse(presignResponse);
 
     if (!presignResponse.ok) {
       // Development/local fallback: use the existing server upload pipeline
@@ -51,7 +65,7 @@ export default function DirectUpload({
           { method: "POST", body: form },
         );
 
-        const fallback = await fallbackResponse.json();
+        const fallback = await parseJsonResponse(fallbackResponse);
         if (!fallbackResponse.ok) {
           throw new Error(fallback.error || "Unable to upload file.");
         }
@@ -87,7 +101,7 @@ export default function DirectUpload({
       }),
     });
 
-    const complete = await completeResponse.json();
+    const complete = await parseJsonResponse(completeResponse);
 
     if (!completeResponse.ok) {
       throw new Error(complete.error || "Unable to finalize upload.");
