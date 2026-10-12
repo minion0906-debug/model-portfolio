@@ -18,8 +18,9 @@ function extensionForMime(mime: string) {
 }
 
 async function storeBlob(body: Buffer, contentType: string) {
+  const bytes = new Uint8Array(body);
   const blob = await prisma.mediaBlob.create({
-    data: { data: body, contentType, size: body.byteLength },
+    data: { data: bytes, contentType, size: body.byteLength },
   });
   return `/api/media/blob/${blob.id}`;
 }
