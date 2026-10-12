@@ -52,49 +52,37 @@ export default function DirectUpload({ kind, multiple = false, accept, onComplet
   const [results, setResults] = useState<UploadResult[]>([]);
 
   async function uploadFile(file: File, index: number, total: number) {
-    setStatus(`Preparing ${file.name} (${index + 1}/${total})…`);
+    setStatus(`Uploading ${file.name} (${index + 1}/${total})…`);
     setProgress(0);
 
-    const presignResponse = await fetch("/api/admin/uploads/presign", {
+    const form = new FormData();
+
+    if (kind === "image") {
+      form.append("files", file);
+    } else {
+      form.append("video", file);
+    }
+
+    const endpoint = kind === "image"
+      ? "/api/admin/gallery/upload"
+      : "/api/admin/videos/upload";
+
+    const response = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filename: file.name, contentType: file.type, kind, size: file.size }),
+      body: form,
     });
-    const presign = await readJson(presignResponse);
 
-    if (!presignResponse.ok) {
-      if (presign.error?.includes("MEDIA_STORAGE=s3")) {
-        throw new Error("Uploads on Vercel require S3-compatible object storage. Set MEDIA_STORAGE=s3 and configure S3_BUCKET, S3_REGION, S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, and S3_PUBLIC_URL in Vercel, then redeploy.");
+    setProgress(100);
+    const result = await readJson(response);
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error("Admin session expired. Sign in again, then retry.");
       }
-      if (presignResponse.status === 401) {
-        throw new Error("Admin session expired. Sign in to the admin dashboard again, then retry.");
-      }
-      throw new Error(presign.error || `Could not prepare upload (HTTP ${presignResponse.status}).`);
+      throw new Error(result.error || `Upload failed (HTTP ${response.status}).`);
     }
 
-    if (!presign.uploadUrl || !presign.key) {
-      throw new Error("Upload service returned an incomplete response. Check the Vercel function logs.");
-    }
-
-    setStatus(`Uploading ${file.name} (${index + 1}/${total})…`);
-    await putFileWithProgress(presign.uploadUrl, file, setProgress);
-
-    setStatus(`Saving ${file.name} to the portfolio…`);
-    const completeResponse = await fetch("/api/admin/uploads/complete", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        filename: file.name, contentType: file.type, kind, size: file.size, key: presign.key,
-      }),
-    });
-    const complete = await readJson(completeResponse);
-
-    if (!completeResponse.ok) {
-      if (completeResponse.status === 401) {
-        throw new Error("Admin session expired before the upload could be saved. Sign in again; the file may already exist in storage.");
-      }
-      throw new Error(complete.error || `File uploaded but could not be saved to the gallery (HTTP ${completeResponse.status}). Check database connectivity and Vercel logs.`);
-    }
+    setStatus(`Saved ${file.name} (${index + 1}/${total}).`);
   }
 
   async function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -159,8 +147,8 @@ export default function DirectUpload({ kind, multiple = false, accept, onComplet
 
       <p className="mt-3 text-xs leading-6 text-[#584e49]">
         {kind === "video"
-          ? "MP4, WebM and MOV up to 500MB. Large files upload directly to object storage."
-          : "JPG, PNG and WebP up to 10MB. Images upload directly to object storage."}
+          ? "MP4, WebM and MOV up to 500MB. Files are uploaded securely through the application server."
+          : "JPG, PNG and WebP up to 10MB. Images are uploaded securely through the application server."}
       </p>
       {uploading && (
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#e8e0d8]" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>

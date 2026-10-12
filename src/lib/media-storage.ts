@@ -2,14 +2,6 @@ import sharp from "sharp";
 import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 
-const mediaBlobClient = prisma as typeof prisma & {
-  mediaBlob: {
-    create: (args: any) => Promise<{ id: string }>;
-    deleteMany: (args: any) => Promise<any>;
-    findUnique: (args: any) => Promise<{ id: string; data: Uint8Array; contentType: string; size: number } | null>;
-  };
-};
-
 export type StorageKind = "image" | "video" | "video-thumbnail";
 
 type StoredMedia = {
@@ -26,8 +18,10 @@ function extensionForMime(mime: string) {
 }
 
 async function storeBlob(body: Buffer, contentType: string) {
-  const bytes = new Uint8Array(body);
-  const blob = await mediaBlobClient.mediaBlob.create({
+  const bytes = new Uint8Array(new ArrayBuffer(body.byteLength));
+  bytes.set(body);
+
+  const blob = await prisma.mediaBlob.create({
     data: { data: bytes, contentType, size: body.byteLength },
   });
   return `/api/media/blob/${blob.id}`;
@@ -36,7 +30,7 @@ async function storeBlob(body: Buffer, contentType: string) {
 export async function deleteStoredMedia(url: string | null | undefined) {
   if (!url) return;
   const id = url.match(/\/api\/media\/blob\/([^/?]+)/)?.[1];
-  if (id) await mediaBlobClient.mediaBlob.deleteMany({ where: { id } });
+  if (id) await prisma.mediaBlob.deleteMany({ where: { id } });
 }
 
 export const deleteLocalGalleryFile = deleteStoredMedia;
