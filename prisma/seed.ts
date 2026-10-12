@@ -55,29 +55,22 @@ async function seedMedia() {
       create: { name: item.tag },
     });
 
-    const existingMedia = await prisma.media.findFirst({
+    const media = await prisma.media.upsert({
       where: { url: item.url },
+      update: {
+        title: item.title,
+        published: true,
+        sortOrder: index + 1,
+        type: item.type,
+      },
+      create: {
+        title: item.title,
+        url: item.url,
+        type: item.type,
+        published: true,
+        sortOrder: index + 1,
+      },
     });
-
-    const media = existingMedia
-      ? await prisma.media.update({
-          where: { id: existingMedia.id },
-          data: {
-            title: item.title,
-            published: true,
-            sortOrder: index + 1,
-            type: item.type,
-          },
-        })
-      : await prisma.media.create({
-          data: {
-            title: item.title,
-            url: item.url,
-            type: item.type,
-            published: true,
-            sortOrder: index + 1,
-          },
-        });
 
     await prisma.mediaTag.upsert({
       where: {
