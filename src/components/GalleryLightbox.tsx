@@ -73,7 +73,9 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
 
   const touchMove = (e: React.TouchEvent) => {
     if (e.touches.length !== 2) return;
-    const [a, b] = e.touches;
+    const a = e.touches.item(0);
+    const b = e.touches.item(1);
+    if (!a || !b) return;
     const distance = Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
     if (lastDistance.current) {
       setZoom((z) => Math.min(Math.max(z + (distance - lastDistance.current!) * .005, 1), 4));

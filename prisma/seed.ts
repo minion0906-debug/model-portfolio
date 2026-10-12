@@ -4,92 +4,73 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-const galleryImages = [
+const mediaSeed = [
   {
-    title: "Editorial I",
+    type: "IMAGE" as const,
+    title: "Editorial Portrait I",
     tag: "Portrait",
     url: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=1400&q=85",
-    sortOrder: 1,
   },
   {
-    title: "Editorial II",
+    type: "IMAGE" as const,
+    title: "Fashion Editorial",
     tag: "Fashion",
     url: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1400&q=85",
-    sortOrder: 2,
   },
   {
-    title: "Editorial III",
-    tag: "Portrait",
-    url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1400&q=85",
-    sortOrder: 3,
-  },
-  {
-    title: "Campaign I",
-    tag: "Campaign",
-    url: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1400&q=85",
-    sortOrder: 4,
-  },
-  {
-    title: "Campaign II",
-    tag: "Campaign",
-    url: "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?auto=format&fit=crop&w=1400&q=85",
-    sortOrder: 5,
-  },
-  {
-    title: "Studio",
+    type: "IMAGE" as const,
+    title: "Beauty Campaign",
     tag: "Beauty",
-    url: "https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?auto=format&fit=crop&w=1400&q=85",
-    sortOrder: 6,
+    url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1400&q=85",
+  },
+  {
+    type: "VIDEO" as const,
+    title: "Fashion Show Reel",
+    tag: "Video",
+    url: "https://storage.googleapis.com/coverr-main/mp4/Mt_Baker.mp4",
   },
 ];
 
-async function main() {
-  const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
-  const adminPassword = process.env.ADMIN_PASSWORD || "ChangeMe123!";
-
-  const passwordHash = await bcrypt.hash(adminPassword, 12);
+async function seedAdmin() {
+  const email = process.env.ADMIN_EMAIL || "admin@example.com";
+  const password = process.env.ADMIN_PASSWORD || "ChangeMe123!";
+  const passwordHash = await bcrypt.hash(password, 12);
 
   await prisma.admin.upsert({
-    where: {
-      email: adminEmail,
-    },
-    update: {
-      passwordHash,
-    },
-    create: {
-      email: adminEmail,
-      passwordHash,
-    },
+    where: { email },
+    update: { passwordHash },
+    create: { email, passwordHash },
   });
 
-  for (const image of galleryImages) {
+  console.log(`Admin ready: ${email}`);
+}
+
+async function seedMedia() {
+  for (let index = 0; index < mediaSeed.length; index++) {
+    const item = mediaSeed[index];
+
     const tag = await prisma.tag.upsert({
-      where: {
-        name: image.tag,
-      },
+      where: { name: item.tag },
       update: {},
+      create: { name: item.tag },
+    });
+
+    const media = await prisma.media.upsert({
+      where: { url: item.url },
+      update: {
+        title: item.title,
+        published: true,
+        sortOrder: index + 1,
+        type: item.type,
+      },
       create: {
-        name: image.tag,
+        title: item.title,
+        url: item.url,
+        type: item.type,
+        published: true,
+        sortOrder: index + 1,
       },
     });
-
-    const existing = await prisma.media.findFirst({
-      where: {
-        url: image.url,
-      },
-    });
-
-    const media =
-      existing ||
-      (await prisma.media.create({
-        data: {
-          type: "IMAGE",
-          title: image.title,
-          url: image.url,
-          published: true,
-          sortOrder: image.sortOrder,
-        },
-      }));
 
     await prisma.mediaTag.upsert({
       where: {
@@ -105,15 +86,15 @@ async function main() {
       },
     });
   }
+}
 
+async function seedSettings() {
   await prisma.siteSettings.upsert({
-    where: {
-      id: "default-site-settings",
-    },
+    where: { id: "default-site-settings" },
     update: {
       name: "Lera Aumila",
       bio: "Editorial and commercial model working across fashion, beauty, lifestyle and creative campaigns.",
-      location: "US, Las Vegas",
+      location: "Las Vegas, USA",
       height: "5'10\" / 178 cm",
       clothingSize: "US 4 / EU 34",
       shoeSize: "US 8 / EU 39",
@@ -126,7 +107,7 @@ async function main() {
       id: "default-site-settings",
       name: "Lera Aumila",
       bio: "Editorial and commercial model working across fashion, beauty, lifestyle and creative campaigns.",
-      location: "US, Las Vegas",
+      location: "Las Vegas, USA",
       height: "5'10\" / 178 cm",
       clothingSize: "US 4 / EU 34",
       shoeSize: "US 8 / EU 39",
@@ -136,16 +117,16 @@ async function main() {
       acceptingBookings: true,
     },
   });
+}
 
-  console.log(`Admin account created/updated: ${adminEmail}`);
-  console.log(`Development password: ${adminPassword}`);
+async function main() {
+  await seedAdmin();
+  await seedMedia();
+  await seedSettings();
+
+  console.log("Database seed completed successfully.");
 }
 
 main()
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());
