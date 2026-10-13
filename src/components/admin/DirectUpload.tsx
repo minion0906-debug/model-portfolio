@@ -50,6 +50,8 @@ export default function DirectUpload({ kind, multiple = false, accept, onComplet
   const [status, setStatus] = useState("");
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState<UploadResult[]>([]);
+  const [category, setCategory] = useState("Fashion");
+  const [orientation, setOrientation] = useState("Auto");
 
   async function uploadFile(file: File, index: number, total: number) {
     setStatus(`Uploading ${file.name} (${index + 1}/${total})…`);
@@ -59,6 +61,8 @@ export default function DirectUpload({ kind, multiple = false, accept, onComplet
 
     if (kind === "image") {
       form.append("files", file);
+      form.append("category", category);
+      form.append("orientation", orientation);
     } else {
       form.append("video", file);
     }
@@ -132,6 +136,15 @@ export default function DirectUpload({ kind, multiple = false, accept, onComplet
         <span className="rounded-full border border-[#171412]/10 bg-[#f5efe9] px-3 py-1 text-[9px] uppercase tracking-[0.18em] text-[#171412]">
           {kind === "video" ? "Video" : "Image"}
         </span>
+      </div>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-2">
+        <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-xl border p-3 text-sm">
+          {['Portrait','Landscape','Beauty','Fashion','Editorial','Commercial','Lifestyle','Runway','BTS'].map((x)=><option key={x}>{x}</option>)}
+        </select>
+        <select value={orientation} onChange={(e) => setOrientation(e.target.value)} className="rounded-xl border p-3 text-sm">
+          {['Auto','Portrait','Landscape','Square'].map((x)=><option key={x}>{x}</option>)}
+        </select>
       </div>
 
       <label className="mt-6 flex cursor-pointer items-center justify-between gap-3 rounded-[1.25rem] border border-dashed border-[#171412]/20 bg-[#f8f4f0] px-4 py-4 transition hover:border-[#171412]/35 hover:bg-[#f3eee8]">
