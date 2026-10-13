@@ -38,6 +38,7 @@ export async function POST(request: Request) {
 
     const stored = await storeImage(file);
 
+    const orientation = (stored.width && stored.height && stored.height > stored.width) ? "portrait" : "landscape";
     const media = await prisma.media.create({
       data: {
         type: "IMAGE",
@@ -46,6 +47,8 @@ export async function POST(request: Request) {
         width: stored.width,
         height: stored.height,
         size: stored.size,
+        category: "Portfolio",
+        orientation,
         published: true,
       },
     });

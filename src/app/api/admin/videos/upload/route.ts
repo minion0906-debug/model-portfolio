@@ -45,6 +45,7 @@ export async function POST(request: Request) {
   const storedThumbnail =
     thumbnail instanceof File ? await storeVideoThumbnail(thumbnail) : null;
 
+  const orientation = "landscape";
   const media = await prisma.media.create({
     data: {
       type: "VIDEO",
@@ -52,6 +53,8 @@ export async function POST(request: Request) {
       url: storedVideo.url,
       thumbnail: storedThumbnail?.url || null,
       size: storedVideo.size,
+      category: "Motion",
+      orientation,
       published: true,
     },
   });

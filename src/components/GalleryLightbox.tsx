@@ -9,6 +9,8 @@ export type GalleryImage = {
   src: string;
   title: string;
   tag: string;
+  category?: string;
+  orientation?: string;
   priceCents: number;
   currency: string;
 };

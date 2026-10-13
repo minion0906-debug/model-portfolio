@@ -26,6 +26,8 @@ model Media {
   height      Int?
   duration    Int?
   size        Int?
+  category    String?
+  orientation String?
   published   Boolean   @default(false)
   sortOrder   Int       @default(0)
   createdAt   DateTime  @default(now())
