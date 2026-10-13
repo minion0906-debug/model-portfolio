@@ -6,6 +6,8 @@ export type PublicGalleryImage = {
   src: string;
   title: string;
   tag: string;
+  category?: string;
+  orientation?: string;
   priceCents: number;
   currency: string;
 };
@@ -21,6 +23,8 @@ const loadPublishedGalleryImages = unstable_cache(
           url: true,
           thumbnail: true,
           title: true,
+          category: true,
+          orientation: true,
           priceCents: true,
           currency: true,
           tags: {
@@ -35,6 +39,8 @@ const loadPublishedGalleryImages = unstable_cache(
         src: item.priceCents > 0 ? (item.thumbnail || "/paid-media-placeholder.svg") : (item.thumbnail || item.url),
         title: item.title || "Untitled",
         tag: item.tags[0]?.tag.name || "Portfolio",
+        category: item.category || item.tags[0]?.tag.name || "Portfolio",
+        orientation: item.orientation || "landscape",
         priceCents: item.priceCents,
         currency: item.currency,
       }));
@@ -43,7 +49,7 @@ const loadPublishedGalleryImages = unstable_cache(
       return [];
     }
   },
-  ["public-gallery"],
+  ["public-gallery", "v2"],
   { revalidate: 60, tags: ["public-portfolio"] },
 );
 

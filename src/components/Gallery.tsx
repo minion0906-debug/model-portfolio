@@ -7,8 +7,8 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
   const [active, setActive] = useState<number | null>(null);
   const [filter, setFilter] = useState("All");
   const [page, setPage] = useState(1);
-  const filters = ["All", ...Array.from(new Set(images.map((x) => x.tag).filter(Boolean)))];
-  const filtered = useMemo(() => filter === "All" ? images : images.filter((x) => x.tag === filter), [images, filter]);
+  const filters = ["All", "Portrait", "Landscape", "Beauty", "Fashion", ...Array.from(new Set(images.map((x) => x.tag).filter(Boolean)))];
+  const filtered = useMemo(() => filter === "All" ? images : images.filter((x) => x.tag === filter || x.category === filter || x.orientation === filter.toLowerCase()), [images, filter]);
   const pageSize = 4;
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
 
