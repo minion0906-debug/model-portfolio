@@ -52,7 +52,7 @@ export async function POST(request: Request) {
       url: storedVideo.url,
       thumbnail: storedThumbnail?.url || null,
       size: storedVideo.size,
-      published: false,
+      published: true,
     },
   });
 

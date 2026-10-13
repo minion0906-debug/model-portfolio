@@ -32,7 +32,7 @@ const loadPublishedGalleryImages = unstable_cache(
 
       return media.map((item) => ({
         id: item.id,
-        src: item.priceCents > 0 ? (item.thumbnail || "/paid-media-placeholder.svg") : (item.thumbnail || item.url),
+        src: item.thumbnail || item.url,
         title: item.title || "Untitled",
         tag: item.tags[0]?.tag.name || "Portfolio",
         priceCents: item.priceCents,
@@ -43,7 +43,7 @@ const loadPublishedGalleryImages = unstable_cache(
       return [];
     }
   },
-  ["public-gallery"],
+  ["public-gallery", "v2"],
   { revalidate: 60, tags: ["public-portfolio"] },
 );
 

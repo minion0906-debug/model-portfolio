@@ -46,7 +46,7 @@ export async function POST(request: Request) {
         width: stored.width,
         height: stored.height,
         size: stored.size,
-        published: false,
+        published: true,
       },
     });
 
