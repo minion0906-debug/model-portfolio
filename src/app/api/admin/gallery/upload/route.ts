@@ -25,6 +25,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Maximum ${MAX_FILES} images per upload.` }, { status: 400 });
   }
 
+  const category = String(formData.get("category") || "Fashion");
+  const orientation = String(formData.get("orientation") || "Auto");
+
   const created = [];
 
   for (const file of files) {
@@ -38,7 +41,6 @@ export async function POST(request: Request) {
 
     const stored = await storeImage(file);
 
-    const orientation = (stored.width && stored.height && stored.height > stored.width) ? "portrait" : "landscape";
     const media = await prisma.media.create({
       data: {
         type: "IMAGE",
@@ -47,9 +49,9 @@ export async function POST(request: Request) {
         width: stored.width,
         height: stored.height,
         size: stored.size,
-        category: "Portfolio",
-        orientation,
         published: true,
+        category,
+        orientation: orientation === "Auto" ? (stored.width && stored.height ? (stored.width > stored.height ? "Landscape" : stored.width < stored.height ? "Portrait" : "Square") : null) : orientation,
       },
     });
 

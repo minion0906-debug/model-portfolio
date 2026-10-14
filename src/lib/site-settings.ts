@@ -24,7 +24,7 @@ const fallback: PublicSiteSettings = {
   bio: "Fashion model and creative talent based in Las Vegas, available for editorial, beauty, commercial and brand projects.",
   profileImage: null,
   location: "Las Vegas, USA",
-  height: "5'10\"",
+  height: "6' / 183 cm",
   clothingSize: "US 4 / EU 34",
   shoeSize: "US 8 / EU 39",
   languages: "English, French",
