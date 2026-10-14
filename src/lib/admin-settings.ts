@@ -10,7 +10,7 @@ export async function ensureSiteSettings() {
       name: "Lera Aumila",
       bio: "Model, creative and editorial talent available for selected projects.",
       location: "US, Las Vegas",
-      height: "5'10\" / 178 cm",
+      height: "6' / 183 cm",
       clothingSize: "US 4 / EU 34",
       shoeSize: "US 8 / EU 39",
       languages: "English",
