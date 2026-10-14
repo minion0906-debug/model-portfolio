@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePublicPortfolio } from "@/lib/public-cache";
 import { requireAdmin } from "@/lib/admin-api";
 import { storeImage } from "@/lib/media-storage";
+import { analyzeImage } from "@/lib/media-analyzer";
 
 export const runtime = "nodejs";
 
@@ -41,6 +42,8 @@ export async function POST(request: Request) {
 
     const stored = await storeImage(file);
 
+    const analysis = analyzeImage({ name: file.name, width: stored.width, height: stored.height });
+
     const media = await prisma.media.create({
       data: {
         type: "IMAGE",
@@ -50,8 +53,8 @@ export async function POST(request: Request) {
         height: stored.height,
         size: stored.size,
         published: true,
-        category,
-        orientation: orientation === "Auto" ? (stored.width && stored.height ? (stored.width > stored.height ? "Landscape" : stored.width < stored.height ? "Portrait" : "Square") : null) : orientation,
+        category: category === "Auto" ? analysis.category : category,
+        orientation: orientation === "Auto" ? analysis.orientation : orientation,
       },
     });
 
