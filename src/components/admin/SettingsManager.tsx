@@ -188,7 +188,7 @@ export default function SettingsManager() {
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           {[
             ["location", "Location", "US, Las Vegas"],
-            ["height", "Height", "5'10\" / 178 cm"],
+            ["height", "Height", "6' / 183 cm"],
             ["clothingSize", "Clothing Size", "US 4 / EU 34"],
             ["shoeSize", "Shoe Size", "US 8 / EU 39"],
             ["languages", "Languages", "English"],
