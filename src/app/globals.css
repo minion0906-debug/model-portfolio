@@ -396,3 +396,9 @@ html{scroll-behavior:smooth}
   letter-spacing:.08em;
   text-transform:uppercase;
 }
+
+/* Step 2 premium masonry gallery */
+.studio-gallery-grid{columns:3 320px;display:block;column-gap:14px;}
+.masonry-shot{break-inside:avoid;display:block;width:100%;height:auto;min-height:0;aspect-ratio:auto;margin:0 0 14px;}
+.masonry-shot .studio-shot-image{position:relative;width:100%;height:auto;min-height:420px;object-fit:cover;}
+@media(max-width:800px){.studio-gallery-grid{columns:1;}.masonry-shot .studio-shot-image{min-height:380px;}}
