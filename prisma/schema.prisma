@@ -167,6 +167,12 @@ model Payment {
   id            String        @id @default(cuid())
   mediaId       String
   paypalOrderId String        @unique
+  paymentMethod String        @default("PAYPAL")
+  cryptoTxHash  String?       @unique
+  cryptoAmountBaseUnits String?
+  cryptoAllocationCents Int?
+  paypalAllocationCents Int?
+  cryptoAllocationStatus String @default("NOT_REQUIRED")
   amountCents   Int
   currency      String        @default("USD")
   status        String        @default("PENDING")

@@ -45,7 +45,7 @@ export async function GET(request: Request) {
         orderBy: { createdAt: "desc" },
         take,
         select: {
-          id: true, paypalOrderId: true, amountCents: true, currency: true, status: true,
+          id: true, paypalOrderId: true, paymentMethod: true, cryptoTxHash: true, cryptoAllocationCents: true, paypalAllocationCents: true, cryptoAllocationStatus: true, amountCents: true, currency: true, status: true,
           payerName: true, payerEmail: true, createdAt: true, capturedAt: true, refundedAt: true, refundId: true, refundAmountCents: true, refundReason: true,
           media: { select: { id: true, title: true, type: true, thumbnail: true, url: true } },
         },

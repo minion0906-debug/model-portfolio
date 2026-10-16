@@ -127,3 +127,8 @@ connect Neon database with DATABASE_URL
 ## Complete upgrade patch
 
 See [`README-COMPLETE-UPGRADE.md`](./README-COMPLETE-UPGRADE.md) for the latest security hardening notes, safe deployment checklist, and staging tests. This patch improves one-time customer purchase recovery and idempotent PayPal webhook processing without introducing a database migration.
+
+
+## Latest payment upgrade — Step 20
+
+See `README-STEP-20-ERC20-USDT.md` for Ethereum Mainnet USDT checkout, chain verification, environment configuration, PayPal 40/60 allocation tracking, database changes, and production checklist. PayPal-to-USDT conversion remains manual until a compatible, approved crypto payout provider is configured.

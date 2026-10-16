@@ -81,6 +81,10 @@ export async function POST(request: Request) {
                 : {
                     status: "COMPLETED",
                     capturedAt: payment.capturedAt || new Date(),
+                    paymentMethod: "PAYPAL",
+                    cryptoAllocationCents: Math.round(payment.amountCents * 0.4),
+                    paypalAllocationCents: payment.amountCents - Math.round(payment.amountCents * 0.4),
+                    cryptoAllocationStatus: "MANUAL_REQUIRED",
                   },
             });
           }
