@@ -131,4 +131,4 @@ See [`README-COMPLETE-UPGRADE.md`](./README-COMPLETE-UPGRADE.md) for the latest 
 
 ## Latest payment upgrade — Step 20
 
-See `README-STEP-20-ERC20-USDT.md` for Ethereum Mainnet USDT checkout, chain verification, environment configuration, PayPal 40/60 allocation tracking, database changes, and production checklist. PayPal-to-USDT conversion remains manual until a compatible, approved crypto payout provider is configured.
+See `README-STEP-20-ERC20-USDT.md` for Ethereum Mainnet USDT checkout, chain verification, environment configuration, PayPal 40/60 allocation tracking, database changes, and production checklist. PayPal-to-USDT conversion remains manual until a compatible, approved crypto payout provider is configured.(special side)
