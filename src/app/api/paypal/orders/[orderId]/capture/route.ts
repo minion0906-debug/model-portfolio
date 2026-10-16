@@ -70,6 +70,10 @@ export async function POST(_: Request, { params }: Context) {
       data: {
         status: "COMPLETED",
         capturedAt: new Date(),
+        paymentMethod: "PAYPAL",
+        cryptoAllocationCents: Math.round(payment.amountCents * 0.4),
+        paypalAllocationCents: payment.amountCents - Math.round(payment.amountCents * 0.4),
+        cryptoAllocationStatus: "MANUAL_REQUIRED",
         payerName,
         payerEmail: data.payer?.email_address || null,
       },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import ERC20UsdtCheckout from "@/components/ERC20UsdtCheckout";
 
 declare global {
   interface Window {
@@ -164,6 +165,7 @@ export default function PayPalCheckout({ mediaId, priceCents, currency, onSucces
       {loading && <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white/55">Loading PayPal…</div>}
       <div ref={hostRef} />
       {error && <p className="text-xs leading-5 text-red-300">{error}</p>}
+      <ERC20UsdtCheckout mediaId={mediaId} priceCents={priceCents} currency={currency} onSuccess={onSuccess} />
     </div>
   );
 }

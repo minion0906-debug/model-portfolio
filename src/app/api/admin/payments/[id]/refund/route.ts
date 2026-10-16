@@ -15,6 +15,7 @@ export async function POST(request: Request, { params }: Context) {
     const payment = await prisma.payment.findUnique({ where: { id } });
 
     if (!payment) return NextResponse.json({ error: "Payment not found." }, { status: 404 });
+    if (payment.paymentMethod === "ERC20_USDT") return NextResponse.json({ error: "On-chain USDT refunds must be handled manually after verifying the original transaction and destination address." }, { status: 400 });
     if (payment.status !== "COMPLETED") return NextResponse.json({ error: "Only completed payments can be refunded." }, { status: 400 });
     if (payment.refundedAt || payment.refundId) return NextResponse.json({ error: "This payment has already been refunded." }, { status: 409 });
 
