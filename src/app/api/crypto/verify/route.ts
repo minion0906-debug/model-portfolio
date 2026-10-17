@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     if (media.currency.toUpperCase() !== "USD") return NextResponse.json({ error: "USDT checkout currently supports USD-priced items only." }, { status: 400 });
     const existing = await prisma.payment.findUnique({ where: { cryptoTxHash: parsed.data.txHash.toLowerCase() } });
     if (existing) return NextResponse.json({ error: "This transaction has already been used." }, { status: 409 });
-    const verified = await verifyUsdtTransfer({ txHash: parsed.data.txHash, expectedAmountBaseUnits: BigInt(media.priceCents) * BigInt(10_000) });
+    const verified = await verifyUsdtTransfer({ txHash: parsed.data.txHash, expectedAmountBaseUnits: BigInt(media.priceCents) * 10_000n });
     const token = randomBytes(32).toString("hex");
     const payment = await prisma.payment.create({ data: {
       mediaId: media.id,

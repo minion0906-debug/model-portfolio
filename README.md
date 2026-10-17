@@ -131,4 +131,8 @@ See [`README-COMPLETE-UPGRADE.md`](./README-COMPLETE-UPGRADE.md) for the latest 
 
 ## Latest payment upgrade — Step 20
 
-See `README-STEP-20-ERC20-USDT.md` for Ethereum Mainnet USDT checkout, chain verification, environment configuration, PayPal 40/60 allocation tracking, database changes, and production checklist. PayPal-to-USDT conversion remains manual until a compatible, approved crypto payout provider is configured.(special side) 
+See `README-STEP-20-ERC20-USDT.md` for Ethereum Mainnet USDT checkout, chain verification, environment configuration, PayPal 40/60 allocation tracking, database changes, and production checklist. PayPal-to-USDT conversion remains manual until a compatible, approved crypto payout provider is configured.
+
+## Ethereum USDT receiving wallet
+
+The `.env.example` and `.env.production.example` templates are prefilled with the provided Ethereum Mainnet USDT receiving address: `0x0c0b7871720635cC3eE4eCe01c78058292C9aA41`. Verify the address carefully in your own wallet and set `ERC20_USDT_RECEIVE_ADDRESS` in your actual server/deployment environment. Never configure a private key or recovery phrase. PayPal crypto allocation remains manual until a compatible, approved provider is configured.
