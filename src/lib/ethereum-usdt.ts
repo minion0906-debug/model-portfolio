@@ -36,11 +36,11 @@ export async function verifyUsdtTransfer(input: { txHash: string; expectedAmount
   if (receipt.transactionHash?.toLowerCase() !== input.txHash.toLowerCase()) throw new Error("RPC returned a mismatched transaction receipt.");
   if (receipt.status !== "0x1") throw new Error("The blockchain transaction failed.");
   const latestBlockHex = await rpc("eth_blockNumber", []) as string;
-  const confirmations = BigInt(latestBlockHex) - BigInt(receipt.blockNumber) + BigInt(1);
+  const confirmations = BigInt(latestBlockHex) - BigInt(receipt.blockNumber) + 1n;
   const requiredConfirmations = BigInt(process.env.ERC20_REQUIRED_CONFIRMATIONS || "12");
   if (confirmations < requiredConfirmations) throw new Error(`Transaction needs ${requiredConfirmations} confirmations; currently ${confirmations}.`);
 
-  let received = BigInt(0);
+  let received = 0n;
   let sender = "";
   for (const log of (receipt.logs || []) as Array<{ address: string; topics: string[]; data: string; transactionHash?: string }>) {
     if (log.address?.toLowerCase() !== USDT_ETHEREUM || log.topics?.[0]?.toLowerCase() !== TRANSFER_TOPIC || log.topics.length < 3) continue;

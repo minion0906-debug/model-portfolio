@@ -16,12 +16,12 @@
 Set these on the server/deployment platform (not client-side):
 
 ```env
-ERC20_USDT_RECEIVE_ADDRESS="YOUR_ETHEREUM_MAINNET_WALLET_ADDRESS"
+ERC20_USDT_RECEIVE_ADDRESS="0x0c0b7871720635cC3eE4eCe01c78058292C9aA41"
 ETHEREUM_RPC_URL="YOUR_TRUSTED_ETHEREUM_MAINNET_RPC_URL"
 ERC20_REQUIRED_CONFIRMATIONS="12"
 ```
 
-Use a wallet address you control and independently verify it before accepting real payments. Never add a seed phrase or private key to this project. `ETHEREUM_RPC_URL` must point to Ethereum Mainnet; the verifier rejects other chain IDs. Public RPCs can rate-limit production traffic, so use a reliable provider for production.
+Configured destination wallet (provided by the project owner): `0x0c0b7871720635cC3eE4eCe01c78058292C9aA41`. Independently verify this address in your wallet before accepting real payments. The address is inserted into the example environment files; copy it into your actual server/deployment environment as well. Never add a seed phrase or private key to this project. `ETHEREUM_RPC_URL` must point to Ethereum Mainnet; the verifier rejects other chain IDs. Public RPCs can rate-limit production traffic, so use a reliable provider for production.
 
 USDT is the Ethereum Mainnet token at `0xdAC17F958D2ee523a2206206994597C13D831ec7` and uses 6 decimals. Crypto checkout is limited to items priced in USD; the amount is treated as a USDT equivalent at 1 USDT = 1 USD for the checkout calculation. Do not use this assumption for non-USD prices.
 
