@@ -23,7 +23,7 @@ function isAllowed(ip: string) {
 }
 
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: "Chat is not configured yet. Please contact the site owner." }, { status: 503 });
   }
@@ -61,14 +61,16 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": process.env.OPENROUTER_SITE_URL || "http://localhost:3000",
+        "X-Title": process.env.OPENROUTER_SITE_NAME || "Portfolio Assistant",
       },
       body: JSON.stringify({
-        model: process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini",
+        model: process.env.OPENROUTER_MODEL || "openrouter/free",
         temperature: 0.4,
         max_tokens: 500,
         messages: [
@@ -84,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       // Do not leak provider error payloads or credentials to visitors.
-      console.error("OpenAI chat request failed with status", response.status);
+      console.error("OpenRouter chat request failed with status", response.status);
       return NextResponse.json({ error: "The assistant is temporarily unavailable. Please try again shortly." }, { status: 502 });
     }
 
