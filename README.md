@@ -136,3 +136,7 @@ See `README-STEP-20-ERC20-USDT.md` for Ethereum Mainnet USDT checkout, chain ver
 ## Ethereum USDT receiving wallet
 
 The `.env.example` and `.env.production.example` templates are prefilled with the provided Ethereum Mainnet USDT receiving address: `0x0c0b7871720635cC3eE4eCe01c78058292C9aA41`. Verify the address carefully in your own wallet and set `ERC20_USDT_RECEIVE_ADDRESS` in your actual server/deployment environment. Never configure a private key or recovery phrase. PayPal crypto allocation remains manual until a compatible, approved provider is configured.
+
+## Voice + text AI chatbot
+
+See [`README-VOICE-TEXT-CHATBOT.md`](README-VOICE-TEXT-CHATBOT.md) for setup. Configure `OPENAI_API_KEY` in `.env.local` (server-side only) before testing the floating chatbot.

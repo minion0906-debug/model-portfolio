@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./portfolio.css";
+import VoiceTextChatbot from "@/components/VoiceTextChatbot";
 
 export const metadata: Metadata = {
   title: {
@@ -49,6 +50,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {children}
+        <VoiceTextChatbot />
       </body>
     </html>
   );
