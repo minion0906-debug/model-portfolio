@@ -140,3 +140,8 @@ The `.env.example` and `.env.production.example` templates are prefilled with th
 ## Voice + text AI chatbot
 
 See [`README-VOICE-TEXT-CHATBOT.md`](README-VOICE-TEXT-CHATBOT.md) for setup. Configure `OPENAI_API_KEY` in `.env.local` (server-side only) before testing the floating chatbot.
+
+
+## Chatbot provider
+
+The floating voice/text chatbot uses OpenRouter. Configure `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` in `.env.local`; see `README-VOICE-TEXT-CHATBOT.md`. Do not use `NEXT_PUBLIC_` for API keys.
