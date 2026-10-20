@@ -19,6 +19,8 @@ export async function GET() {
       id: true,
       title: true,
       description: true,
+      category: true,
+      orientation: true,
       url: true,
       thumbnail: true,
       published: true,
