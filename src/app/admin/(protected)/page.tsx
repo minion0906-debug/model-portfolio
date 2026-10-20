@@ -7,6 +7,11 @@ export default async function AdminDashboard() {
   let videoCount = 0;
   let publishedVideoCount = 0;
   let newBookingsCount = 0;
+  let reviewingBookingsCount = 0;
+  let acceptedBookingsCount = 0;
+  let completedBookingsCount = 0;
+  let totalBookingsCount = 0;
+  let totalMessagesCount = 0;
   let unreadMessagesCount = 0;
   let paymentRevenueCents = 0;
   let paymentSalesCount = 0;
@@ -20,6 +25,11 @@ export default async function AdminDashboard() {
       videoCount,
       publishedVideoCount,
       newBookingsCount,
+      reviewingBookingsCount,
+      acceptedBookingsCount,
+      completedBookingsCount,
+      totalBookingsCount,
+      totalMessagesCount,
       unreadMessagesCount,
       paymentRevenueCents,
       paymentSalesCount,
@@ -31,6 +41,11 @@ export default async function AdminDashboard() {
       prisma.media.count({ where: { type: "VIDEO" } }),
       prisma.media.count({ where: { type: "VIDEO", published: true } }),
       prisma.bookingRequest.count({ where: { status: "NEW" } }),
+      prisma.bookingRequest.count({ where: { status: "REVIEWING" } }),
+      prisma.bookingRequest.count({ where: { status: "ACCEPTED" } }),
+      prisma.bookingRequest.count({ where: { status: "COMPLETED" } }),
+      prisma.bookingRequest.count(),
+      prisma.contactMessage.count(),
       prisma.contactMessage.count({ where: { read: false } }),
       prisma.payment.aggregate({ where: { status: "COMPLETED" }, _sum: { amountCents: true } }).then(result => result._sum.amountCents || 0),
       prisma.payment.count({ where: { status: "COMPLETED" } }),
@@ -109,6 +124,69 @@ export default async function AdminDashboard() {
             <p className="mt-2 text-sm text-neutral-500">{stat.detail}</p>
           </Link>
         ))}
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-black/10 bg-white p-6 md:p-8">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-neutral-500">Booking pipeline</p>
+              <h2 className="mt-2 font-display text-2xl">Requests at a glance</h2>
+            </div>
+            <Link href="/admin/bookings" className="text-sm underline underline-offset-4">Manage</Link>
+          </div>
+          <div className="mt-6 space-y-5">
+            {[
+              { label: "New", count: newBookingsCount, color: "bg-amber-400" },
+              { label: "Reviewing", count: reviewingBookingsCount, color: "bg-blue-500" },
+              { label: "Accepted", count: acceptedBookingsCount, color: "bg-emerald-500" },
+              { label: "Completed", count: completedBookingsCount, color: "bg-neutral-800" },
+            ].map((item) => {
+              const percent = totalBookingsCount > 0 ? Math.round((item.count / totalBookingsCount) * 100) : 0;
+              return (
+                <div key={item.label}>
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="text-neutral-600">{item.label}</span>
+                    <span className="font-medium tabular-nums">{item.count} <span className="text-neutral-400">({percent}%)</span></span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-neutral-100">
+                    <div className={`h-full rounded-full ${item.color}`} style={{ width: `${percent}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+            {totalBookingsCount === 0 && <p className="text-sm text-neutral-500">Booking status summaries will appear when requests arrive.</p>}
+          </div>
+          <div className="mt-6 border-t border-black/10 pt-4 text-sm text-neutral-500">{totalBookingsCount} total requests received</div>
+        </div>
+
+        <div className="rounded-2xl border border-black/10 bg-white p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.18em] text-neutral-500">Portfolio health</p>
+          <h2 className="mt-2 font-display text-2xl">Published content</h2>
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            <div className="rounded-xl bg-neutral-50 p-4">
+              <p className="text-sm text-neutral-500">Images published</p>
+              <p className="mt-2 text-3xl font-medium tabular-nums">{publishedGalleryCount}<span className="text-lg text-neutral-400">/{galleryCount}</span></p>
+              <p className="mt-1 text-xs text-neutral-500">{galleryCount > 0 ? Math.round((publishedGalleryCount / galleryCount) * 100) : 0}% of images</p>
+            </div>
+            <div className="rounded-xl bg-neutral-50 p-4">
+              <p className="text-sm text-neutral-500">Videos published</p>
+              <p className="mt-2 text-3xl font-medium tabular-nums">{publishedVideoCount}<span className="text-lg text-neutral-400">/{videoCount}</span></p>
+              <p className="mt-1 text-xs text-neutral-500">{videoCount > 0 ? Math.round((publishedVideoCount / videoCount) * 100) : 0}% of videos</p>
+            </div>
+          </div>
+          <div className="mt-5 flex items-center justify-between rounded-xl border border-black/10 px-4 py-3">
+            <div>
+              <p className="text-sm font-medium">Messages inbox</p>
+              <p className="mt-1 text-xs text-neutral-500">{totalMessagesCount} total · {unreadMessagesCount} unread</p>
+            </div>
+            <Link href="/admin/messages" className="text-sm underline underline-offset-4">Open inbox</Link>
+          </div>
+          <div className="mt-3 flex gap-3">
+            <Link href="/admin/gallery" className="flex-1 rounded-xl border border-black/10 px-4 py-3 text-center text-sm transition hover:bg-black hover:text-white">Manage images</Link>
+            <Link href="/admin/videos" className="flex-1 rounded-xl border border-black/10 px-4 py-3 text-center text-sm transition hover:bg-black hover:text-white">Manage videos</Link>
+          </div>
+        </div>
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
