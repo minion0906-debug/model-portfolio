@@ -50,7 +50,7 @@ export default function DirectUpload({ kind, multiple = false, accept, onComplet
   const [status, setStatus] = useState("");
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState<UploadResult[]>([]);
-  const [category, setCategory] = useState("Fashion");
+  const [category, setCategory] = useState("Auto");
   const [orientation, setOrientation] = useState("Auto");
 
   async function uploadFile(file: File, index: number, total: number) {
@@ -93,6 +93,14 @@ export default function DirectUpload({ kind, multiple = false, accept, onComplet
     const files = Array.from(event.target.files || []);
     if (!files.length) return;
 
+    if (kind === "image") {
+      const invalid = files.filter((file) => !["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 10 * 1024 * 1024);
+      if (invalid.length) {
+        setResults(invalid.map((file) => ({ name: file.name, ok: false, message: !["image/jpeg", "image/png", "image/webp"].includes(file.type) ? "Choose a JPG, PNG, or WebP image." : "Image exceeds the 10MB limit." })));
+        setStatus(`${invalid.length} file${invalid.length === 1 ? "" : "s"} need attention. Valid files will still upload.`);
+      }
+    }
+
     setUploading(true);
     setStatus("");
     setResults([]);
@@ -102,6 +110,13 @@ export default function DirectUpload({ kind, multiple = false, accept, onComplet
     try {
       for (let index = 0; index < files.length; index++) {
         const file = files[index];
+        const invalidImage = kind === "image" && (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 10 * 1024 * 1024);
+        if (invalidImage) {
+          const message = !["image/jpeg", "image/png", "image/webp"].includes(file.type) ? "Choose a JPG, PNG, or WebP image." : "Image exceeds the 10MB limit.";
+          nextResults.push({ name: file.name, ok: false, message });
+          setResults([...nextResults]);
+          continue;
+        }
         try {
           await uploadFile(file, index, files.length);
           succeeded++;
@@ -140,7 +155,7 @@ export default function DirectUpload({ kind, multiple = false, accept, onComplet
 
       <div className="mt-5 grid gap-3 md:grid-cols-2">
         <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-xl border p-3 text-sm">
-          {['Portrait','Landscape','Beauty','Fashion','Editorial','Commercial','Lifestyle','Runway','BTS'].map((x)=><option key={x}>{x}</option>)}
+          {['Auto','Beauty','Fashion','Editorial','Commercial','Lifestyle','Runway','Portrait','Landscape','Square','BTS','Product','Event','Other'].map((x)=><option key={x}>{x}</option>)}
         </select>
         <select value={orientation} onChange={(e) => setOrientation(e.target.value)} className="rounded-xl border p-3 text-sm">
           {['Auto','Portrait','Landscape','Square'].map((x)=><option key={x}>{x}</option>)}

@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Maximum ${MAX_FILES} images per upload.` }, { status: 400 });
   }
 
-  const category = String(formData.get("category") || "Fashion");
+  const category = String(formData.get("category") || "Auto");
   const orientation = String(formData.get("orientation") || "Auto");
 
   const created = [];
@@ -40,25 +40,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `${file.name} exceeds the 10MB limit.` }, { status: 400 });
     }
 
-    const stored = await storeImage(file);
-
-    const analysis = analyzeImage({ name: file.name, width: stored.width, height: stored.height });
-
-    const media = await prisma.media.create({
-      data: {
-        type: "IMAGE",
-        title: file.name.replace(/\.[^/.]+$/, ""),
-        url: stored.url,
-        width: stored.width,
-        height: stored.height,
-        size: stored.size,
-        published: true,
-        category: category === "Auto" ? analysis.category : category,
-        orientation: orientation === "Auto" ? analysis.orientation : orientation,
-      },
-    });
-
-    created.push(media);
+    try {
+      const stored = await storeImage(file);
+      const analysis = analyzeImage({ name: file.name, width: stored.width, height: stored.height });
+      const media = await prisma.media.create({
+        data: {
+          type: "IMAGE",
+          title: file.name.replace(/\.[^/.]+$/, ""),
+          url: stored.url,
+          thumbnail: stored.thumbnail,
+          width: stored.width,
+          height: stored.height,
+          size: stored.size,
+          published: true,
+          category: category === "Auto" ? analysis.category : category,
+          orientation: orientation === "Auto" ? analysis.orientation : orientation,
+        },
+      });
+      created.push(media);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not process this image.";
+      return NextResponse.json({ error: `${file.name}: ${message}` }, { status: 400 });
+    }
   }
 
   revalidatePublicPortfolio();

@@ -1,5 +1,4 @@
 import sharp from "sharp";
-import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 
 export type StorageKind = "image" | "video" | "video-thumbnail";
@@ -20,7 +19,6 @@ function extensionForMime(mime: string) {
 async function storeBlob(body: Buffer, contentType: string) {
   const bytes = new Uint8Array(new ArrayBuffer(body.byteLength));
   bytes.set(body);
-
   const blob = await prisma.mediaBlob.create({
     data: { data: bytes, contentType, size: body.byteLength },
   });
@@ -37,11 +35,42 @@ export const deleteLocalGalleryFile = deleteStoredMedia;
 export const deleteLocalVideoFile = deleteStoredMedia;
 export const deleteLocalVideoThumbnail = deleteStoredMedia;
 
+/** Validates actual image content, normalizes orientation, and stores a small WebP preview. */
 export async function storeImage(file: File): Promise<StoredMedia> {
   const input = Buffer.from(await file.arrayBuffer());
-  const meta = await sharp(input).metadata();
-  const processed = await sharp(input).rotate().webp({ quality: 88 }).toBuffer();
-  return { url: await storeBlob(processed, "image/webp"), width: meta.width, height: meta.height, size: processed.byteLength };
+  if (!input.length) throw new Error("The image file is empty.");
+
+  // Pixel limit helps protect the server from extremely large/decompression-bomb images.
+  const source = sharp(input, { limitInputPixels: 40_000_000, failOn: "error" });
+  const sourceMeta = await source.metadata();
+  if (!sourceMeta.format || !["jpeg", "png", "webp"].includes(sourceMeta.format)) {
+    throw new Error("Unsupported image contents. Upload a valid JPG, PNG, or WebP image.");
+  }
+  if (!sourceMeta.width || !sourceMeta.height) throw new Error("Could not read image dimensions.");
+
+  const processed = await sharp(input, { limitInputPixels: 40_000_000, failOn: "error" })
+    .rotate()
+    .webp({ quality: 88, effort: 4 })
+    .toBuffer();
+  const processedMeta = await sharp(processed).metadata();
+  const thumbnailBytes = await sharp(input, { limitInputPixels: 40_000_000, failOn: "error" })
+    .rotate()
+    .resize({ width: 640, height: 640, fit: "inside", withoutEnlargement: true })
+    .webp({ quality: 78, effort: 4 })
+    .toBuffer();
+
+  const [url, thumbnail] = await Promise.all([
+    storeBlob(processed, "image/webp"),
+    storeBlob(thumbnailBytes, "image/webp"),
+  ]);
+
+  return {
+    url,
+    thumbnail,
+    width: processedMeta.width,
+    height: processedMeta.height,
+    size: processed.byteLength,
+  };
 }
 
 export async function storeVideo(file: File): Promise<StoredMedia> {
@@ -51,7 +80,7 @@ export async function storeVideo(file: File): Promise<StoredMedia> {
 
 export async function storeVideoThumbnail(file: File): Promise<StoredMedia> {
   const input = Buffer.from(await file.arrayBuffer());
-  const processed = await sharp(input).rotate().resize({width:1600, withoutEnlargement:true}).webp({quality:86}).toBuffer();
+  const processed = await sharp(input, { limitInputPixels: 40_000_000 }).rotate().resize({width:1600, withoutEnlargement:true}).webp({quality:86}).toBuffer();
   const meta = await sharp(processed).metadata();
   return { url: await storeBlob(processed, "image/webp"), width: meta.width, height: meta.height, size: processed.byteLength };
 }
