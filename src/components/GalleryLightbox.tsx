@@ -34,6 +34,8 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
   const lastDistance = useRef<number | null>(null);
   const touchStartX = useRef<number | null>(null);
   const lastTap = useRef(0);
+  const viewerRef = useRef<HTMLDivElement | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     if (activeIndex === null) return;
@@ -54,6 +56,8 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
 
     const old = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    const syncFullscreen = () => setIsFullscreen(document.fullscreenElement === viewerRef.current);
+    document.addEventListener("fullscreenchange", syncFullscreen);
     const key = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
       if (e.key === "ArrowLeft") onPrevious();
@@ -65,6 +69,7 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
     return () => {
       document.body.style.overflow = old;
       window.removeEventListener("keydown", key);
+      document.removeEventListener("fullscreenchange", syncFullscreen);
     };
   }, [activeIndex, onClose, onPrevious, onNext]);
 
@@ -85,7 +90,10 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
     lastDistance.current = distance;
   };
 
-  const touchEnd = () => { lastDistance.current = null; };
+  const touchEnd = (e?: React.TouchEvent) => {
+    lastDistance.current = null;
+    if (e) swipeEnd(e);
+  };
   const doubleZoom = () => setZoom((z) => z > 1 ? 1 : 2.5);
   const tap = () => {
     const now = Date.now();
@@ -95,6 +103,13 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
   const swipeStart = (e: React.TouchEvent) => {
     touchStartX.current = e.changedTouches[0].clientX;
   };
+  const toggleFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await viewerRef.current?.requestFullscreen();
+    } catch { /* Fullscreen may be unavailable in embedded browsers. */ }
+  };
+  const resetZoom = () => { setZoom(1); setPosition({ x: 0, y: 0 }); };
   const handlePurchaseSuccess = useCallback(() => {
     setPurchased(true);
     setCheckingAccess(false);
@@ -108,8 +123,8 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
   };
 
   return <AnimatePresence>{image && (
-    <motion.div className="fixed inset-0 z-[200] flex h-screen w-screen items-center justify-center bg-black" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={onClose}>
-      <motion.div className="relative h-full w-full overflow-hidden touch-none" onClick={(e)=>e.stopPropagation()} onWheel={wheel} onTouchMove={touchMove} onTouchEnd={touchEnd} onTouchStart={swipeStart} onClickCapture={tap} onDoubleClick={doubleZoom} onTouchCancel={swipeEnd}>
+    <motion.div ref={viewerRef} className="fixed inset-0 z-[200] flex h-screen w-screen items-center justify-center bg-black" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={onClose}>
+      <motion.div className="relative h-full w-full overflow-hidden touch-none" onClick={(e)=>e.stopPropagation()} onWheel={wheel} onTouchMove={touchMove} onTouchEnd={touchEnd} onTouchStart={swipeStart} onClickCapture={tap} onDoubleClick={doubleZoom} onTouchCancel={() => { lastDistance.current = null; touchStartX.current = null; }}>
         <motion.div className="h-full w-full" animate={{scale:zoom, x:position.x, y:position.y}} drag={zoom > 1} dragConstraints={{left:-400,right:400,top:-400,bottom:400}} transition={{type:"spring", stiffness:200, damping:25}}>
           {!failed ? (
             <img
@@ -150,7 +165,11 @@ export default function GalleryLightbox({ images, activeIndex, onClose, onPrevio
           <p className="mt-2 text-xs text-white/50">{activeIndex + 1} / {images.length}</p>
         </div>
       </motion.div>
-      <button aria-label="Close image viewer" className="absolute right-8 top-8 z-10 h-12 w-12 rounded-full bg-white/10 text-3xl text-white backdrop-blur-md" onClick={onClose}>×</button>
+      <div className="absolute right-4 top-4 z-30 flex items-center gap-2 md:right-8 md:top-8">
+        <button aria-label="Reset image zoom" title="Reset zoom" className="h-10 rounded-full bg-white/10 px-3 text-xs text-white backdrop-blur-md hover:bg-white/20" onClick={resetZoom}>Reset zoom</button>
+        <button aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"} title={isFullscreen ? "Exit fullscreen" : "Fullscreen"} className="h-10 rounded-full bg-white/10 px-3 text-xs text-white backdrop-blur-md hover:bg-white/20" onClick={toggleFullscreen}>{isFullscreen ? "Exit fullscreen" : "Fullscreen"}</button>
+        <button aria-label="Close image viewer" className="h-10 w-10 rounded-full bg-white/10 text-2xl text-white backdrop-blur-md hover:bg-white/20" onClick={onClose}>×</button>
+      </div>
       <button aria-label="Previous image" className="absolute left-8 top-1/2 z-10 h-12 w-12 -translate-y-1/2 rounded-full bg-white/10 text-4xl text-white backdrop-blur-md" onClick={onPrevious}>‹</button>
       <button aria-label="Next image" className="absolute right-8 top-1/2 z-10 h-12 w-12 -translate-y-1/2 rounded-full bg-white/10 text-4xl text-white backdrop-blur-md" onClick={onNext}>›</button>
     </motion.div>
