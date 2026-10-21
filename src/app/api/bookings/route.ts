@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit, getClientKey } from "@/lib/rate-limit";
 
 const bookingSchema = z.object({
   name: z.string().trim().min(2).max(120),
@@ -16,6 +17,8 @@ const bookingSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const rate = checkRateLimit(getClientKey(request), { namespace: "bookings", limit: 5, windowMs: 10 * 60_000 });
+  if (!rate.allowed) return NextResponse.json({ error: "Too many booking requests. Please wait before trying again." }, { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds), "Cache-Control": "no-store" } });
   try {
     const body = await request.json();
     const parsed = bookingSchema.safeParse(body);
