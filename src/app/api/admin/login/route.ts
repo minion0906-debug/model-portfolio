@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createAdminSession } from "@/lib/auth";
+import { checkRateLimit, getClientKey } from "@/lib/rate-limit";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -10,6 +11,8 @@ const loginSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const rate = checkRateLimit(getClientKey(request), { namespace: "admin-login", limit: 8, windowMs: 15 * 60_000 });
+  if (!rate.allowed) return NextResponse.json({ error: "Too many sign-in attempts. Please wait and try again." }, { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds), "Cache-Control": "no-store" } });
   try {
     const body = await request.json();
     const result = loginSchema.safeParse(body);

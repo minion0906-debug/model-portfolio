@@ -4,10 +4,13 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { hashToken } from "@/lib/customer-auth";
 import { sendMagicLink } from "@/lib/magic-email";
+import { checkRateLimit, getClientKey } from "@/lib/rate-limit";
 
 const schema = z.object({ email: z.string().trim().email().max(320) });
 
 export async function POST(request: Request) {
+  const rate = checkRateLimit(getClientKey(request), { namespace: "magic-link", limit: 3, windowMs: 15 * 60_000 });
+  if (!rate.allowed) return NextResponse.json({ error: "Too many access-link requests. Please wait and try again." }, { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds), "Cache-Control": "no-store" } });
   try {
     const parsed = schema.safeParse(await request.json());
     if (!parsed.success) return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
