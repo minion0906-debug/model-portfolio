@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientKey } from "@/lib/rate-limit";
+import { notifyNewContact } from "@/lib/notifications";
 
 const contactSchema = z.object({
   name: z.string().trim().min(2).max(120),
@@ -33,6 +34,13 @@ export async function POST(request: Request) {
         phone: data.phone || null,
         message: data.message,
       },
+    });
+
+    const siteSettings = await prisma.siteSettings.findFirst({ select: { name: true, email: true } }).catch(() => null);
+    await notifyNewContact({
+      ...data,
+      notifyEmail: process.env.ADMIN_NOTIFICATION_EMAIL || siteSettings?.email || null,
+      siteName: siteSettings?.name || undefined,
     });
 
     return NextResponse.json({ ok: true });
