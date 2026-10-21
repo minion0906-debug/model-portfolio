@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientKey } from "@/lib/rate-limit";
+import { notifyNewBooking } from "@/lib/notifications";
 
 const bookingSchema = z.object({
   name: z.string().trim().min(2).max(120),
@@ -62,6 +63,14 @@ export async function POST(request: Request) {
         usageRights: data.usageRights || null,
         message: data.message,
       },
+    });
+
+    const siteSettings = await prisma.siteSettings.findFirst({ select: { name: true, email: true } }).catch(() => null);
+    await notifyNewBooking({
+      ...data,
+      preferredDate,
+      notifyEmail: process.env.ADMIN_NOTIFICATION_EMAIL || siteSettings?.email || null,
+      siteName: siteSettings?.name || undefined,
     });
 
     return NextResponse.json({ ok: true });
