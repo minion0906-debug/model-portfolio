@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Hero from "@/components/Hero";
 import Navbar from "@/components/Navbar";
 import Gallery from "@/components/Gallery";
@@ -13,6 +14,36 @@ import { getSiteSettings } from "@/lib/site-settings";
 
 const specialties = ["Fashion", "Beauty", "Editorial", "Campaigns", "Commercial"];
 
+function getBaseUrl() {
+  return (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const title = `${settings.name} | Model Portfolio`;
+  const description = settings.bio || `${settings.name} — fashion, beauty, editorial and commercial model portfolio.`;
+  const baseUrl = getBaseUrl();
+  return {
+    title,
+    description,
+    alternates: { canonical: "/" },
+    openGraph: {
+      type: "website",
+      url: baseUrl,
+      title,
+      description,
+      siteName: `${settings.name} Portfolio`,
+      images: settings.profileImage ? [{ url: settings.profileImage, alt: `${settings.name} portfolio portrait` }] : undefined,
+    },
+    twitter: {
+      card: settings.profileImage ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: settings.profileImage ? [settings.profileImage] : undefined,
+    },
+  };
+}
+
 export default async function HomePage() {
   const [gallery, videos, heroSlides, settings] = await Promise.all([
     getPublishedGalleryImages(),
@@ -23,6 +54,22 @@ export default async function HomePage() {
 
   return (
     <div className="studio-site">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Person",
+            name: settings.name,
+            description: settings.bio || undefined,
+            image: settings.profileImage || undefined,
+            url: getBaseUrl(),
+            jobTitle: "Model",
+            address: settings.location ? { "@type": "PostalAddress", addressLocality: settings.location } : undefined,
+            sameAs: [settings.instagram, settings.tiktok, settings.youtube].filter(Boolean),
+          }).replace(/</g, "\\u003c"),
+        }}
+      />
       <MotionEffects />
       <Navbar />
       <main>

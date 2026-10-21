@@ -26,6 +26,15 @@ export default function Gallery({ images }: { images: GalleryImage[] }) {
                 className="studio-shot-image"
                 loading={index < 2 ? "eager" : "lazy"}
                 decoding="async"
+                sizes="(max-width: 800px) 100vw, (max-width: 1200px) 50vw, 58vw"
+                fetchPriority={index === 0 ? "high" : "auto"}
+                onError={(event) => {
+                  const img = event.currentTarget;
+                  if (img.dataset.fallbackApplied === "true") return;
+                  img.dataset.fallbackApplied = "true";
+                  img.src = "/media-unavailable.svg";
+                  img.alt = `${image.title} (media unavailable)`;
+                }}
                 draggable={false}
               />
               <span className="studio-shot-overlay" /><span className="studio-shot-meta"><b>{String(index+1).padStart(2,"0")}</b><em>{image.priceCents > 0 ? `${image.currency} ${(image.priceCents / 100).toFixed(2)}` : (image.tag || "Selected work")}</em></span><span className="studio-shot-title">{image.title}<i>↗</i></span>
