@@ -105,6 +105,7 @@ model BookingRequest {
   budget        String?
   usageRights   String?
   message       String
+  internalNotes String?
   status        BookingStatus @default(NEW)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
