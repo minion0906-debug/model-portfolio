@@ -13,6 +13,7 @@ type Booking = {
   location: string | null;
   budget: string | null;
   message: string;
+  internalNotes: string | null;
   status: string;
   createdAt: Date | string;
 };
@@ -29,6 +30,8 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
   const [filter, setFilter] = useState("ALL");
   const [selectedId, setSelectedId] = useState<string | null>(initialBookings[0]?.id ?? "");
   const [message, setMessage] = useState("");
+  const [internalNotes, setInternalNotes] = useState(initialBookings[0]?.internalNotes ?? "");
+  const [view, setView] = useState<"list" | "calendar">("list");
   const [page, setPage] = useState(1);
   const pageSize = 8;
 
@@ -45,6 +48,13 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
   const currentPage = Math.min(page, pageCount);
   const pagedBookings = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const selected = bookings.find((booking) => booking.id === selectedId) ?? filtered[0];
+  useEffect(() => {
+    setInternalNotes(selected?.internalNotes ?? "");
+  }, [selected?.id, selected?.internalNotes]);
+
+  const calendarItems = useMemo(() => filtered
+    .filter((booking) => booking.preferredDate)
+    .sort((a, b) => new Date(a.preferredDate!).getTime() - new Date(b.preferredDate!).getTime()), [filtered]);
 
   async function updateStatus(id: string, status: string) {
     const response = await fetch(`/api/admin/bookings/${id}`, {
@@ -62,6 +72,20 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
       current.map((booking) => booking.id === id ? { ...booking, status } : booking),
     );
     setMessage("Booking status updated.");
+  }
+
+  async function saveNotes(id: string) {
+    const response = await fetch(`/api/admin/bookings/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ internalNotes }),
+    });
+    if (!response.ok) {
+      setMessage("Unable to save internal notes.");
+      return;
+    }
+    setBookings((current) => current.map((booking) => booking.id === id ? { ...booking, internalNotes } : booking));
+    setMessage("Internal notes saved.");
   }
 
   async function remove(id: string) {
@@ -101,7 +125,8 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
         {["ALL", ...statuses].map((item) => (
           <button
             key={item}
@@ -114,9 +139,35 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
             {item}
           </button>
         ))}
+        </div>
+        <div className="flex gap-2 rounded-full border border-[#171412]/10 bg-white p-1">
+          <button type="button" onClick={() => setView("list")} className={`rounded-full px-3 py-2 text-[10px] uppercase tracking-[0.15em] ${view === "list" ? "bg-[#171412] text-white" : "text-[#584e49]"}`}>List</button>
+          <button type="button" onClick={() => setView("calendar")} className={`rounded-full px-3 py-2 text-[10px] uppercase tracking-[0.15em] ${view === "calendar" ? "bg-[#171412] text-white" : "text-[#584e49]"}`}>Calendar</button>
+        </div>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[0.9fr_1.5fr]">
+      {view === "calendar" && (
+        <section className="rounded-[1.5rem] border border-[#171412]/10 bg-[#fffdfb]/90 p-5 shadow-[0_20px_40px_rgba(17,14,12,0.04)]">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-display text-2xl text-[#171412]">Scheduled requests</h2>
+            <p className="text-xs text-[#7a6e67]">Sorted by preferred date</p>
+          </div>
+          {calendarItems.length === 0 ? <p className="mt-4 text-sm text-[#584e49]">No requests have a preferred date yet.</p> : (
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {calendarItems.map((booking) => (
+                <button key={booking.id} type="button" onClick={() => { setSelectedId(booking.id); setView("list"); }} className="rounded-2xl border border-[#171412]/10 bg-white p-4 text-left transition hover:border-[#171412]/40">
+                  <p className="text-xs font-semibold text-[#8b6d4e]">{formatDate(booking.preferredDate)}</p>
+                  <p className="mt-2 font-medium text-[#171412]">{booking.name}</p>
+                  <p className="mt-1 text-xs text-[#584e49]">{booking.bookingType || "Booking request"} · {booking.status}</p>
+                  <p className="mt-2 text-xs text-[#7a6e67]">{booking.location || "Location not specified"}</p>
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {view === "list" && <div className="grid gap-5 lg:grid-cols-[0.9fr_1.5fr]">
         <div className="space-y-3">
           {filtered.length === 0 ? (
             <div className="rounded-[1.5rem] border border-dashed border-[#171412]/20 bg-[#fffdfb]/80 p-8 text-sm text-[#584e49] shadow-[0_20px_40px_rgba(17,14,12,0.04)]">
@@ -187,6 +238,20 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
               <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#584e49]">{selected.message}</p>
             </div>
 
+            <div className="mt-6 border-t border-[#171412]/10 pt-6">
+              <label htmlFor="booking-internal-notes" className="text-[10px] uppercase tracking-[0.18em] text-[#7a6e67]">Internal notes (admin only)</label>
+              <textarea
+                id="booking-internal-notes"
+                value={internalNotes}
+                onChange={(event) => setInternalNotes(event.target.value)}
+                maxLength={10000}
+                rows={4}
+                placeholder="Add follow-up reminders, call notes, or next steps…"
+                className="mt-3 w-full rounded-2xl border border-[#171412]/10 bg-white p-4 text-sm leading-6 text-[#171412] outline-none focus:border-[#8b6d4e]"
+              />
+              <button type="button" onClick={() => saveNotes(selected.id)} className="mt-3 rounded-full bg-[#171412] px-4 py-2 text-[10px] uppercase tracking-[0.18em] text-white transition hover:bg-[#3a302a]">Save internal notes</button>
+            </div>
+
             <button
               type="button"
               onClick={() => remove(selected.id)}
@@ -196,7 +261,7 @@ export default function BookingManager({ initialBookings }: { initialBookings: B
             </button>
           </article>
         ) : null}
-      </div>
+      </div>}
     </div>
   );
 }
