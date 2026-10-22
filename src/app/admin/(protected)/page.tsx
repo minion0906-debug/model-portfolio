@@ -233,6 +233,7 @@ export default async function AdminDashboard() {
               ["Review bookings", "/admin/bookings"],
               ["Read messages", "/admin/messages"],
               ["View payments", "/admin/payments"],
+              ["View analytics", "/admin/analytics"],
               ["Update profile", "/admin/settings"],
             ].map(([label, href]) => (
               <Link key={href} href={href} className="flex items-center justify-between rounded-xl border border-black/10 px-4 py-3 text-sm transition hover:bg-black hover:text-white">
