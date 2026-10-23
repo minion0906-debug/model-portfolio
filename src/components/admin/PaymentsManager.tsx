@@ -57,6 +57,41 @@ export default function PaymentsManager() {
 
   const title = useMemo(() => payments.length === 1 ? "1 transaction" : `${payments.length} transactions`, [payments.length]);
 
+  function exportCsv() {
+    const columns = [
+      ["Payment ID", (payment: Payment) => payment.id],
+      ["Status", (payment: Payment) => payment.status],
+      ["Payment Method", (payment: Payment) => payment.paymentMethod],
+      ["Buyer Name", (payment: Payment) => payment.payerName || ""],
+      ["Buyer Email", (payment: Payment) => payment.payerEmail || ""],
+      ["Media Title", (payment: Payment) => payment.media.title || ""],
+      ["Amount", (payment: Payment) => (payment.amountCents / 100).toFixed(2)],
+      ["Currency", (payment: Payment) => payment.currency],
+      ["PayPal Order ID", (payment: Payment) => payment.paypalOrderId],
+      ["Crypto Transaction", (payment: Payment) => payment.cryptoTxHash || ""],
+      ["Created At", (payment: Payment) => payment.createdAt],
+      ["Captured At", (payment: Payment) => payment.capturedAt || ""],
+      ["Refunded At", (payment: Payment) => payment.refundedAt || ""],
+      ["Refund Amount", (payment: Payment) => payment.refundAmountCents == null ? "" : (payment.refundAmountCents / 100).toFixed(2)],
+      ["Refund Reason", (payment: Payment) => payment.refundReason || ""],
+    ] as const;
+    const escapeCsv = (value: string) => {
+      // Prevent spreadsheet formula injection in user-controlled values.
+      const safe = /^[\s]*[=+@\-]/.test(value) ? `'${value}` : value;
+      return `"${safe.replace(/"/g, '""')}"`;
+    };
+    const rows = [columns.map(([label]) => escapeCsv(label)).join(","), ...payments.map(payment => columns.map(([, value]) => escapeCsv(String(value(payment)))).join(","))];
+    const blob = new Blob([`\uFEFF${rows.join("\r\n")}`], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `payments-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
   async function refund(payment: Payment) {
     const reason = window.prompt("Refund reason (optional):", "Refund requested by customer.");
     if (reason === null) return;
@@ -79,7 +114,10 @@ export default function PaymentsManager() {
       <p className="text-xs uppercase tracking-[0.25em] text-neutral-500">Commerce</p>
       <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div><h1 className="font-display text-4xl md:text-5xl">Payments</h1><p className="mt-2 text-sm text-neutral-500">Monitor PayPal and Ethereum USDT sales, allocation tracking, and paid media access.</p></div>
-        <button onClick={() => void load()} className="rounded-full border border-black/10 px-5 py-2.5 text-sm hover:bg-black hover:text-white">Refresh</button>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={exportCsv} disabled={payments.length === 0 || loading} className="rounded-full border border-black/10 px-5 py-2.5 text-sm hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-40">Export CSV</button>
+          <button onClick={() => void load()} className="rounded-full border border-black/10 px-5 py-2.5 text-sm hover:bg-black hover:text-white">Refresh</button>
+        </div>
       </div>
     </div>
 
@@ -92,14 +130,15 @@ export default function PaymentsManager() {
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search buyer, email, order ID, media…" className="h-11 rounded-xl border border-black/10 bg-white px-4 text-sm outline-none focus:border-black" />
         <select value={status} onChange={e => setStatus(e.target.value)} className="h-11 rounded-xl border border-black/10 bg-white px-4 text-sm"><option value="ALL">All statuses</option><option value="COMPLETED">Completed</option><option value="PENDING">Pending</option><option value="FAILED">Failed</option><option value="REFUNDED">Refunded</option></select>
         <input type="date" value={from} onChange={e => setFrom(e.target.value)} className="h-11 rounded-xl border border-black/10 bg-white px-4 text-sm" />
-        <input type="date" value={to} onChange={e => setTo(e.target.value)} className="h-11 rounded-xl border border-black/10 bg-white px-4 text-sm" />
+        <input type="date" value={to} min={from || undefined} onChange={e => setTo(e.target.value)} className="h-11 rounded-xl border border-black/10 bg-white px-4 text-sm" />
       </div>
+      {from && to && from > to ? <p role="alert" className="mt-3 text-sm text-red-700">The end date must be on or after the start date.</p> : <p className="mt-3 text-xs text-neutral-500">CSV export includes the transactions currently loaded for these filters (up to 250 rows).</p>}
     </section>
 
     <section className="overflow-hidden rounded-2xl border border-black/10 bg-white">
       <div className="flex items-center justify-between gap-4 border-b border-black/10 px-5 py-4 md:px-6"><div><p className="text-sm font-medium">Transactions</p><p className="mt-1 text-xs text-neutral-500">{loading ? "Loading…" : title}</p></div><span className="rounded-full bg-neutral-100 px-3 py-1 text-xs text-neutral-600">PayPal + ERC-20 USDT</span></div>
       {error ? <div className="m-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div> : null}
-      {loading ? <div className="p-10 text-center text-sm text-neutral-500">Loading payments…</div> : payments.length === 0 ? <div className="p-12 text-center"><p className="font-medium">No payments found</p><p className="mt-2 text-sm text-neutral-500">Completed PayPal and ERC-20 USDT purchases will appear here.</p></div> : <div className="overflow-x-auto"><table className="w-full min-w-[980px] text-left"><thead className="bg-neutral-50 text-[10px] uppercase tracking-[0.16em] text-neutral-500"><tr><th className="px-6 py-4">Media</th><th className="px-6 py-4">Buyer</th><th className="px-6 py-4">Method / transaction</th><th className="px-6 py-4">Amount & allocation</th><th className="px-6 py-4">Status</th><th className="px-6 py-4">Date</th><th className="px-6 py-4">Action</th></tr></thead><tbody className="divide-y divide-black/10">{payments.map(payment => <tr key={payment.id} className="hover:bg-neutral-50/70"><td className="px-6 py-4"><div className="flex items-center gap-3"><div className="h-11 w-14 overflow-hidden rounded-lg bg-neutral-100">{payment.media.thumbnail || payment.media.url ? <img src={payment.media.thumbnail || payment.media.url} alt="" className="h-full w-full object-cover" /> : null}</div><div><p className="max-w-[190px] truncate text-sm font-medium">{payment.media.title || `Untitled ${payment.media.type.toLowerCase()}`}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-neutral-400">{payment.media.type}</p></div></div></td><td className="px-6 py-4"><p className="text-sm">{payment.payerName || "PayPal buyer"}</p><p className="mt-1 text-xs text-neutral-500">{payment.payerEmail || "Email unavailable"}</p></td><td className="px-6 py-4"><p className="text-xs font-medium">{payment.paymentMethod === "ERC20_USDT" ? "Ethereum USDT" : "PayPal"}</p><p className="mt-1 max-w-[180px] truncate font-mono text-[10px] text-neutral-500">{payment.cryptoTxHash || payment.paypalOrderId}</p></td><td className="px-6 py-4 text-sm font-medium">{money(payment.amountCents, payment.currency)}{payment.paymentMethod === "PAYPAL" && payment.cryptoAllocationCents !== null && <p className="mt-1 text-[10px] font-normal leading-4 text-neutral-500">40% crypto: {money(payment.cryptoAllocationCents, payment.currency)} · 60% PayPal: {money(payment.paypalAllocationCents || 0, payment.currency)}<br />Crypto allocation: {payment.cryptoAllocationStatus}</p>}</td><td className="px-6 py-4"><span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] uppercase tracking-wider ${payment.status === "COMPLETED" ? "bg-emerald-50 text-emerald-700" : payment.status === "PENDING" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-700"}`}>{payment.status}</span></td><td className="px-6 py-4 text-xs text-neutral-500">{dateFormat.format(new Date(payment.refundedAt || payment.capturedAt || payment.createdAt))}</td><td className="px-6 py-4">{payment.status === "COMPLETED" && payment.paymentMethod !== "ERC20_USDT" ? <button disabled={refunding === payment.id} onClick={() => void refund(payment)} className="rounded-full border border-red-200 px-3 py-1.5 text-xs text-red-700 hover:bg-red-50 disabled:opacity-50">{refunding === payment.id ? "Refunding…" : "Refund"}</button> : payment.paymentMethod === "ERC20_USDT" && payment.status === "COMPLETED" ? <span className="text-xs text-neutral-400">Crypto refund manual</span> : payment.status === "REFUNDED" ? <span className="text-xs text-neutral-400">Refunded</span> : <span className="text-xs text-neutral-400">—</span>}</td></tr>)}</tbody></table></div>}
+      {loading ? <div className="p-10 text-center text-sm text-neutral-500">Loading payments…</div> : payments.length === 0 ? <div className="p-12 text-center"><p className="font-medium">No payments found</p><p className="mt-2 text-sm text-neutral-500">Completed PayPal and ERC-20 USDT purchases will appear here.</p></div> : <div className="overflow-x-auto"><table className="w-full min-w-[980px] text-left"><thead className="bg-neutral-50 text-[10px] uppercase tracking-[0.16em] text-neutral-500"><tr><th className="px-6 py-4">Media</th><th className="px-6 py-4">Buyer</th><th className="px-6 py-4">Method / transaction</th><th className="px-6 py-4">Amount & allocation</th><th className="px-6 py-4">Status</th><th className="px-6 py-4">Date</th><th className="px-6 py-4">Action</th></tr></thead><tbody className="divide-y divide-black/10">{payments.map(payment => <tr key={payment.id} className="hover:bg-neutral-50/70"><td className="px-6 py-4"><div className="flex items-center gap-3"><div className="h-11 w-14 overflow-hidden rounded-lg bg-neutral-100">{payment.media.thumbnail || payment.media.url ? <img src={payment.media.thumbnail || payment.media.url} alt="" className="h-full w-full object-cover" /> : null}</div><div><p className="max-w-[190px] truncate text-sm font-medium">{payment.media.title || `Untitled ${payment.media.type.toLowerCase()}`}</p><p className="mt-1 text-[10px] uppercase tracking-wider text-neutral-400">{payment.media.type}</p></div></div></td><td className="px-6 py-4"><p className="text-sm">{payment.payerName || "PayPal buyer"}</p><p className="mt-1 text-xs text-neutral-500">{payment.payerEmail || "Email unavailable"}</p></td><td className="px-6 py-4"><p className="text-xs font-medium">{payment.paymentMethod === "ERC20_USDT" ? "Ethereum USDT" : "PayPal"}</p><p className="mt-1 max-w-[180px] truncate font-mono text-[10px] text-neutral-500">{payment.cryptoTxHash || payment.paypalOrderId}</p></td><td className="px-6 py-4 text-sm font-medium">{money(payment.amountCents, payment.currency)}{payment.paymentMethod === "PAYPAL" && payment.cryptoAllocationCents !== null && <p className="mt-1 text-[10px] font-normal leading-4 text-neutral-500">40% crypto: {money(payment.cryptoAllocationCents, payment.currency)} · 60% PayPal: {money(payment.paypalAllocationCents || 0, payment.currency)}<br />Crypto allocation: {payment.cryptoAllocationStatus}</p>}</td><td className="px-6 py-4"><span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] uppercase tracking-wider ${payment.status === "COMPLETED" ? "bg-emerald-50 text-emerald-700" : payment.status === "PENDING" ? "bg-amber-50 text-amber-700" : payment.status === "REFUNDED" ? "bg-violet-50 text-violet-700" : "bg-red-50 text-red-700"}`}>{payment.status}</span>{payment.status === "REFUNDED" && payment.refundAmountCents != null ? <p className="mt-1 text-[10px] text-neutral-500">{money(payment.refundAmountCents, payment.currency)} refunded</p> : null}</td><td className="px-6 py-4 text-xs text-neutral-500">{dateFormat.format(new Date(payment.refundedAt || payment.capturedAt || payment.createdAt))}</td><td className="px-6 py-4">{payment.status === "COMPLETED" && payment.paymentMethod !== "ERC20_USDT" ? <button disabled={refunding === payment.id} onClick={() => void refund(payment)} className="rounded-full border border-red-200 px-3 py-1.5 text-xs text-red-700 hover:bg-red-50 disabled:opacity-50">{refunding === payment.id ? "Refunding…" : "Refund"}</button> : payment.paymentMethod === "ERC20_USDT" && payment.status === "COMPLETED" ? <span className="text-xs text-neutral-400">Crypto refund manual</span> : payment.status === "REFUNDED" ? <span className="text-xs text-neutral-400">Refunded</span> : <span className="text-xs text-neutral-400">—</span>}</td></tr>)}</tbody></table></div>}
     </section>
   </div>;
 }
