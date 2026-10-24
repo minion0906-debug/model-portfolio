@@ -191,6 +191,7 @@ model Payment {
   refundReason  String?
   media         Media         @relation(fields: [mediaId], references: [id], onDelete: Cascade)
   auditEvents   PaymentAuditEvent[]
+  alertLogs     PaymentAlertLog[]
 
   @@index([mediaId])
   @@index([status])
@@ -233,4 +234,21 @@ model PaymentAuditEvent {
 
   @@index([paymentId, createdAt])
   @@index([action, createdAt])
+}
+
+
+model PaymentAlertLog {
+  id          String   @id @default(cuid())
+  paymentId   String
+  alertType   String
+  dedupeKey   String   @unique
+  status      String   @default("PROCESSING")
+  attempts    Int      @default(1)
+  lastError   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  payment     Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([status, updatedAt])
+  @@index([paymentId, alertType])
 }
