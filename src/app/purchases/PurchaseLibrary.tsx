@@ -110,9 +110,10 @@ export default function PurchaseLibrary({ purchases }: { purchases: Purchase[] }
                 <div className="text-[10px] leading-5 text-white/35">
                   Purchased {purchase.capturedAt ? new Date(purchase.capturedAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "successfully"}
                 </div>
-                <div className="flex gap-2">
-                  <Link href={`/api/media/${purchase.media.id}`} target="_blank" rel="noreferrer" className="flex-1 rounded-full bg-white px-4 py-2.5 text-center text-[10px] font-semibold uppercase tracking-[0.15em] text-black transition hover:bg-white/90">View</Link>
-                  <a href={`/api/media/${purchase.media.id}?download=1`} className="rounded-full border border-white/15 px-4 py-2.5 text-[10px] uppercase tracking-[0.15em] text-white/70 transition hover:bg-white/10">Download</a>
+                <div className="flex flex-wrap gap-2">
+                  <Link href={`/api/media/${purchase.media.id}`} target="_blank" rel="noreferrer" className="min-w-[76px] flex-1 rounded-full bg-white px-3 py-2.5 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-black transition hover:bg-white/90">View</Link>
+                  <a href={`/api/media/${purchase.media.id}?download=1`} className="rounded-full border border-white/15 px-3 py-2.5 text-[10px] uppercase tracking-[0.12em] text-white/70 transition hover:bg-white/10">Download</a>
+                  <Link href={`/purchases/receipt/${purchase.id}`} className="rounded-full border border-white/15 px-3 py-2.5 text-[10px] uppercase tracking-[0.12em] text-white/70 transition hover:bg-white/10">Receipt</Link>
                 </div>
                 <p className="truncate text-[9px] text-white/20">Order {purchase.paypalOrderId}</p>
               </div>
