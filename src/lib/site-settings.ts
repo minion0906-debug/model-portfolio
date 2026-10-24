@@ -1,5 +1,5 @@
 import { unstable_cache } from "next/cache";
-import { prisma, logDatabaseError, withDatabaseRetry } from "@/lib/prisma";
+import { prisma, logDatabaseError, shouldSkipDatabaseForBuild, withDatabaseRetry } from "@/lib/prisma";
 
 export type PublicSiteSettings = {
   name: string;
@@ -39,6 +39,10 @@ const fallback: PublicSiteSettings = {
 
 const loadSiteSettings = unstable_cache(
   async (): Promise<PublicSiteSettings> => {
+    if (shouldSkipDatabaseForBuild()) {
+      return fallback;
+    }
+
     try {
       const settings = await withDatabaseRetry(() => prisma.siteSettings.findFirst());
 

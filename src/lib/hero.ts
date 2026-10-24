@@ -1,5 +1,5 @@
 import { unstable_cache } from "next/cache";
-import { prisma, logDatabaseError, withDatabaseRetry } from "@/lib/prisma";
+import { prisma, logDatabaseError, shouldSkipDatabaseForBuild, withDatabaseRetry } from "@/lib/prisma";
 
 export type PublicHeroSlide = {
   id: string;
@@ -11,6 +11,10 @@ export type PublicHeroSlide = {
 
 const loadPublishedHeroSlides = unstable_cache(
   async (): Promise<PublicHeroSlide[]> => {
+    if (shouldSkipDatabaseForBuild()) {
+      return [];
+    }
+
     try {
       const slides = await withDatabaseRetry(() => prisma.heroSlide.findMany({
         where: {

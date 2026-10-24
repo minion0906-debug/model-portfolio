@@ -1,5 +1,5 @@
 import { unstable_cache } from "next/cache";
-import { prisma, logDatabaseError, withDatabaseRetry } from "@/lib/prisma";
+import { prisma, logDatabaseError, shouldSkipDatabaseForBuild, withDatabaseRetry } from "@/lib/prisma";
 
 export type PublicVideo = {
   id: string;
@@ -13,6 +13,10 @@ export type PublicVideo = {
 
 const loadPublishedVideos = unstable_cache(
   async (): Promise<PublicVideo[]> => {
+    if (shouldSkipDatabaseForBuild()) {
+      return [];
+    }
+
     try {
       const videos = await withDatabaseRetry(() => prisma.media.findMany({
         where: { type: "VIDEO", published: true },
