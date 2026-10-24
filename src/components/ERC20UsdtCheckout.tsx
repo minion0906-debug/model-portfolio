@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 type Props = { mediaId: string; priceCents: number; currency: string; onSuccess: () => void };
-type Config = { enabled: boolean; network: string; token: string; wallet: string | null; requiredConfirmations: number };
+type Config = { enabled: boolean; network: string; token: string; wallet: string | null; requiredConfirmations: number; instructions?: string | null };
 
 export default function ERC20UsdtCheckout({ mediaId, priceCents, currency, onSuccess }: Props) {
   const [config, setConfig] = useState<Config | null>(null);
@@ -45,6 +45,7 @@ export default function ERC20UsdtCheckout({ mediaId, priceCents, currency, onSuc
       <div className="break-all rounded-lg bg-white/5 p-3 font-mono text-[10px] text-white/75">{config.wallet}</div>
       <button type="button" onClick={() => { void navigator.clipboard.writeText(config.wallet!); setNotice("Wallet address copied."); }} className="w-full rounded-full border border-white/15 px-4 py-2 text-[10px] uppercase tracking-wider text-white/70 hover:bg-white/10">Copy wallet address</button>
       <p className="text-[10px] leading-4 text-white/40">Wait for {config.requiredConfirmations} blockchain confirmations, then submit your transaction hash below. The transfer is irreversible.</p>
+      {config.instructions && <p className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs leading-5 text-white/65">{config.instructions}</p>}
       <input value={txHash} onChange={e => setTxHash(e.target.value)} placeholder="0x transaction hash" spellCheck={false} className="w-full rounded-xl border border-white/15 bg-white/5 px-3 py-3 font-mono text-xs text-white outline-none focus:border-white/40" />
       <button type="button" disabled={busy || !/^0x[a-fA-F0-9]{64}$/.test(txHash.trim())} onClick={() => void verify()} className="w-full rounded-full bg-white px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-black disabled:cursor-not-allowed disabled:opacity-40">{busy ? "Verifying on Ethereum…" : "Verify USDT payment"}</button>
     </>}

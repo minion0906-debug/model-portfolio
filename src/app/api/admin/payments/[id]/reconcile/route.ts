@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { verifyUsdtTransfer } from "@/lib/ethereum-usdt";
+import { ensureSiteSettings } from "@/lib/admin-settings";
 
 export const runtime = "nodejs";
 type Context = { params: Promise<{ id: string }> };
@@ -22,7 +23,8 @@ export async function POST(_request: Request, { params }: Context) {
     if (!payment.cryptoTxHash || !/^0x[a-fA-F0-9]{64}$/.test(payment.cryptoTxHash)) return NextResponse.json({ error: "No valid transaction hash is stored for this payment." }, { status: 400 });
     if (payment.currency.toUpperCase() !== "USD") return NextResponse.json({ error: "USDT reconciliation currently supports USD-priced payments only." }, { status: 400 });
 
-    const verified = await verifyUsdtTransfer({ txHash: payment.cryptoTxHash, expectedAmountBaseUnits: BigInt(payment.amountCents) * 10_000n });
+    const paymentSettings = await ensureSiteSettings();
+    const verified = await verifyUsdtTransfer({ txHash: payment.cryptoTxHash, expectedAmountBaseUnits: BigInt(payment.amountCents) * 10_000n, requiredConfirmations: paymentSettings.usdtRequiredConfirmations });
     if (!verified.confirmed) {
       await prisma.paymentAuditEvent.create({ data: { paymentId: payment.id, action: "USDT_RECONCILIATION_PENDING", details: `Confirmations ${verified.confirmations}/${verified.requiredConfirmations}`, actorEmail } });
       return NextResponse.json({ pending: true, confirmations: verified.confirmations, requiredConfirmations: verified.requiredConfirmations, message: `Still awaiting blockchain confirmations (${verified.confirmations}/${verified.requiredConfirmations}).` }, { status: 202, headers: { "Cache-Control": "no-store" } });

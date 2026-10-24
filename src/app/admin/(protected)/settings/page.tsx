@@ -1,4 +1,5 @@
 import SettingsManager from "@/components/admin/SettingsManager";
+import PaymentSettingsManager from "@/components/admin/PaymentSettingsManager";
 
 export default function AdminSettingsPage() {
   return (
@@ -12,6 +13,7 @@ export default function AdminSettingsPage() {
       </div>
 
       <SettingsManager />
+      <PaymentSettingsManager />
     </div>
   );
 }
