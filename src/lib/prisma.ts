@@ -78,6 +78,13 @@ export async function withDatabaseRetry<T>(operation: () => Promise<T>): Promise
   }
 }
 
+export function shouldSkipDatabaseForBuild(): boolean {
+  return (
+    process.env.NEXT_PHASE === "phase-production-build" &&
+    process.env.SKIP_DB_DURING_BUILD !== "false"
+  );
+}
+
 export function logDatabaseError(scope: string, error: unknown) {
   console.error(`[db:${scope}]`, error);
 }

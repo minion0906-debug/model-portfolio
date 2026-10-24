@@ -1,5 +1,5 @@
 import { unstable_cache } from "next/cache";
-import { prisma, logDatabaseError, withDatabaseRetry } from "@/lib/prisma";
+import { prisma, logDatabaseError, shouldSkipDatabaseForBuild, withDatabaseRetry } from "@/lib/prisma";
 
 export type PublicGalleryImage = {
   id: string;
@@ -14,6 +14,10 @@ export type PublicGalleryImage = {
 
 const loadPublishedGalleryImages = unstable_cache(
   async (): Promise<PublicGalleryImage[]> => {
+    if (shouldSkipDatabaseForBuild()) {
+      return [];
+    }
+
     try {
       const media = await withDatabaseRetry(() => prisma.media.findMany({
         where: { type: "IMAGE", published: true },
