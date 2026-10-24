@@ -14,10 +14,11 @@ function endOfDay(value: string) {
 
 export async function GET(request: Request) {
   try {
-    await requireAdmin();
+    const admin = await requireAdmin();
     const url = new URL(request.url);
     const q = url.searchParams.get("q")?.trim() || "";
     const status = url.searchParams.get("status")?.trim() || "ALL";
+    const method = url.searchParams.get("method")?.trim() || "ALL";
     const from = url.searchParams.get("from");
     const to = url.searchParams.get("to");
     const take = Math.min(Math.max(Number(url.searchParams.get("take") || 100), 1), 250);
@@ -28,6 +29,7 @@ export async function GET(request: Request) {
 
     const where = {
       ...(status !== "ALL" ? { status } : {}),
+      ...(method !== "ALL" ? { paymentMethod: method } : {}),
       ...(Object.keys(createdAt).length ? { createdAt } : {}),
       ...(q ? {
         OR: [
@@ -48,6 +50,7 @@ export async function GET(request: Request) {
           id: true, paypalOrderId: true, paymentMethod: true, cryptoTxHash: true, cryptoAllocationCents: true, paypalAllocationCents: true, cryptoAllocationStatus: true, amountCents: true, currency: true, status: true,
           payerName: true, payerEmail: true, createdAt: true, capturedAt: true, refundedAt: true, refundId: true, refundAmountCents: true, refundReason: true,
           media: { select: { id: true, title: true, type: true, thumbnail: true, url: true } },
+          auditEvents: { orderBy: { createdAt: "desc" as const }, take: 5, select: { id: true, action: true, details: true, actorEmail: true, createdAt: true } },
         },
       }),
       prisma.payment.aggregate({ where: { ...where, status: "COMPLETED" }, _sum: { amountCents: true } }),
@@ -61,6 +64,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       payments,
+      currentAdmin: { email: admin.email },
       summary: {
         revenueCents: (completedAggregate._sum.amountCents || 0) - (refundedAggregate._sum.refundAmountCents || 0),
         refundedCents: refundedAggregate._sum.refundAmountCents || 0,

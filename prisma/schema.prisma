@@ -187,6 +187,7 @@ model Payment {
   refundAmountCents Int?
   refundReason  String?
   media         Media         @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  auditEvents   PaymentAuditEvent[]
 
   @@index([mediaId])
   @@index([status])
@@ -215,4 +216,18 @@ model MagicLink {
 
   @@index([email])
   @@index([expiresAt])
+}
+
+
+model PaymentAuditEvent {
+  id          String   @id @default(cuid())
+  paymentId   String
+  action      String
+  details     String?
+  actorEmail  String?
+  createdAt   DateTime @default(now())
+  payment     Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId, createdAt])
+  @@index([action, createdAt])
 }

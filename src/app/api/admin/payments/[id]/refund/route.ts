@@ -9,7 +9,7 @@ type Context = { params: Promise<{ id: string }> };
 
 export async function POST(request: Request, { params }: Context) {
   try {
-    await requireAdmin();
+    const admin = await requireAdmin();
     const { id } = await params;
     const body = await request.json().catch(() => ({})) as { reason?: string };
     const payment = await prisma.payment.findUnique({ where: { id } });
@@ -30,15 +30,18 @@ export async function POST(request: Request, { params }: Context) {
     });
 
     const refundAmountCents = refund.amount?.value ? Math.round(Number(refund.amount.value) * 100) : payment.amountCents;
-    await prisma.payment.update({
-      where: { id: payment.id },
-      data: {
-        status: "REFUNDED",
-        refundedAt: new Date(),
-        refundId: refund.id,
-        refundAmountCents,
-        refundReason: body.reason?.trim().slice(0, 500) || null,
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: "REFUNDED",
+          refundedAt: new Date(),
+          refundId: refund.id,
+          refundAmountCents,
+          refundReason: body.reason?.trim().slice(0, 500) || null,
+        },
+      });
+      await tx.paymentAuditEvent.create({ data: { paymentId: payment.id, action: "PAYPAL_REFUNDED", details: `PayPal refund ${refund.id}; amount ${refundAmountCents} cents`, actorEmail: admin.email } });
     });
 
     return NextResponse.json({ success: true, refundId: refund.id, status: "REFUNDED" });
