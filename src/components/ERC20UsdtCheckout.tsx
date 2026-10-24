@@ -22,6 +22,9 @@ export default function ERC20UsdtCheckout({ mediaId, priceCents, currency, onSuc
       if (!response.ok) throw new Error(data.error || "Unable to verify transaction.");
       setNotice("Payment confirmed on Ethereum. Your purchase is unlocked.");
       onSuccess();
+      if (typeof data.paymentId === "string") {
+        window.location.assign(`/checkout/success?paymentId=${encodeURIComponent(data.paymentId)}`);
+      }
     } catch (e) { setError(e instanceof Error ? e.message : "Unable to verify transaction."); }
     finally { setBusy(false); }
   }

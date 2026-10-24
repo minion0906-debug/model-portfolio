@@ -118,6 +118,9 @@ export default function PayPalCheckout({ mediaId, priceCents, currency, onSucces
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || "Payment could not be verified.");
             onSuccess();
+            if (typeof data.paymentId === "string") {
+              window.location.assign(`/checkout/success?paymentId=${encodeURIComponent(data.paymentId)}`);
+            }
           },
           onCancel: () => setError("Payment was cancelled. You can try again."),
           onError: (err) => setError(err.message || "PayPal checkout failed."),

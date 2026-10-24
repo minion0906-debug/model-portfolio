@@ -31,7 +31,7 @@ export async function POST(_: Request, { params }: Context) {
         path: "/",
         maxAge: 60 * 60 * 24 * 365,
       });
-      return NextResponse.json({ success: true, mediaId: payment.mediaId });
+      return NextResponse.json({ success: true, mediaId: payment.mediaId, paymentId: payment.id });
     }
 
     const data = await capturePayPalOrder(orderId);
@@ -88,7 +88,7 @@ export async function POST(_: Request, { params }: Context) {
       maxAge: 60 * 60 * 24 * 365,
     });
 
-    return NextResponse.json({ success: true, mediaId: payment.mediaId });
+    return NextResponse.json({ success: true, mediaId: payment.mediaId, paymentId: payment.id });
   } catch (error) {
     console.error("PayPal capture failed:", error);
     // Provider response bodies can contain operational details; expose only a generic message.
