@@ -25,7 +25,7 @@ export function getUsdtWallet() {
   return isValidEthereumAddress(wallet) ? wallet : "";
 }
 
-export async function verifyUsdtTransfer(input: { txHash: string; expectedAmountBaseUnits: bigint }) {
+export async function verifyUsdtTransfer(input: { txHash: string; expectedAmountBaseUnits: bigint; requiredConfirmations?: number }) {
   if (!/^0x[a-fA-F0-9]{64}$/.test(input.txHash)) throw new Error("Enter a valid Ethereum transaction hash.");
   const wallet = getUsdtWallet();
   if (!wallet) throw new Error("USDT receiving wallet is not configured yet.");
@@ -37,7 +37,8 @@ export async function verifyUsdtTransfer(input: { txHash: string; expectedAmount
   if (receipt.status !== "0x1") throw new Error("The blockchain transaction failed.");
   const latestBlockHex = await rpc("eth_blockNumber", []) as string;
   const confirmations = BigInt(latestBlockHex) - BigInt(receipt.blockNumber) + 1n;
-  const requiredConfirmations = BigInt(process.env.ERC20_REQUIRED_CONFIRMATIONS || "12");
+  const configuredConfirmations = input.requiredConfirmations ?? Number(process.env.ERC20_REQUIRED_CONFIRMATIONS || "12");
+  const requiredConfirmations = BigInt(Number.isInteger(configuredConfirmations) && configuredConfirmations >= 1 && configuredConfirmations <= 1000 ? configuredConfirmations : 12);
 
 
   let received = 0n;

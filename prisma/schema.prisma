@@ -90,6 +90,9 @@ model SiteSettings {
   tiktok            String?
   youtube           String?
   acceptingBookings Boolean  @default(true)
+  usdtPaymentsEnabled Boolean @default(true)
+  usdtRequiredConfirmations Int @default(12)
+  usdtPaymentInstructions String?
   updatedAt         DateTime @updatedAt
 }
 
