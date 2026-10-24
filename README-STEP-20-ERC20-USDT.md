@@ -5,6 +5,9 @@
 - A USDT (ERC-20) checkout alongside the existing PayPal checkout for paid USD-priced media.
 - Direct wallet-to-wallet payment: the buyer sends USDT on Ethereum Mainnet to the configured receive address. The app never holds private keys and never signs blockchain transactions.
 - Server-side verification of Ethereum Mainnet chain ID, receipt success, USDT token contract, Transfer event recipient, amount, transaction hash, and configurable confirmation count (default 12).
+- Pending-state feedback when a transaction has not yet been mined or has not reached the required confirmations; buyers can retry verification without resending funds.
+- Successful verification returns the payment ID so checkout can redirect to the verified purchase-success page.
+- Confirmation progress and a direct Etherscan transaction link are shown in the checkout UI.
 - Duplicate transaction prevention through a unique database constraint.
 - Purchase unlock/access cookie only after successful chain verification.
 - Admin payment list now distinguishes PayPal vs Ethereum USDT and displays the transaction hash.
@@ -50,6 +53,7 @@ PayPal's standard Payouts API pays PayPal/Venmo recipients, not arbitrary ERC-20
 1. Use a non-production wallet and test database first; never test by sending real funds to an unverified address.
 2. Confirm the public checkout only shows a usable wallet after the environment variables are set.
 3. Verify wrong-network, wrong-token, failed, underpaid, unconfirmed, malformed, and already-used transaction hashes are rejected.
-4. Verify a successful transaction unlocks the media and appears as `Ethereum USDT` in admin payments.
+4. Verify a successful transaction unlocks the media, redirects to the verified purchase-success page, and appears as `Ethereum USDT` in admin payments.
+5. Verify unmined and under-confirmed transactions show a pending state, do not unlock media, and can be retried with the same hash without sending funds again.
 5. Verify PayPal capture and webhook events are idempotent and produce the 40/60 allocation record.
 6. Verify no `.env` or credentials are committed/deployed in the project archive.
