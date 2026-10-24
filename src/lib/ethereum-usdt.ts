@@ -38,7 +38,7 @@ export async function verifyUsdtTransfer(input: { txHash: string; expectedAmount
   const latestBlockHex = await rpc("eth_blockNumber", []) as string;
   const confirmations = BigInt(latestBlockHex) - BigInt(receipt.blockNumber) + 1n;
   const requiredConfirmations = BigInt(process.env.ERC20_REQUIRED_CONFIRMATIONS || "12");
-  if (confirmations < requiredConfirmations) throw new Error(`Transaction needs ${requiredConfirmations} confirmations; currently ${confirmations}.`);
+
 
   let received = 0n;
   let sender = "";
@@ -50,5 +50,5 @@ export async function verifyUsdtTransfer(input: { txHash: string; expectedAmount
     sender = `0x${log.topics[1].slice(-40)}`;
   }
   if (received < input.expectedAmountBaseUnits) throw new Error("Verified USDT transfer amount is below the required price.");
-  return { wallet, amountBaseUnits: received.toString(), sender, confirmations: Number(confirmations), blockNumber: Number(BigInt(receipt.blockNumber)) };
+  return { wallet, amountBaseUnits: received.toString(), sender, confirmations: Number(confirmations), requiredConfirmations: Number(requiredConfirmations), confirmed: confirmations >= requiredConfirmations, blockNumber: Number(BigInt(receipt.blockNumber)) };
 }

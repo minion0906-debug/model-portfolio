@@ -11,14 +11,20 @@ export default function ERC20UsdtCheckout({ mediaId, priceCents, currency, onSuc
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [confirmationProgress, setConfirmationProgress] = useState<{ current: number; required: number } | null>(null);
   useEffect(() => { fetch("/api/crypto/config", { cache: "no-store" }).then(r => r.json()).then(setConfig).catch(() => setConfig({ enabled: false, network: "Ethereum Mainnet", token: "USDT", wallet: null, requiredConfirmations: 12 })); }, []);
   const amount = (priceCents / 100).toFixed(2);
 
   async function verify() {
-    setBusy(true); setError(""); setNotice("");
+    setBusy(true); setError(""); setNotice(""); setConfirmationProgress(null);
     try {
       const response = await fetch("/api/crypto/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mediaId, txHash: txHash.trim() }) });
       const data = await response.json();
+      if (response.status === 202 && data.pending) {
+        setConfirmationProgress({ current: Number(data.confirmations || 0), required: Number(data.requiredConfirmations || config?.requiredConfirmations || 12) });
+        setNotice(data.message || "Transaction detected and waiting for confirmations. Submit the same hash again shortly.");
+        return;
+      }
       if (!response.ok) throw new Error(data.error || "Unable to verify transaction.");
       setNotice("Payment confirmed on Ethereum. Your purchase is unlocked.");
       onSuccess();
@@ -43,6 +49,7 @@ export default function ERC20UsdtCheckout({ mediaId, priceCents, currency, onSuc
       <button type="button" disabled={busy || !/^0x[a-fA-F0-9]{64}$/.test(txHash.trim())} onClick={() => void verify()} className="w-full rounded-full bg-white px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-black disabled:cursor-not-allowed disabled:opacity-40">{busy ? "Verifying on Ethereum…" : "Verify USDT payment"}</button>
     </>}
     {error && <p role="alert" className="text-xs text-red-300">{error}</p>}
-    {notice && <p role="status" className="text-xs text-emerald-200">{notice}</p>}
+    {notice && <p role="status" className={`text-xs leading-5 ${confirmationProgress ? "text-amber-200" : "text-emerald-200"}`}>{notice}</p>}
+    {confirmationProgress && <div className="space-y-2 rounded-xl border border-amber-200/20 bg-amber-200/5 p-3"><div className="flex items-center justify-between text-[10px] text-white/65"><span>Blockchain confirmations</span><span>{confirmationProgress.current}/{confirmationProgress.required}</span></div><div className="h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-amber-200 transition-all" style={{ width: `${Math.min(100, confirmationProgress.current / Math.max(1, confirmationProgress.required) * 100)}%` }} /></div><a className="text-[10px] underline text-white/65" href={`https://etherscan.io/tx/${encodeURIComponent(txHash.trim())}`} target="_blank" rel="noreferrer">View transaction on Etherscan</a></div>}
   </div>;
 }
