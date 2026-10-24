@@ -78,3 +78,23 @@ export async function notifyNewContact(input: {
     sendBestEffort(input.email, `We received your message — ${input.siteName || "Model Portfolio"}`, renderEmail("Thank you for reaching out", `Hi ${input.name}, your message has been received. We will get back to you as soon as possible.`, fields, input.message)),
   ]);
 }
+
+
+export async function sendPaymentOperationalAlert(input: {
+  to: string;
+  title: string;
+  intro: string;
+  fields: Array<{ label: string; value: string }>;
+}) {
+  const rows = input.fields.map((field) =>
+    `<tr><td style="padding:8px 12px;color:#666;vertical-align:top">${escapeHtml(field.label)}</td><td style="padding:8px 12px;word-break:break-word">${escapeHtml(field.value)}</td></tr>`,
+  ).join("");
+  const html = `<div style="font-family:Arial,sans-serif;color:#191715;max-width:640px;margin:auto;line-height:1.6"><h2>${escapeHtml(input.title)}</h2><p>${escapeHtml(input.intro)}</p><table style="border-collapse:collapse;width:100%;background:#faf9f7">${rows}</table><p style="font-size:12px;color:#777">Automated payment operations alert.</p></div>`;
+  try {
+    await sendEmail(input.to, input.title, html);
+    return true;
+  } catch (error) {
+    console.error("Payment operations email failed:", error instanceof Error ? error.message : "Unknown error");
+    return false;
+  }
+}
