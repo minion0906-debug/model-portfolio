@@ -143,5 +143,6 @@ See [`README-VOICE-TEXT-CHATBOT.md`](README-VOICE-TEXT-CHATBOT.md) for setup. Co
 
 
 ## Chatbot provider
+combine after complete
 
 The floating voice/text chatbot uses OpenRouter. Configure `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` in `.env.local`; see `README-VOICE-TEXT-CHATBOT.md`. Do not use `NEXT_PUBLIC_` for API keys.
